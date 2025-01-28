@@ -455,3 +455,16 @@ export const UpdateProperty = async (req, res) => {
         });
     }
 };
+
+
+// name of all the properties
+export const getname = async (req, res) => {   
+    try {
+        const property = await Propertymodel.find({}, 'title');
+        res.status(200).json(property);
+        console.log("property",property);
+    } catch (err) {
+        console.error(err);
+    }
+
+}; 
