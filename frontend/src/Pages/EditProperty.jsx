@@ -92,9 +92,11 @@ function EditProperty() {
     if (isExistingImage) {
       // Remove existing image URL
       setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+      setImageUrls((prev) => prev.filter((_, i) => i !== index)); // Remove the URL from the array
       setFormData((prev) => ({
         ...prev,
         imageDescriptions: prev.imageDescriptions.filter((_, i) => i !== index),
+
       }));
     } else {
       // Remove newly uploaded image

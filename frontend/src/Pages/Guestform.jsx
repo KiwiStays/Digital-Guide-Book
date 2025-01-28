@@ -15,6 +15,7 @@ const GuestForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { auth_login } = useContext(AuthContext); // Initialize auth_login function from AuthContext
   const [title, setTitle] = useState('');
+  const [coverImage, setCoverImage] = useState(''); // Initialize coverImage state
   // console.log("id from guestform",id);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ const GuestForm = () => {
         const response = await axios.get(`http://localhost:3000/api/admin/getproperty/name/${id}`);
         console.log("response from guestform", response.data);
         setTitle(response.data.data.title);
+        setCoverImage(response.data.data.coverImage);
 
       } catch (error) {
         console.error("Error fetching property name:", error);
@@ -129,47 +131,83 @@ const GuestForm = () => {
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-start p-4 bg-cover bg-center bg-no-repeat bg-fixed"
-      style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1515404929826-76fff9fef6fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
-      }}
+  className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-cover bg-center bg-no-repeat bg-fixed"
+  style={{
+    backgroundImage: `url('https://images.unsplash.com/photo-1515404929826-76fff9fef6fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
+  }}
+>
+  {isSubmitted && (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
     >
-      {isSubmitted && (
+      <div className="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-2">
+        <CheckCircle2 className="text-green-900 w-6 h-6" />
+        <span className="text-green-900 font-semibold">Document submitted successfully!</span>
+      </div>
+    </motion.div>
+  )}
+
+  <div className="grid grid-cols-1 lg:grid-cols-2  items-center justify-center w-full max-w-7xl ">
+    {/* First Motion Div */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="text-center lg:text-left mb-8 mt-8  h-full md:flex flex-col md:gap-8 md:max-w-full md: bg-gradient-to-r md:backdrop-blur-sm md:bg-white/20 md:from-green-800 md:to-green-900 px-4 py-5 rounded-l-lg    "
+    >
+      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
+        Welcome to KiwiStays
+      </h1>
+      
+      <p className="text-xl md:text-2xl text-white mt-4 drop-shadow-md">
+        Your perfect getaway begins here
+      </p>
+
+      <Link to="/login" className="text-white hover:underline mt-4 block ">
+        Already have an account?{' '}
+        <h2 className="underline sm:text-green-800">Click to Login</h2>
+      </Link>
+      <div className="flex flex-col items-center justify-center md:justify-start gap-4 mt-8 bg-white/20 p-4 rounded-lg backdrop-blur-sm">
+      <img src={coverImage} alt="cover image" className='rounded-full w-40 h-40 md:h-full md:w-full md:rounded-none ' />
+      <h1 className='md:hidden'>Welcome to <span className='font-semibold'>{title}</span> a KiwiStays Property</h1>
+    
+      <motion.div
+        initial={{ y: 0 }}
+        animate={{ y: [0, -10, 0] }}
+        transition={{ repeat: Infinity, duration: 1 }}
+        className="flex flex-col items-center justify-center mt-4 md:hidden"
+      >
+        <span className="text-green-600 text-lg  font-bold md:hidden">Scroll down to fill the form</span>
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          initial={{ y: 0 }}
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 1 }}
+          className="text-white text-2xl mt-2 md:hidden"
         >
-          <div className="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-2">
-            <CheckCircle2 className="text-green-900 w-6 h-6" />
-            <span className="text-green-900 font-semibold">Document submitted successfully!</span>
-          </div>
+          ↓
         </motion.div>
-      )}
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center mb-8 mt-8"
-      >
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">Welcome to KiwiStays</h1>
-        <p className="text-xl md:text-2xl text-white mt-4 drop-shadow-md">Your perfect  getaway begins here</p>
-        <Link to="/login" className="text-white hover:underline mt-4 block">Already have an account ? <h2 className="underline">Click to Login</h2> </Link>
       </motion.div>
+      </div>
+      
+    </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="bg-white/40 backdrop-blur-md rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden"
-      >
-        <div className="bg-gradient-to-r from-green-900 to-green-800 p-6 md:p-8 flex items-center justify-between">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">Guest Registration</h2>
-          <Palmtree className="text-white w-10 h-10" />
-        </div>
-        <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
+    {/* Second Motion Div */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.3 }}
+      className="bg-white/20 backdrop-blur-md  shadow-2xl w-full max-w-4xl overflow-hidden   rounded-r-lg "
+    >
+      <div className="bg-gradient-to-r from-green-900 to-green-800 p-6 md:p-8 flex items-center justify-between">
+        <h2 className="text-3xl md:text-4xl font-bold text-white">
+          Guest Registration
+        </h2>
+        <Palmtree className="text-white w-10 h-10" />
+      </div>
+      <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <label className="block text-sm font-medium text-gray-800 mb-1">Name</label>
@@ -324,8 +362,10 @@ const GuestForm = () => {
             </motion.button>
           </div>
         </form>
-      </motion.div>
-    </div>
+    </motion.div>
+  </div>
+</div>
+
   );
 };
 
