@@ -3,9 +3,6 @@ import { PlusCircle, Trash2, Upload, Plus } from 'lucide-react';
 import { perks } from '../data/perks';
 import axios from 'axios';
 
-// urls, files
-// 
-
 function EditProperty() {
   const [formData, setFormData] = useState({
     title: '',
@@ -46,6 +43,13 @@ function EditProperty() {
 
   const [propertyId, setPropertyId] = useState('');
 
+  // for testing purposes
+  // useEffect(() => {
+  //   console.log(imagePreviews);
+  //   console.log(formData.imageDescriptions);
+  //   console.log(imageUrls);
+  // }, [imagePreviews, formData.imageDescriptions, imageUrls]);
+
   const fetchPropertyData = async (propertyId) => {
     try {
       const response = await axios.get(`http://localhost:3000/api/admin/getproperty/${propertyId}`);
@@ -82,7 +86,6 @@ function EditProperty() {
         setCoverImagePreview(propertyData.coverImage); // Preload the cover image
         setCoverImageUrl(propertyData.coverImage);
       }
-
     } catch (error) {
       console.error('Error fetching property data:', error);
     }
@@ -108,6 +111,7 @@ function EditProperty() {
         imageDescriptions: prev.imageDescriptions.filter((_, i) => i !== index),
       }));
     }
+    // console.log(imagePreviews);
   };
 
   const handleImageFileChange = (e) => {
@@ -127,6 +131,7 @@ function EditProperty() {
         imageDescriptions: [...prev.imageDescriptions, ...files.map(() => '')],
       }));
     }
+    // console.log(imagePreviews);
   };
 
   // const fetchPropertyData = async (id) => {
@@ -471,9 +476,10 @@ function EditProperty() {
 
     console.log(formData);
     console.log(formDataToSend);
-    console.log(coverImage);
     console.log(coverImageUrl);
+    console.log(imageUrls);
     console.log(imageFiles);
+    console.log(imagePreviews);
 
     // PUT request to update property
     try {
@@ -809,7 +815,7 @@ function EditProperty() {
                     <button
                       type="button"
                       className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                      onClick={() => removeImage(index)}
+                      onClick={() => removeImage(index, preview.startsWith('blob:') ? false : true)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

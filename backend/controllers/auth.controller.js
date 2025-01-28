@@ -30,6 +30,27 @@ export const login = async (req, res) => {
         // }
         // Generate OTP
         const otp = generateOTPService();
+//         const mailOptions = {
+//           from: {
+//               name: "KiwiStays Bussiness",
+//               address: process.env.SENDER_EMAIL
+//           },
+//           to: email,
+//           subject: "Mail regarding password reset",
+//           text: "Here is your link to reset password:-" + http://localhost:5173/reset-password/${user._id}/${token},
+//           // html: "<h1>Hello World</h1><p>This is a test email.</p>",
+//       }
+
+//       console.log("All good");
+      
+//       transporter.sendMail(mailOptions, function (error, info) {
+//           if (error) {
+//               console.log(error);
+//           } else {
+//               res.status(200).json("email sent successfully");
+//               console.log('Email sent: ' + info.response);
+//           }
+//             });
         const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
         // Update guest with OTP

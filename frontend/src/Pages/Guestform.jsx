@@ -6,8 +6,6 @@ import { AuthContext } from '../Context/Authcontext';
 import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
 
-
-
 const GuestForm = () => {
   const { id } = useParams(); // Initialize useParams hook
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -131,241 +129,240 @@ const GuestForm = () => {
 
   return (
     <div
-  className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-cover bg-center bg-no-repeat bg-fixed"
-  style={{
-    backgroundImage: `url('https://images.unsplash.com/photo-1515404929826-76fff9fef6fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
-  }}
->
-  {isSubmitted && (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-cover bg-center bg-no-repeat bg-fixed"
+      style={{
+        backgroundImage: `url('https://images.unsplash.com/photo-1515404929826-76fff9fef6fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
+      }}
     >
-      <div className="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-2">
-        <CheckCircle2 className="text-green-900 w-6 h-6" />
-        <span className="text-green-900 font-semibold">Document submitted successfully!</span>
-      </div>
-    </motion.div>
-  )}
-
-  <div className="grid grid-cols-1 lg:grid-cols-2  items-center justify-center w-full max-w-7xl ">
-    {/* First Motion Div */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="text-center lg:text-left  md:mb-8 mt-8  h-full md:flex flex-col md:gap-8 md:max-w-full md: bg-gradient-to-r md:backdrop-blur-sm md:bg-white/20 md:from-green-800 md:to-green-900 px-4 py-5 rounded-l-lg    "
-    >
-      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
-        Welcome to KiwiStays
-      </h1>
-      
-      <p className="text-xl md:text-2xl text-white mt-4 drop-shadow-md">
-        Your perfect getaway begins here
-      </p>
-
-      <Link to="/login" className="text-white  mt-4 block ">
-        Already have an account?{' '}
-        <h2 className="underline sm:text-green-800">Click to Login</h2>
-      </Link>
-      <div className="flex flex-col items-center justify-center md:justify-start gap-4 mt-8 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
-      <img src={coverImage} alt="cover image" className=' rounded-lg w-full h-50 md:h-full md:w-full md:rounded-none ' />
-      <h1 className='md:hidden'>Welcome to <span className='font-semibold'>{title}</span> a KiwiStays Property</h1>
-    
-      <motion.div
-        initial={{ y: 0 }}
-        animate={{ y: [0, -10, 0] }}
-        transition={{ repeat: Infinity, duration: 1 }}
-        className="flex flex-col items-center justify-center mt-4 md:hidden"
-      >
-        <span className="text-green-600 text-lg  font-bold md:hidden">Scroll down to fill the form</span>
+      {isSubmitted && (
         <motion.div
-          initial={{ y: 0 }}
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1 }}
-          className="text-white text-2xl mt-2 md:hidden"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
         >
-          ↓
+          <div className="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-2">
+            <CheckCircle2 className="text-green-900 w-6 h-6" />
+            <span className="text-green-900 font-semibold">Document submitted successfully!</span>
+          </div>
         </motion.div>
-      </motion.div>
-      </div>
-      
-    </motion.div>
+      )}
 
-    {/* Second Motion Div */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="bg-white/20 backdrop-blur-md  shadow-2xl w-full max-w-4xl overflow-hidden   rounded-r-lg "
-    >
-      <div className="bg-gradient-to-r from-green-900 to-green-800 p-6 md:p-8 flex items-center justify-between">
-        <h2 className="text-3xl md:text-4xl font-bold text-white">
-          Guest Registration
-        </h2>
-        <Palmtree className="text-white w-10 h-10" />
-      </div>
-      <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <label className="block text-sm font-medium text-gray-800 mb-1">Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-                placeholder="Your full name"
-              />
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <label className="block text-sm font-medium text-gray-800 mb-1">Phone</label>
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-                placeholder="Your phone number"
-              />
-            </motion.div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2  items-center justify-center w-full max-w-7xl ">
+        {/* First Motion Div */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center lg:text-left  md:mb-8 mt-8  h-full md:flex flex-col md:gap-8 md:max-w-full md: bg-gradient-to-r md:backdrop-blur-sm md:bg-white/20 md:from-green-800 md:to-green-900 px-4 py-5 rounded-l-lg    "
+        >
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
+            Welcome to KiwiStays
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-white mt-4 drop-shadow-md">
+            Your perfect getaway begins here
+          </p>
 
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Property Name</label>
-            <input
-              type="text"
-              name="title"
-              value={title}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-              placeholder={title}
-            />
-          </motion.div>
-
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <label className="block text-sm font-medium text-gray-800 mb-1">Number of Guests</label>
-            <select
-              name="number_of_guests"
-              value={formData.number_of_guests}
-              onChange={handleGuestCountChange}
-              className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-            >
-              {[...Array(10)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}
-                </option>
-              ))}
-            </select>
-          </motion.div>
-
-          {formData.documents.map((doc, index) => (
+          <Link to="/login" className="text-white  mt-4 block ">
+            Already have an account?{' '}
+            <h2 className="underline sm:text-green-800">Click to Login</h2>
+          </Link>
+          <div className="flex flex-col items-center justify-center md:justify-start gap-4 mt-8 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+          <img src={coverImage} alt="cover image" className=' rounded-lg w-full h-50 md:h-full md:w-full md:rounded-none ' />
+          <h1 className='md:hidden'>Welcome to <span className='font-semibold'>{title}</span> a KiwiStays Property</h1>
+        
+          <motion.div
+            initial={{ y: 0 }}
+            animate={{ y: [0, -10, 0] }}
+            transition={{ repeat: Infinity, duration: 1 }}
+            className="flex flex-col items-center justify-center mt-4 md:hidden"
+          >
+            <span className="text-green-600 text-lg  font-bold md:hidden">Scroll down to fill the form</span>
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              className="space-y-2 p-4 bg-white/50 rounded-lg backdrop-blur-sm"
+              initial={{ y: 0 }}
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 1 }}
+              className="text-white text-2xl mt-2 md:hidden"
             >
-              <label className="block text-sm font-medium text-gray-800">
-                Guest {index + 1} Details
-              </label>
-              <input
-                type="text"
-                value={doc.name}
-                onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-                placeholder={`Guest ${index + 1} name`}
-              />
-              {/* Age field */}
-              <input
-                type="number"
-                value={doc.age || ""}
-                onChange={(e) => handleDocumentChange(index, "age", e.target.value)}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-                placeholder="Age"
-              />
-              <div className="flex flex-col md:flex-row md:gap-4 w-full max-w-full">
-                <select
-                  value={doc.gender || ""}
-                  onChange={(e) => handleDocumentChange(index, "gender", e.target.value)}
-                  className="w-full md:w-1/2 px-3 py-2 mb-4 md:mb-0 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
+              ↓
+            </motion.div>
+          </motion.div>
+          </div>
+          
+        </motion.div>
 
-                <select
-                  value={doc.idCardType || ""}
-                  onChange={(e) => handleDocumentChange(index, "idCardType", e.target.value)}
-                  className="w-full md:w-1/2 px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-                >
-                  <option value="">Select ID Type</option>
-                  <option value="passport"  >Passport</option>
-                  <option value="driverLicense"  >Driver License</option>
-                  <option value="aadhar" >Aadhar</option>
-                  <option value="voterId" >Voter ID</option>
-                </select>
+        {/* Second Motion Div */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-white/20 backdrop-blur-md  shadow-2xl w-full max-w-4xl overflow-hidden   rounded-r-lg "
+        >
+          <div className="bg-gradient-to-r from-green-900 to-green-800 p-6 md:p-8 flex items-center justify-between">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              Guest Registration
+            </h2>
+            <Palmtree className="text-white w-10 h-10" />
+          </div>
+          <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <label className="block text-sm font-medium text-gray-800 mb-1">Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    placeholder="Your full name"
+                  />
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <label className="block text-sm font-medium text-gray-800 mb-1">Phone</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    placeholder="Your phone number"
+                  />
+                </motion.div>
               </div>
-              {/* Existing file input */}
-              <input
-                type="file"
-                onChange={(e) => handleDocumentChange(index, "file", e.target.files[0])}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-900 file:text-white hover:file:bg-green-800"
-              />
-            </motion.div>
-          ))}
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <label className="block text-sm font-medium text-gray-800 mb-1">Check-in Date</label>
-              <input
-                type="date"
-                name="checkin"
-                value={formData.checkin}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-              />
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <label className="block text-sm font-medium text-gray-800 mb-1">Check-out Date</label>
-              <input
-                type="date"
-                name="checkout"
-                value={formData.checkout}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
-              />
-            </motion.div>
-          </div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <label className="block text-sm font-medium text-gray-800 mb-1">Property Name</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={title}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  placeholder={title}
+                />
+              </motion.div>
 
-          <div className="flex justify-center pt-6">
-            <motion.button
-              type="submit"
-              disabled={isLoading}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-green-900 to-green-800 text-white font-semibold rounded-md shadow-md hover:from-green-800 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-900 focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <Loader2 className="animate-spin h-5 w-5" />
-                  <span>Submitting...</span>
-                </div>
-              ) : (
-                "Submit"
-              )}
-            </motion.button>
-          </div>
-        </form>
-    </motion.div>
-  </div>
-</div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <label className="block text-sm font-medium text-gray-800 mb-1">Number of Guests</label>
+                <select
+                  name="number_of_guests"
+                  value={formData.number_of_guests}
+                  onChange={handleGuestCountChange}
+                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                >
+                  {[...Array(10)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
+                </select>
+              </motion.div>
 
+              {formData.documents.map((doc, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="space-y-2 p-4 bg-white/50 rounded-lg backdrop-blur-sm"
+                >
+                  <label className="block text-sm font-medium text-gray-800">
+                    Guest {index + 1} Details
+                  </label>
+                  <input
+                    type="text"
+                    value={doc.name}
+                    onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
+                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    placeholder={`Guest ${index + 1} name`}
+                  />
+                  {/* Age field */}
+                  <input
+                    type="number"
+                    value={doc.age || ""}
+                    onChange={(e) => handleDocumentChange(index, "age", e.target.value)}
+                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    placeholder="Age"
+                  />
+                  <div className="flex flex-col md:flex-row md:gap-4 w-full max-w-full">
+                    <select
+                      value={doc.gender || ""}
+                      onChange={(e) => handleDocumentChange(index, "gender", e.target.value)}
+                      className="w-full md:w-1/2 px-3 py-2 mb-4 md:mb-0 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+
+                    <select
+                      value={doc.idCardType || ""}
+                      onChange={(e) => handleDocumentChange(index, "idCardType", e.target.value)}
+                      className="w-full md:w-1/2 px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    >
+                      <option value="">Select ID Type</option>
+                      <option value="passport"  >Passport</option>
+                      <option value="driverLicense"  >Driver License</option>
+                      <option value="aadhar" >Aadhar</option>
+                      <option value="voterId" >Voter ID</option>
+                    </select>
+                  </div>
+                  {/* Existing file input */}
+                  <input
+                    type="file"
+                    onChange={(e) => handleDocumentChange(index, "file", e.target.files[0])}
+                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-900 file:text-white hover:file:bg-green-800"
+                  />
+                </motion.div>
+              ))}
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <label className="block text-sm font-medium text-gray-800 mb-1">Check-in Date</label>
+                  <input
+                    type="date"
+                    name="checkin"
+                    value={formData.checkin}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  />
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <label className="block text-sm font-medium text-gray-800 mb-1">Check-out Date</label>
+                  <input
+                    type="date"
+                    name="checkout"
+                    value={formData.checkout}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  />
+                </motion.div>
+              </div>
+
+              <div className="flex justify-center pt-6">
+                <motion.button
+                  type="submit"
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-3 bg-gradient-to-r from-green-900 to-green-800 text-white font-semibold rounded-md shadow-md hover:from-green-800 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-900 focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="animate-spin h-5 w-5" />
+                      <span>Submitting...</span>
+                    </div>
+                  ) : (
+                    "Submit"
+                  )}
+                </motion.button>
+              </div>
+            </form>
+        </motion.div>
+      </div>
+    </div>
   );
 };
 

@@ -1,16 +1,7 @@
-import axios from 'axios';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { Guestmodel } from '../models/Guest.model.js';
 import { Propertymodel } from '../models/Property.model.js';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-
-
-
 
 const secretKey = process.env.JWT_SECRET;
 
