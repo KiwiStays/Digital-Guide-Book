@@ -18,6 +18,10 @@ const PropertySchema = new Schema({
         type:String,
         trimg:true
     },
+    coverImage:{
+        type:String,
+        trim: true,
+    },
     wifi:{
         password:{
             type:String,

@@ -1,7 +1,7 @@
-import mongoose ,{Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const Guestschema = new Schema({
-    place_id:{
+    place_id: {
         type: String,
     },
     name: {
@@ -13,11 +13,21 @@ const Guestschema = new Schema({
     property_name: {
         type: String,
     },
-    number_of_guests:{
+    number_of_guests: {
         type: Number,
     },
     Document: [{
         name: {
+            type: String,
+        },
+        age: {
+            type: Number,
+        },
+        gender: {
+            type: String,
+
+        },
+        idcard: {
             type: String,
         },
         file: {
@@ -30,8 +40,8 @@ const Guestschema = new Schema({
     checkout: {
         type: Date,
     },
-    deleteAt: { type: Date }, 
-    token:{
+    deleteAt: { type: Date },
+    token: {
         type: String,
     },
     otp: { type: String }, // Store the generated OTP
@@ -39,16 +49,16 @@ const Guestschema = new Schema({
 });
 // Pre-save middleware to calculate deleteAt
 Guestschema.pre('save', function (next) {
-    try{
+    try {
         if (this.checkout) {
             // Set deleteAt to checkout + 7 days
             this.deleteAt = new Date(this.checkout.getTime() + 7 * 24 * 60 * 60 * 1000);
         }
         next();
-    }catch(e){
+    } catch (e) {
         console.log(e)
     }
-   
+
 });
 
 // Create TTL Index

@@ -66,7 +66,7 @@ const GuestTable = () => {
         // eslint-disable-next-line
     }, []);
 
-    // console.log("guests", guests);
+    console.log("guests", guests);
 
     // console.log("guests", guests.Document);
 
@@ -122,6 +122,11 @@ const GuestTable = () => {
             guest.Document?.forEach((doc, index) => {
                 docFields[`Guest ${index + 1} Name`] = doc.name;
                 docFields[`Guest ${index + 1} File`] = doc.file;
+                docFields[`Guest ${index + 1} Age`] = doc?.age;
+                docFields[`Guest ${index + 1} idType`] = doc?.idcard;
+                docFields[`Guest ${index + 1} gender`] = doc?.gender;
+
+
             });
 
             return { ...baseFields, ...docFields };
@@ -260,8 +265,18 @@ const GuestTable = () => {
                                                                 const isPDF = fileLower.endsWith('.pdf');
 
                                                                 return (
-                                                                    <div key={doc._id} className="mb-4">
-                                                                        <p className="font-semibold text-gray-700">{doc.name}</p>
+                                                                    <div key={doc._id} className="mb-4 w-full">
+                                                                        
+                                                                        <div className="flex gap-4 items-center border-2  rounded-lg max-w-sm bg-gray-100 shadow-sm  md:max-w-md px-4 py-5">
+                                                                        
+                                                                        <div className='grid grid-cols-2 gap-4 items-center justify-evenly'>
+                                                                        
+                                                                        <p className="font-semibold text-gray-700">name: {doc.name}</p>
+                                                                        <p className="font-semibold text-gray-700">Age : {doc?.age}</p>
+                                                                        <p className="font-semibold text-gray-700">Gender : {doc?.gender}</p>
+                                                                        <p className="font-semibold text-gray-700">Id Type : {doc?.idcard}</p>
+                                                                        </div>
+                                                                        <div>
                                                                         {isPDF ? (
                                                                             <a
                                                                                 href={doc.file}
@@ -278,6 +293,8 @@ const GuestTable = () => {
                                                                                 className="mt-1 border w-32 h-auto"
                                                                             />
                                                                         )}
+                                                                        </div>
+                                                                        </div>
                                                                     </div>
                                                                 );
                                                             })}

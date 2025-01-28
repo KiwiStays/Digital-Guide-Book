@@ -5,11 +5,11 @@ import Navbar from './Navbar';
 const AdminLayout = ({children}) => {
     const {adminToken} = useContext(AdminContext); 
   return (
-    <div>
+    <div className='bg-gradient-to-br from-blue-50 to-indigo-100 h-full'>
         {adminToken ? (
             <Navbar/>
         ) : null}
-        <main  className='bg-gradient-to-br from-blue-50 to-indigo-100 h-screen'>
+        <main  className='bg-gradient-to-br from-blue-50 to-indigo-100 h-full'>
         {children}
         </main>
         

@@ -105,11 +105,13 @@ export const VerifyGuest = async (req, res)=>{
           req.files.map(async (file, index) => {
             // const username = documentsData[index]?.name + checkin_new + checkout_new  || 'Unnamed';
             const username = (documentsData[index]?.name + " " + checkin_new + " " + checkout_new) || file.originalname;
-
+            const gender = documentsData[index]?.gender;
+            const idCardType = documentsData[index]?.idCardType;
+            const age = documentsData[index]?.age;
             const filepath = file.path;
             const cloud_data = await uploadToCloudinary(filepath, username); // Wait for Cloudinary upload
       
-            return { name: documentsData[index]?.name, file: cloud_data.url }; // Return the object for DocUrls
+            return { name: documentsData[index]?.name, file: cloud_data.url,gender: gender, idCardType: idCardType, age: age }; // Return the object for DocUrls
           })
         );
       }
@@ -118,6 +120,9 @@ export const VerifyGuest = async (req, res)=>{
       const documents = DocUrls.map((item) => ({
         name: item.name || 'Unnamed', // Ensure the name exists
         file: item.file, // File path from multer
+        gender:item.gender, // Gender
+        age: item.age || 0 ,
+        idcard: item.idCardType || ' ',
       }));
 
       // Create a new guest entry
@@ -147,52 +152,162 @@ export const VerifyGuest = async (req, res)=>{
 // export const guestinfo = async (req, res) => {
 //  
 
+// export const guestinfo = async (req, res) => {
+//   try {
+//     const { startDate, endDate, propertyName } = req.query;
+//     console.log("startDate",startDate);
+//     console.log("endDate",endDate);
+//     const filter = {};
+
+//     // Date range filter
+//     if (startDate && endDate) {
+//       filter.checkin = {
+//         $gte: new Date(startDate),
+//         $lte: new Date(endDate),
+//       };
+//       filter.checkout = {
+//         $gte: new Date(startDate),
+//         $lte: new Date(endDate),
+//       };
+//     }
+   
+
+//     if(startDate){
+//       filter.checkin = {
+//         $gte: new Date(startDate),
+//       };
+//       filter.checkout = {
+//         $gte: new Date(startDate),
+//       }
+//     }
+
+//     if(endDate && !startDate){
+//       filter.checkin = {
+//         $lte: new Date(endDate),
+//       };
+//       filter.checkout = {
+//         $lte: new Date(endDate),
+//       } 
+//     }
+
+    
+
+
+//     // Property name filter
+//     if (propertyName) {
+//       // Find properties whose title matches propertyName (case-insensitive)
+//       const matchedProperties = await Propertymodel.find({
+//         title: { $regex: propertyName, $options: 'i' },
+//       }).select('_id');
+//       const matchedPropertyIds = matchedProperties.map((prop) => prop._id);
+
+//       // Include only guests with those property IDs
+//       filter.place_id = { $in: matchedPropertyIds };
+//     }
+
+//     // Fetch guests given the combined filter
+//     const guests = await Guestmodel.find(filter);
+
+//     // Fetch place details (title) for each guest
+//     const guestsWithPlaceDetails = await Promise.all(
+//       guests.map(async (guest) => {
+//         const place = await Propertymodel
+//           .findById(guest.place_id)
+//           .select('title'); // or whatever field holds the property's name
+
+//         return {
+//           ...guest._doc,
+//           place_name: place ? place.title : 'Unknown',
+//         };
+//       })
+//     );
+
+//     res.status(200).json(guestsWithPlaceDetails);
+//   } catch (error) {
+//     console.error('Error fetching guests:', error.message);
+//     res.status(500).json({ error: 'Error fetching guests', details: error.message });
+//   }
+// };
+
 export const guestinfo = async (req, res) => {
   try {
     const { startDate, endDate, propertyName } = req.query;
+    console.log("Query params:", { startDate, endDate, propertyName });
+    
     const filter = {};
 
-    // Date range filter
-    if (startDate && endDate) {
-      filter.checkin = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
+    // Date filtering
+    if (startDate || endDate) {
+      filter.$or = [];
+      
+      if (startDate && endDate) {
+        // Find stays that overlap with the date range
+        filter.$or.push({
+          $and: [
+            { checkin: { $lte: new Date(endDate) } },
+            { checkout: { $gte: new Date(startDate) } }
+          ]
+        });
+      } else if (startDate) {
+        // Find stays that start on or after startDate
+        filter.$or.push({
+          checkin: { $gte: new Date(startDate) }
+          
+        });
+        // filter.$or.push({
+        //   checkout: { $gte: new Date(startDate) }
+          
+        // });
+
+      } 
+      
+      else if (endDate) {
+        // Find stays that end on or before endDate
+        filter.$or.push({
+          checkout: { $lte: new Date(endDate) }
+        });
+      }
     }
 
     // Property name filter
     if (propertyName) {
-      // Find properties whose title matches propertyName (case-insensitive)
       const matchedProperties = await Propertymodel.find({
-        title: { $regex: propertyName, $options: 'i' },
+        title: { $regex: propertyName, $options: 'i' }
       }).select('_id');
-      const matchedPropertyIds = matchedProperties.map((prop) => prop._id);
-
-      // Include only guests with those property IDs
+      
+      const matchedPropertyIds = matchedProperties.map(prop => prop._id);
       filter.place_id = { $in: matchedPropertyIds };
     }
 
-    // Fetch guests given the combined filter
-    const guests = await Guestmodel.find(filter);
+    console.log("Final filter:", JSON.stringify(filter, null, 2));
 
-    // Fetch place details (title) for each guest
+    // Fetch filtered guests
+    const guests = await Guestmodel.find(filter);
+    console.log(`Found ${guests.length} guests`);
+
+    // Add property details
     const guestsWithPlaceDetails = await Promise.all(
       guests.map(async (guest) => {
         const place = await Propertymodel
           .findById(guest.place_id)
-          .select('title'); // or whatever field holds the property's name
+          .select('title');
 
         return {
           ...guest._doc,
-          place_name: place ? place.title : 'Unknown',
+          property_name: place?.title || 'Unknown'
         };
       })
     );
 
     res.status(200).json(guestsWithPlaceDetails);
+
   } catch (error) {
-    console.error('Error fetching guests:', error.message);
-    res.status(500).json({ error: 'Error fetching guests', details: error.message });
+    console.error('Error in guestinfo:', error);
+    res.status(500).json({ 
+      error: 'Error fetching guests', 
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
@@ -258,11 +373,13 @@ export const updateGuest = async (req, res) => {
       DocUrls = await Promise.all(
         req.files.map(async (file, index) => {
           const username = (documentsData[index]?.name + " " + checkin_new + " " + checkout_new) || 'Unnamed';
-
           const filepath = file.path;
+          const gender = documentsData[index]?.gender;
+          const idCardType = documentsData[index]?.idCardType;
+          const age = documentsData[index]?.age;
           const cloud_data = await uploadToCloudinary(filepath, username); // Upload file to Cloudinary
 
-          return { name: username, file: cloud_data.url }; // Return the object for DocUrls
+          return { name: documentsData[index]?.name, file: cloud_data.url,gender: gender, idCardType: idCardType, age: age}; // Return the object for DocUrls
         })
       );
     }
@@ -271,6 +388,9 @@ export const updateGuest = async (req, res) => {
     const documents = DocUrls.map((item, index) => ({
       name: item.name || 'Unnamed', // Ensure the name exists
       file: item.file, // File path from Cloudinary
+      gender:item.gender, // Gender
+      age: item.age || 0 ,
+      idcard: item.idCardType || ' ',
     }));
 
     // Find and update the guest

@@ -55,7 +55,7 @@ const Dashboard = () => {
         <div className="bg-primarybg h-full">
             
             {data && data.images && data.images.length > 1 ? (
-                <Hero title={data.title} heroimg={data.images[1].url} />
+                <Hero title={data.title} heroimg={data.coverImage} />
             ) : (
                 <p>Loading...</p> 
             )}

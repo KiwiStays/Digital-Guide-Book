@@ -9,21 +9,21 @@ import { Palmtree } from "lucide-react"
 
 
 const GuestForm = () => {
-  const {id} = useParams(); // Initialize useParams hook
+  const { id } = useParams(); // Initialize useParams hook
   const navigate = useNavigate(); // Initialize useNavigate hook
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const {auth_login} = useContext(AuthContext); // Initialize auth_login function from AuthContext
-  const [title , setTitle] = useState('');  
+  const { auth_login } = useContext(AuthContext); // Initialize auth_login function from AuthContext
+  const [title, setTitle] = useState('');
   // console.log("id from guestform",id);
-  
+
   useEffect(() => {
     const fetchPropertyName = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/admin/getproperty/name/${id}`);
         console.log("response from guestform", response.data);
         setTitle(response.data.data.title);
-        
+
       } catch (error) {
         console.error("Error fetching property name:", error);
       }
@@ -31,14 +31,14 @@ const GuestForm = () => {
 
     fetchPropertyName();
   }, [id]);
-  
-  
+
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     property_name: title,
     number_of_guests: 1,
-    documents: [{ name: '', file: '' }], 
+    documents: [{ name: '', file: '' ,age: 0 , idCardType: '' ,gender: ''}],
     checkin: '',
     checkout: '',
   });
@@ -82,7 +82,7 @@ const GuestForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const data = new FormData();
     data.append('name', formData.name);
     data.append('phone', formData.phone);
@@ -90,16 +90,20 @@ const GuestForm = () => {
     data.append('number_of_guests', formData.number_of_guests);
     data.append('checkin', formData.checkin);
     data.append('checkout', formData.checkout);
-  
+    
+
     const documentsData = formData.documents.map((doc) => ({
       name: doc.name,
+      age:doc.age,
+      gender: doc.gender,
+      idCardType: doc.idCardType,
     }));
-  
+
     data.append('Document', JSON.stringify(documentsData));
     formData.documents.forEach((doc) => {
       data.append('documents', doc.file);
     });
-  
+
     try {
       const response = await axios.post(`http://localhost:3000/api/guest/verify/${id}`, data, {
         headers: {
@@ -115,7 +119,7 @@ const GuestForm = () => {
       // localStorage.setItem('guestId', response.data.guestId); // Store the guest ID in local storage
       // localStorage.setItem('guestName', response.data.guestName); // Store the guest name in local storage
       // Use AuthContext to handle login and redirection
-      auth_login(response.data.token, response.data.guestName, response.data.guestId,id); // Call the login function from AuthContext
+      auth_login(response.data.token, response.data.guestName, response.data.guestId, id); // Call the login function from AuthContext
       navigate('/dashboard'); // Redirect to dashboard after successful registration
     } catch (error) {
       console.error('Error:', error);
@@ -227,7 +231,9 @@ const GuestForm = () => {
               transition={{ duration: 0.3, delay: index * 0.1 }}
               className="space-y-2 p-4 bg-white/50 rounded-lg backdrop-blur-sm"
             >
-              <label className="block text-sm font-medium text-gray-800">Guest {index + 1} Details</label>
+              <label className="block text-sm font-medium text-gray-800">
+                Guest {index + 1} Details
+              </label>
               <input
                 type="text"
                 value={doc.name}
@@ -235,6 +241,39 @@ const GuestForm = () => {
                 className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
                 placeholder={`Guest ${index + 1} name`}
               />
+              {/* Age field */}
+              <input
+                type="number"
+                value={doc.age || ""}
+                onChange={(e) => handleDocumentChange(index, "age", e.target.value)}
+                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                placeholder="Age"
+              />
+              <div className="flex flex-col md:flex-row md:gap-4 w-full max-w-full">
+                <select
+                  value={doc.gender || ""}
+                  onChange={(e) => handleDocumentChange(index, "gender", e.target.value)}
+                  className="w-full md:w-1/2 px-3 py-2 mb-4 md:mb-0 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+
+                <select
+                  value={doc.idCardType || ""}
+                  onChange={(e) => handleDocumentChange(index, "idCardType", e.target.value)}
+                  className="w-full md:w-1/2 px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                >
+                  <option value="">Select ID Type</option>
+                  <option value="passport"  >Passport</option>
+                  <option value="driverLicense"  >Driver License</option>
+                  <option value="aadhar" >Aadhar</option>
+                  <option value="voterId" >Voter ID</option>
+                </select>
+              </div>
+              {/* Existing file input */}
               <input
                 type="file"
                 onChange={(e) => handleDocumentChange(index, "file", e.target.files[0])}
