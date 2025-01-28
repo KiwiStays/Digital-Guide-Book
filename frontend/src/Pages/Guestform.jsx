@@ -156,7 +156,7 @@ const GuestForm = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="text-center lg:text-left mb-8 mt-8  h-full md:flex flex-col md:gap-8 md:max-w-full md: bg-gradient-to-r md:backdrop-blur-sm md:bg-white/20 md:from-green-800 md:to-green-900 px-4 py-5 rounded-l-lg    "
+      className="text-center lg:text-left  md:mb-8 mt-8  h-full md:flex flex-col md:gap-8 md:max-w-full md: bg-gradient-to-r md:backdrop-blur-sm md:bg-white/20 md:from-green-800 md:to-green-900 px-4 py-5 rounded-l-lg    "
     >
       <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
         Welcome to KiwiStays
@@ -166,12 +166,12 @@ const GuestForm = () => {
         Your perfect getaway begins here
       </p>
 
-      <Link to="/login" className="text-white hover:underline mt-4 block ">
+      <Link to="/login" className="text-white  mt-4 block ">
         Already have an account?{' '}
         <h2 className="underline sm:text-green-800">Click to Login</h2>
       </Link>
-      <div className="flex flex-col items-center justify-center md:justify-start gap-4 mt-8 bg-white/20 p-4 rounded-lg backdrop-blur-sm">
-      <img src={coverImage} alt="cover image" className='rounded-full w-40 h-40 md:h-full md:w-full md:rounded-none ' />
+      <div className="flex flex-col items-center justify-center md:justify-start gap-4 mt-8 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+      <img src={coverImage} alt="cover image" className=' rounded-lg w-full h-50 md:h-full md:w-full md:rounded-none ' />
       <h1 className='md:hidden'>Welcome to <span className='font-semibold'>{title}</span> a KiwiStays Property</h1>
     
       <motion.div
