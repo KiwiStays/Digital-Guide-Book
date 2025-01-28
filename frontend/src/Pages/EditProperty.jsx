@@ -43,11 +43,12 @@ function EditProperty() {
 
   const [propertyId, setPropertyId] = useState('');
 
-  useEffect(() => {
-    console.log(imagePreviews);
-    console.log(formData.imageDescriptions);
-    console.log(imageUrls);
-  }, [imagePreviews, formData.imageDescriptions, imageUrls]);
+  // for testing purposes
+  // useEffect(() => {
+  //   console.log(imagePreviews);
+  //   console.log(formData.imageDescriptions);
+  //   console.log(imageUrls);
+  // }, [imagePreviews, formData.imageDescriptions, imageUrls]);
   
 
   const fetchPropertyData = async (propertyId) => {
@@ -95,10 +96,11 @@ function EditProperty() {
     if (isExistingImage) {
       // Remove existing image URL
       setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-      setImageUrls((prev) => prev.filter((_, i) => i !== index));
+      setImageUrls((prev) => prev.filter((_, i) => i !== index)); // Remove the URL from the array
       setFormData((prev) => ({
         ...prev,
         imageDescriptions: prev.imageDescriptions.filter((_, i) => i !== index),
+
       }));
     } else {
       // Remove newly uploaded image

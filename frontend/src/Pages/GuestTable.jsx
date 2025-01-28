@@ -5,36 +5,30 @@ import { saveAs } from 'file-saver';
 
 const GuestTable = () => {
     const [guests, setGuests] = useState([]); // State to store guest data
-    const [filters, setFilters] = useState({ startDate: '', endDate: '' }); // State for date filters
+    const [filters, setFilters] = useState({ startDate: '', endDate: '', propertyName: '' }); // Added propertyName to filters
     const [loading, setLoading] = useState(false); // State for loading spinner
     const [searchTerm, setSearchTerm] = useState(''); // For property name search
-    // Track which rows are expanded
-    const [expandedRows, setExpandedRows] = useState([]);
+    const [propertyOptions, setPropertyOptions] = useState([]); // Store dropdown property names
+    const [expandedRows, setExpandedRows] = useState([]); // Track which rows are expanded
 
     const toggleRow = (id) => {
         setExpandedRows((prev) =>
             prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
         );
     };
-    // Fetch guest data from the API
-    // const fetchGuests = async () => {
-    //     try {
-    //         setLoading(true); // Start loading
-    //         const response = await axios.get('http://localhost:3000/api/guest/guestinfo', { params: filters }); // Pass filters as query params
-    //         console.log("reponse from guest ", response);
-    //         setGuests(response.data);
-    //     } catch (error) {
-    //         console.error('Error fetching guest data:', error);
-    //         alert('Failed to fetch guest data. Please try again later.');
-    //     } finally {
-    //         setLoading(false); // Stop loading
-    //     }
-    // };
 
-    // // Fetch data when the component mounts or filters change
-    // useEffect(() => {
-    //     fetchGuests();
-    // }, [filters]);
+    // Fetch property names for the dropdown
+    const fetchPropertyNames = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/admin/property'); // Replace with your endpoint
+            setPropertyOptions(response.data || []); // Ensure an array is set
+        } catch (error) {
+            console.error('Error fetching property names:', error);
+            alert('Failed to fetch property names. Please try again later.');
+        }
+    };
+
+    // Fetch guest data
     const fetchGuests = async () => {
         try {
             setLoading(true);
@@ -43,7 +37,8 @@ const GuestTable = () => {
             const queryParams = [];
             if (filters.startDate) queryParams.push(`startDate=${filters.startDate}`);
             if (filters.endDate) queryParams.push(`endDate=${filters.endDate}`);
-            if (searchTerm) queryParams.push(`propertyName=${encodeURIComponent(searchTerm)}`);
+            if (filters.propertyName) queryParams.push(`propertyName=${encodeURIComponent(filters.propertyName)}`);
+            if (searchTerm) queryParams.push(`searchTerm=${encodeURIComponent(searchTerm)}`);
 
             let url = 'http://localhost:3000/api/guest/guestinfo';
             if (queryParams.length > 0) {
@@ -62,47 +57,14 @@ const GuestTable = () => {
 
     // Fetch data when the component mounts
     useEffect(() => {
-        fetchGuests();
+        fetchPropertyNames(); // Load property names for the dropdown
+        fetchGuests(); // Fetch guest data
         // eslint-disable-next-line
     }, []);
 
-    console.log("guests", guests);
-
-    // console.log("guests", guests.Document);
-
-
     // Handle Excel Download
-    // const handleDownloadExcel = () => {
-    //     const formattedData = guests.map((guest) => ({
-    //         'Property Name': guest.property_name,
-    //         'Guest Name': guest.name,
-    //         'Phone': guest.phone,
-    //         'Number of Guests': guest.number_of_guests,
-    //         'Check-in Date': guest.checkin.split('T')[0],
-    //         'Check-out Date': guest.checkout.split('T')[0],
-    //         // 'Dates Stayed': `${guest.checkin.split('T')[0]} - ${guest.checkout.split('T')[0]}`,
-    //         'Guest IDs': guest.Document.map((doc) => `${doc._id}, ${doc.name}, ${doc.file}`).join(', '),
-    //         'Number of Days Stayed': Math.ceil(
-    //             (new Date(guest.checkout) - new Date(guest.checkin)) / (1000 * 60 * 60 * 24)
-    //         ),
-    //     }));
-
-    //     // Create the worksheet and workbook
-    //     const worksheet = XLSX.utils.json_to_sheet(formattedData);
-    //     const workbook = XLSX.utils.book_new();
-    //     XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
-
-    //     // Generate a Blob for the workbook
-    //     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    //     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-
-    //     // Save the file using FileSaver
-    //     saveAs(blob, 'GuestDetails.xlsx');
-    // };
-
     const handleDownloadExcel = () => {
         const formattedData = guests.map((guest) => {
-            // Base fields
             const baseFields = {
                 'Property Name': guest.property_name,
                 'Guest Name': guest.name,
@@ -117,7 +79,6 @@ const GuestTable = () => {
                 ),
             };
 
-            // Generate dynamic fields based on Document array length
             const docFields = {};
             guest.Document?.forEach((doc, index) => {
                 docFields[`Guest ${index + 1} Name`] = doc.name;
@@ -125,25 +86,20 @@ const GuestTable = () => {
                 docFields[`Guest ${index + 1} Age`] = doc?.age;
                 docFields[`Guest ${index + 1} idType`] = doc?.idcard;
                 docFields[`Guest ${index + 1} gender`] = doc?.gender;
-
-
             });
 
             return { ...baseFields, ...docFields };
         });
 
-        // Convert data to worksheet
         const worksheet = XLSX.utils.json_to_sheet(formattedData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
 
-        // Convert workbook to binary array
         const workbookBinary = XLSX.write(workbook, {
             bookType: 'xlsx',
             type: 'array',
         });
 
-        // Create a blob and download using saveAs
         const blob = new Blob([workbookBinary], {
             type: 'application/octet-stream',
         });
@@ -152,16 +108,15 @@ const GuestTable = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        // Re-fetch data with searchTerm included
-        fetchGuests();
+        fetchGuests(); // Re-fetch data with updated filters
     };
+
     const clearAll = () => {
-        setFilters({ startDate: '', endDate: '' });
+        setFilters({ startDate: '', endDate: '', propertyName: '' });
         setSearchTerm('');
         fetchGuests();
     };
 
-    // Handle filter changes
     const handleFilterChange = (field, value) => {
         setFilters({ ...filters, [field]: value });
     };
@@ -184,6 +139,18 @@ const GuestTable = () => {
                     onChange={(e) => handleFilterChange('endDate', e.target.value)}
                     className="border px-2 py-1 rounded w-full md:w-auto text-sm"
                 />
+                <select
+                    value={filters.propertyName}
+                    onChange={(e) => handleFilterChange('propertyName', e.target.value)}
+                    className="border px-2 py-1 rounded w-full md:w-auto text-sm"
+                >
+                    <option value="">Select Property</option>
+                    {propertyOptions.map((property) => (
+                        <option key={property._id} value={property.title}>
+                            {property.title}
+                        </option>
+                    ))}
+                </select>
                 <input
                     type="text"
                     placeholder="Search by Property Name"
@@ -242,7 +209,7 @@ const GuestTable = () => {
                                                     <td className="p-2 border">{guest.number_of_guests}</td>
                                                     <td className="p-2 border">
                                                         {guest.checkin && guest.checkout
-                                                            ? `${guest.checkin.split('T')[0]} - ${guest.checkout.split('T')[0]}`
+                                                            ? `${guest.checkin.split('T')[0].split('-').reverse().join('-')} - ${guest.checkout.split('T')[0].split('-').reverse().join('-')}`
                                                             : 'N/A'}
                                                     </td>
                                                     <td className="p-2 border">
@@ -256,44 +223,40 @@ const GuestTable = () => {
                                                 </tr>
 
                                                 {/* Expanded Row for Documents */}
-                                                {/* Expanded Row for Documents */}
                                                 {isExpanded && guest.Document?.length > 0 && (
                                                     <tr>
-                                                        <td colSpan={6} className="p-4 bg-gray-50 border">
+                                                        <td colSpan="7" className="p-4 bg-gray-50 border">
                                                             {guest.Document.map((doc) => {
                                                                 const fileLower = doc.file.toLowerCase();
                                                                 const isPDF = fileLower.endsWith('.pdf');
 
                                                                 return (
                                                                     <div key={doc._id} className="mb-4 w-full">
-                                                                        
-                                                                        <div className="flex gap-4 items-center border-2  rounded-lg max-w-sm bg-gray-100 shadow-sm  md:max-w-md px-4 py-5">
-                                                                        
-                                                                        <div className='grid grid-cols-2 gap-4 items-center justify-evenly'>
-                                                                        
-                                                                        <p className="font-semibold text-gray-700">name: {doc.name}</p>
-                                                                        <p className="font-semibold text-gray-700">Age : {doc?.age}</p>
-                                                                        <p className="font-semibold text-gray-700">Gender : {doc?.gender}</p>
-                                                                        <p className="font-semibold text-gray-700">Id Type : {doc?.idcard}</p>
-                                                                        </div>
-                                                                        <div>
-                                                                        {isPDF ? (
-                                                                            <a
-                                                                                href={doc.file}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                                className="text-blue-600 underline block"
-                                                                            >
-                                                                                View PDF
-                                                                            </a>
-                                                                        ) : (
-                                                                            <img
-                                                                                src={doc.file}
-                                                                                alt={doc.name}
-                                                                                className="mt-1 border w-32 h-auto"
-                                                                            />
-                                                                        )}
-                                                                        </div>
+                                                                        <div className="flex gap-4 items-center border-2 rounded-lg max-w-sm bg-gray-100 shadow-sm md:max-w-md px-4 py-5">
+                                                                            <div className="grid grid-cols-2 gap-4 items-center justify-evenly">
+                                                                                <p className="font-semibold text-gray-700">Name: {doc.name}</p>
+                                                                                <p className="font-semibold text-gray-700">Age: {doc?.age}</p>
+                                                                                <p className="font-semibold text-gray-700">Gender: {doc?.gender}</p>
+                                                                                <p className="font-semibold text-gray-700">Id Type: {doc?.idcard}</p>
+                                                                            </div>
+                                                                            <div>
+                                                                                {isPDF ? (
+                                                                                    <a
+                                                                                        href={doc.file}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        className="text-blue-600 underline block"
+                                                                                    >
+                                                                                        View PDF
+                                                                                    </a>
+                                                                                ) : (
+                                                                                    <img
+                                                                                        src={doc.file}
+                                                                                        alt={doc.name}
+                                                                                        className="mt-1 border w-32 h-auto"
+                                                                                    />
+                                                                                )}
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 );
@@ -301,13 +264,12 @@ const GuestTable = () => {
                                                         </td>
                                                     </tr>
                                                 )}
-
                                             </React.Fragment>
                                         );
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="p-2 border text-center">
+                                        <td colSpan="7" className="p-2 border text-center">
                                             No guests found.
                                         </td>
                                     </tr>

@@ -218,7 +218,7 @@ export const getPropertyName = async (req, res) => {
 
     try {
         // const property = await Propertymodel.findById(id);
-        const property = await Propertymodel.findById(id).select('title _id');
+        const property = await Propertymodel.findById(id).select('title _id coverImage');
 
         // Check if the property exists
         if (!property) {
@@ -259,8 +259,8 @@ export const Allcount = async (req, res) => {
 
 
 export const UpdateProperty = async (req, res) => {
-    // console.log(req.files);
-    console.log(req.body);
+    console.log("req files",req.files);
+    console.log("req body",req.body);
 
     try {
         // console.log("req body" , req.body);
@@ -455,3 +455,16 @@ export const UpdateProperty = async (req, res) => {
         });
     }
 };
+
+
+// name of all the properties
+export const getname = async (req, res) => {   
+    try {
+        const property = await Propertymodel.find({}, 'title');
+        res.status(200).json(property);
+        console.log("property",property);
+    } catch (err) {
+        console.error(err);
+    }
+
+}; 
