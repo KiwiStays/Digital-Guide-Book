@@ -9,7 +9,7 @@ export const CreateProperty = async (req, res) => {
     try {
         // console.log("req body" , req.body);
         // console.log("rules " , req.body.houseRules);
-        console.log(req.files);
+        // console.log(req.files);
 
         // const data = JSON.parse(req.body.data);
 
@@ -259,8 +259,8 @@ export const Allcount = async (req, res) => {
 
 
 export const UpdateProperty = async (req, res) => {
-    console.log("req files",req.files);
-    console.log("req body",req.body);
+    // console.log("req files",req.files);
+    // console.log("req body",req.body);
 
     try {
         // console.log("req body" , req.body);
@@ -462,9 +462,9 @@ export const getname = async (req, res) => {
     try {
         const property = await Propertymodel.find({}, 'title');
         res.status(200).json(property);
-        console.log("property",property);
+        // console.log("property",property);
     } catch (err) {
         console.error(err);
     }
 
-}; 
+};

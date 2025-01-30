@@ -50,4 +50,3 @@ export const QuickResponseItems = [
     { name: "Jewelry Store", url: "https://via.placeholder.com/150/9ACD32/FFFFFF?text=Jewelry+Store" },
     { name: "Art Gallery", url: "https://via.placeholder.com/150/8A2BE2/FFFFFF?text=Art+Gallery" },
   ];
-  

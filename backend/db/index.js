@@ -1,10 +1,5 @@
 import mongoose from 'mongoose';
 
-
-// const url = process.env.MONGO_URI;
-// console.log(url);
-
-
 const connectDB = async(url)=>{
     try {
         const connectionInstance = await mongoose.connect(url, {
@@ -19,7 +14,5 @@ const connectDB = async(url)=>{
         }, 5000); // Retry after 5 seconds
       }
 }
-
-
 
 export default connectDB

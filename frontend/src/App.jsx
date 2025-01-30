@@ -87,8 +87,8 @@ function App() {
                   path="dashboard"
                   element={adminToken ? <Admindashboard /> : <AdminLogin />}
                 />
-                <Route path="editguestinfo" element={<Editguestinfo/>} />
-                <Route path="editproperty" element={<EditProperty/>} />
+                <Route path="editguestinfo" element={adminToken ?<Editguestinfo/>:<AdminLogin />} />
+                <Route path="editproperty" element={adminToken?<EditProperty/>:<AdminLogin />} />
                 <Route path="*" element={<Pagenotfound />} />
               </Routes>
             </AdminLayout>

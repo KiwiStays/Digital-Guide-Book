@@ -50,4 +50,3 @@ export const ContactsList = [
     { name: "Notary", url: "https://via.placeholder.com/150/7FFF00/FFFFFF?text=Notary" },
     { name: "Translator", url: "https://via.placeholder.com/150/9932CC/FFFFFF?text=Translator" },
   ];
-  
