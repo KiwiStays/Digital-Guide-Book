@@ -6,6 +6,8 @@ import { AuthContext } from '../Context/Authcontext';
 import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
 
+const backend_url = import.meta.env.VITE_APP_BACKEND_URL;
+
 const GuestForm = () => {
   const { id } = useParams(); // Initialize useParams hook
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -19,7 +21,7 @@ const GuestForm = () => {
   useEffect(() => {
     const fetchPropertyName = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/admin/getproperty/name/${id}`);
+        const response = await axios.get(`${backend_url}/api/admin/getproperty/name/${id}`);
         console.log("response from guestform", response.data);
         setTitle(response.data.data.title);
         setCoverImage(response.data.data.coverImage);
@@ -105,7 +107,7 @@ const GuestForm = () => {
     });
 
     try {
-      const response = await axios.post(`http://localhost:3000/api/guest/verify/${id}`, data, {
+      const response = await axios.post(`${backend_url}/api/guest/verify/${id}`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
