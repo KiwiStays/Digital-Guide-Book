@@ -4,6 +4,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
+console.log("backendurl",backend_url);
 
 const Editguestinfo = () => {
     const [isLoading, setIsLoading] = useState(false);
