@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
+console.log("backendurl",backend_url);
 
 const GuestForm = () => {
   const { id } = useParams(); // Initialize useParams hook
