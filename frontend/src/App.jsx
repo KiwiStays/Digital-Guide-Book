@@ -61,7 +61,7 @@ function App() {
                 />
                 <Route
                   path="/contacts"
-                  element={<Contacts/>}
+                  element={token ?<Contacts/>: <GuestForm />}
                 />
                 <Route path="*" element={<Pagenotfound />} />
               </Routes>
