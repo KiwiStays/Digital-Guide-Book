@@ -10,7 +10,7 @@ import Layout from './components/Layout';
 import Pagenotfound from './Pages/Pagenotfound';
 import Stayinfo from './Pages/Stayinfo';
 import Contacts from './Pages/Contacts';
-import GuestTable from './Pages/Guesttable';
+import GuestTable from './Pages/GuestTable';
 import AdminRegister from './Pages/AdminRegister';
 import AdminLogin from './Pages/AdminLogin';
 import Admindashboard from './Pages/Admindashboard';

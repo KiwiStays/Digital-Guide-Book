@@ -357,7 +357,7 @@ function PropertyForm() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Property data submitted successfully:');
+      // console.log('Property data submitted successfully:');
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting property data:', error);
@@ -377,9 +377,35 @@ function PropertyForm() {
     <div className="w-full max-w-7xl mx-auto bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-8 lg:p-12">
       <div className="w-full mx-auto bg-white rounded-lg border border-gray-200 shadow-md p-4 sm:p-6 lg:p-8">
         {isSubmitted && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            User  Created successfully!
-          </div>
+                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                     <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
+                       <div className="flex items-center justify-center mb-4">
+                         <div className="bg-green-100 rounded-full p-2">
+                           <svg 
+                             className="h-8 w-8 text-green-500" 
+                             fill="none" 
+                             viewBox="0 0 24 24" 
+                             stroke="currentColor"
+                           >
+                             <path 
+                               strokeLinecap="round" 
+                               strokeLinejoin="round" 
+                               strokeWidth="2" 
+                               d="M5 13l4 4L19 7"
+                             />
+                           </svg>
+                         </div>
+                       </div>
+                       <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
+                       <p className="text-gray-600 text-center mb-4">Property has been created successfully.</p>
+                       <button 
+                         onClick={() => setIsSubmitted(false)}
+                         className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
+                       >
+                         Close
+                       </button>
+                     </div>
+                   </div>
         )}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center text-gray-800">Create Property Listing</h1>
         <form onSubmit={handleSubmit}
@@ -578,10 +604,17 @@ function PropertyForm() {
                 />
                 <input
                   value={contact.info}
-                  onChange={(e) => handleObjectArrayChange(index, "contacts", "info", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only numbers and restrict to 10 characters
+                    if (/^\d{0,10}$/.test(value)) {
+                      handleObjectArrayChange(index, "contacts", "info", value);
+                    }
+                  }}
                   placeholder="Contact Info"
                   className="w-full sm:w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 />
+
                 <button
                   type="button"
                   className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
@@ -618,11 +651,11 @@ function PropertyForm() {
                   </label>
                   {formData.perks.includes(perk.name) && (
                     <textarea
-                    className="mt-2 ml-4 mr-4 w-full max-w-md sm:max-w-xs md:max-w-sm border-2 px-4 py-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 resize-y"
-                    placeholder={`${perk.name} details`}
-                    value={formData.perkInfo[perk.name] || ''}
-                    onChange={(e) => handlePerkInfoChange(perk.name, e.target.value)}
-                  />
+                      className="mt-2 ml-4 mr-4 w-full max-w-md sm:max-w-xs md:max-w-sm border-2 px-4 py-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 resize-y"
+                      placeholder={`${perk.name} details`}
+                      value={formData.perkInfo[perk.name] || ''}
+                      onChange={(e) => handlePerkInfoChange(perk.name, e.target.value)}
+                    />
                   )}
                   {(perk.name === "Kitchen" || perk.name === "Appliances") && formData.perks.includes(perk.name) && (
                     <div className="mt-2">
@@ -676,7 +709,13 @@ function PropertyForm() {
                   />
                   <input
                     value={response.number}
-                    onChange={(e) => handleObjectArrayChange(index, "quickResponse", "number", e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only numbers and restrict to 10 characters
+                      if (/^\d{0,10}$/.test(value)) {
+                        handleObjectArrayChange(index, "quickResponse", "number", value);
+                      }
+                    }}
                     placeholder="Number"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />

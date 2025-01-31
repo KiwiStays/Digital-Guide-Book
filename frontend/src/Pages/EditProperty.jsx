@@ -3,6 +3,7 @@ import { PlusCircle, Trash2, Upload, Plus } from 'lucide-react';
 import { perks } from '../data/perks';
 import axios from 'axios';
 
+
 function EditProperty() {
   const [formData, setFormData] = useState({
     title: '',
@@ -39,7 +40,7 @@ function EditProperty() {
   const [newFaq, setNewFaq] = useState('');
 
   const [coverImagePreview, setCoverImagePreview] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [updated, setIsUpdated] = useState(false);
 
   const [propertyId, setPropertyId] = useState('');
 
@@ -489,7 +490,9 @@ function EditProperty() {
         //   'Content-Type': 'multipart/form-data',
         // },
       });
-      console.log('Property updated successfully:', response.data);
+      console.log('Property updated successfully:');
+      setIsUpdated(true);
+
     } catch (error) {
       console.error('Error updating property:', error);
     }
@@ -611,6 +614,38 @@ function EditProperty() {
   return (
     <div className="w-full max-w-lg md:max-w-max lg:max-w-max mx-auto bg-gray-100 rounded-lg shadow-lg p-4 sm:p-6 md:p-8 lg:p-12 overflow-hidden">
       <div className="w-full   mx-auto bg-white rounded-lg border-2 shadow-md p-4 sm:p-6 lg:p-8">
+      {updated && (
+                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                     <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
+                       <div className="flex items-center justify-center mb-4">
+                         <div className="bg-green-100 rounded-full p-2">
+                           <svg 
+                             className="h-8 w-8 text-green-500" 
+                             fill="none" 
+                             viewBox="0 0 24 24" 
+                             stroke="currentColor"
+                           >
+                             <path 
+                               strokeLinecap="round" 
+                               strokeLinejoin="round" 
+                               strokeWidth="2" 
+                               d="M5 13l4 4L19 7"
+                             />
+                           </svg>
+                         </div>
+                       </div>
+                       <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
+                       <p className="text-gray-600 text-center mb-4">Property has been Updated successfully.</p>
+                       <button 
+                         onClick={() => setIsUpdated(false)}
+                         className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
+                       >
+                         Close
+                       </button>
+                     </div>
+                   </div>
+        )}
+        
         <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-gray-800">Update Property Listing</h1>
         {/* Property ID input form */}
         <form onSubmit={(e) => {
