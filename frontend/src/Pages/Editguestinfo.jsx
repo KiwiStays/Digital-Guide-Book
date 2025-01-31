@@ -60,7 +60,7 @@ const Editguestinfo = () => {
           if (doc.file) data.append('documents', doc.file);
         });
   
-        await axios.put(`http://localhost:3000/api/guest/updateguset/${userId}`, data, {
+        await axios.put(`${backend_url}/api/guest/updateguset/${userId}`, data, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
