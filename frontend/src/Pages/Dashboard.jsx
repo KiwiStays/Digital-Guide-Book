@@ -7,6 +7,8 @@ import Hero2 from '../components/Hero2';
 import Rules from '../components/Rules';
 import Footer from '../components/Footer';
 
+const backend_url = import.meta.env.VITE_BACKEND_URL;
+
 const Dashboard = () => {
     const { logout, name , propertyData ,placeId } = useContext(AuthContext);
     const [data  , setData] = useState(null);
@@ -21,7 +23,7 @@ const Dashboard = () => {
         const fetchPropertyData = async () => {
             try {
                 // console.log(`Fetching property data for ID: ${id}...`);
-                const response = await axios.get(`http://localhost:3000/api/admin/getproperty/${id}`);
+                const response = await axios.get(`${backend_url}/api/admin/getproperty/${id}`);
                 
                 // Log the fetched data
                 // console.log("Property data fetched successfully:", response.data.data);

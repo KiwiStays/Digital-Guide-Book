@@ -2,6 +2,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 
+
+const backend_url = import.meta.env.VITE_BACKEND_URL;
+
 const Editguestinfo = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -19,7 +22,7 @@ const Editguestinfo = () => {
     const fetchUserDetails = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`http://localhost:3000/api/guest/guestinfo/${userId}`);
+        const response = await axios.get(`${backend_url}/api/guest/guestinfo/${userId}`);
         const user = response.data.data;
         setFormData({
           name: user.name,
