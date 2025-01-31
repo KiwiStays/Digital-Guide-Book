@@ -20,7 +20,7 @@ const GuestTable = () => {
     // Fetch property names for the dropdown
     const fetchPropertyNames = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/api/admin/property'); // Replace with your endpoint
+            const response = await axios.get('/api/admin/property'); // Replace with your endpoint
             setPropertyOptions(response.data || []); // Ensure an array is set
         } catch (error) {
             console.error('Error fetching property names:', error);
@@ -40,7 +40,7 @@ const GuestTable = () => {
             if (filters.propertyName) queryParams.push(`propertyName=${encodeURIComponent(filters.propertyName)}`);
             if (searchTerm) queryParams.push(`searchTerm=${encodeURIComponent(searchTerm)}`);
 
-            let url = 'http://localhost:3000/api/guest/guestinfo';
+            let url = '/api/guest/guestinfo';
             if (queryParams.length > 0) {
                 url += `?${queryParams.join('&')}`;
             }
@@ -228,6 +228,7 @@ const GuestTable = () => {
                                                         <td colSpan="7" className="p-4 bg-gray-50 border">
                                                             {guest.Document.map((doc) => {
                                                                 const fileLower = doc.file.toLowerCase();
+                                                                console.log(fileLower);
                                                                 const isPDF = fileLower.endsWith('.pdf');
 
                                                                 return (

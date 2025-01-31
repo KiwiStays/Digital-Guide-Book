@@ -18,6 +18,8 @@ import { AdminContext } from './Context/AdminContext';
 import AdminLayout from './components/Admin/AdminLayout';
 import Editguestinfo from './Pages/Editguestinfo';
 import EditProperty from './Pages/EditProperty';
+import axios from 'axios';
+
 
 function App() {
   const { token, loading } = useContext(AuthContext);

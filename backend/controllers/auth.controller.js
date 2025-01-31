@@ -160,8 +160,8 @@ export const verifyToken = async (req, res, next) => {
 export  const RegisterAdmin = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        console.log("Email:", email);
-        console.log("Password:", password);
+        // console.log("Email:", email);
+        // console.log("Password:", password);
     
         // Check if user already exists
         const existingUser = await Adminmodel.findOne({ email });
@@ -188,7 +188,7 @@ export  const RegisterAdmin = async (req, res, next) => {
           process.env.JWT_SECRET, 
           { expiresIn: '1h' }
         );
-        console.log('Token:', token); 
+        // console.log('Token:', token); 
     
         res.status(201).json({ 
           message: 'User registered successfully', 

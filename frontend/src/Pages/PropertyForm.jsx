@@ -348,16 +348,16 @@ function PropertyForm() {
       console.error("No images to upload.");
     }
 
-    console.log("formData useState: ", formData);
-    console.log("formDataToSend from Frontend: ", formDataToSend);
+    // console.log("formData useState: ", formData);
+    // console.log("formDataToSend from Frontend: ", formDataToSend);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/admin/property', formDataToSend, {
+      const response = await axios.post('/api/admin/property', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Property data submitted successfully:', response.data);
+      console.log('Property data submitted successfully:');
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting property data:', error);
@@ -569,7 +569,7 @@ function PropertyForm() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Contacts</label>
             {formData.contacts.map((contact, index) => (
-              <div key={index} className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2">
+              <div key={index} className="flex flex-col md:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2">
                 <input
                   value={contact.name}
                   onChange={(e) => handleObjectArrayChange(index, "contacts", "name", e.target.value)}
@@ -618,11 +618,11 @@ function PropertyForm() {
                   </label>
                   {formData.perks.includes(perk.name) && (
                     <textarea
-                      className="mt-2 w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder={`${perk.name} details`}
-                      value={formData.perkInfo[perk.name] || ""}
-                      onChange={(e) => handlePerkInfoChange(perk.name, e.target.value)}
-                    />
+                    className="mt-2 ml-4 mr-4 w-full max-w-md sm:max-w-xs md:max-w-sm border-2 px-4 py-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 resize-y"
+                    placeholder={`${perk.name} details`}
+                    value={formData.perkInfo[perk.name] || ''}
+                    onChange={(e) => handlePerkInfoChange(perk.name, e.target.value)}
+                  />
                   )}
                   {(perk.name === "Kitchen" || perk.name === "Appliances") && formData.perks.includes(perk.name) && (
                     <div className="mt-2">

@@ -14,7 +14,7 @@ router.route("/updateguset/:id").put(upload.array('documents'),updateGuest);
 
 router.route("/download-file/:url").get((req, res) => {
     const fileUrl = req.query.url;
-    console.log(fileUrl);
+    // console.log(fileUrl);
 
     // if (!fileUrl) {
     //     return res.status(400).json({ success: false, message: 'No URL provided.' });

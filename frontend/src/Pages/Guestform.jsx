@@ -223,6 +223,18 @@ const GuestForm = () => {
                 required
               />
             </motion.div>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <label className="block text-sm font-medium text-white mb-1">Phone</label>
+              <input
+                type="text"
+                name="property_name"
+                value={title}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                placeholder="Your phone number"
+                required
+              />
+            </motion.div>
           </div>
 
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>

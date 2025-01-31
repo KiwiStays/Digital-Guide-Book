@@ -84,6 +84,7 @@ export const VerifyGuest = async (req, res)=>{
   try {
       const {id} = req.params;
       const { name, phone, property_name, number_of_guests, checkin, checkout } = req.body;
+      console.log("req body",req.body);
 
       const checkin_new = checkin.split('T')[0];
       const checkout_new = checkout.split('T')[0];
@@ -130,6 +131,7 @@ export const VerifyGuest = async (req, res)=>{
       const token = generateToken(guest._id,checkout);
       guest.token = token;
       await guest.save();
+      console.log("guest ", guest);
       console.log("Guest Saved Successfully!!");
       
       res.status(201).json({ message: 'Guest created successfully', token, guestId: guest._id, guestName: guest.name  });

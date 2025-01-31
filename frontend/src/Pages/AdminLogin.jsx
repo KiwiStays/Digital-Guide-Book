@@ -13,7 +13,7 @@ const AdminLogin = () => {
     const handleLogin = async (e) => {
       e.preventDefault();
       try {
-        const response = await axios.post('http://localhost:3000/api/auth/admin/login', { 
+        const response = await axios.post('/api/auth/admin/login', { 
           email, 
           password 
         });

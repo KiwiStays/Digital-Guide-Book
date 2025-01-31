@@ -25,7 +25,7 @@ const AuthProvider = ({ children }) => {
                     // console.log("authcontext: ", token);
                     // console.log("placrId: ", placeId);  
 
-                    const response = await axios.get('http://localhost:3000/api/auth/protected', {
+                    const response = await axios.get('/api/auth/protected', {
                         headers: { Authorization: `Bearer ${token}` },
                     });
 
@@ -50,7 +50,7 @@ const AuthProvider = ({ children }) => {
               if (token) {
                 // const propertyId = "678bdcd158ae1f6db6a82326";
                 const response = await axios.get(
-                  `http://localhost:3000/api/admin/getproperty/${placeId}`,
+                  `/api/admin/getproperty/${placeId}`,
                   {
                     headers: { Authorization: `Bearer ${token}` },
                   }

@@ -13,30 +13,48 @@ const getIconFromImport = (description) => {
 };
 
 
-const InfoCard = ({ description, number }) => {
+const InfoCard = ({ description, number,isOpen, setIsOpen }) => {
   const importedIcon = getIconFromImport(description);
 
   return (
     <div className="relative">
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center" onClick={() => setIsOpen(!isOpen)}>
         {importedIcon && (
           <div className="w-12 h-12 md:w-32 md:h-32 rounded-full overflow-hidden">
-            <img
-              src={importedIcon} // Render the image from the URL
-              alt={description}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        <p className="mt-2 text-sm  text-gray-600 font-semibold">{description}</p>
-        {/* <p className="text-xl font-bold text-red-600">{number}</p> */}
-      </div>
-    </div>
-  );
-};
+                <img
+              // Render the image from the URL
+                      src={importedIcon}
+                      alt={description}
+                      className="w-full h-full object-cover"
+                    />
+                    </div>
+                  )}
+                  <p className="mt-2 text-sm font-medium text-green-600">{description}</p>
+                  </div>
 
-
-
+                  {isOpen && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto overflow-hidden animate-fadeIn">
+                    <div className="flex justify-between items-center bg-primarybg px-6 py-4">
+                      <h3 className="text-xl font-semibold text-green-900">{description}</h3>
+                      <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-800">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      </button>
+                    </div>
+                    <div className="p-6">
+                      <div className="text-gray-700 font-semibold text-center">
+                      <p className="text-2xl text-red-600 mb-2">{number}</p>
+                      <p>{description}</p>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                  )}
+                </div>
+                );
+              };
 
 // const InfoCard = ({ description, number, icon }) => {
 //   const [isOpen, setIsOpen] = useState(false);
@@ -300,6 +318,7 @@ const HouseTourCard = ({ images }) => {
 // };
 const Stayinfo = () => {
   const { propertyData } = useContext(AuthContext);
+  const [isOpen, setIsOpen] = useState(false);
   // console.log("perk info",propertyData.data.perkInfo);
   const quickResponse = propertyData?.data?.quickResponse || [];
   const perkInfo = propertyData?.data?.perkInfo || {};
@@ -324,22 +343,29 @@ const Stayinfo = () => {
   
   return (
     <main className="">
-      {/* quick response */}
-      <section className="p-4 md:flex md:flex-col md:items-center md:w-full">
-        <h1 className="text-2xl font-semibold text-green-900 mb-6">Quick Response</h1>
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {quickResponse.map(item => (
+     { /* quick response */}
+        <section className="p-4 md:flex md:flex-col md:items-center md:w-full">
+          <h1 className="text-2xl font-semibold text-green-900 mb-6">Quick Resources</h1>
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {quickResponse.map(item => {
+          
+          return (
             <InfoCard
               key={item._id}
               description={item.description}
               number={item.number}
-              icon={item.icon}
+              isOpen={openModals[item.description] || false}
+              setIsOpen={() => setOpenModals((prev) => ({
+                ...prev,
+                [item.description]: !prev[item.description],
+              }))}
             />
-          ))}
-        </div>
-      </section>
+          );
+            })}
+          </div>
+        </section>
 
-       {/* House Tour Card */}
+         {/* House Tour Card */}
        <section className="p-4 md:flex md:flex-col md:items-center">
         <HouseTourCard images={propertyData?.data?.images} />
       </section>

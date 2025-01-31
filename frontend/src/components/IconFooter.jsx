@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const IconFooter = () => {
   const [activeLink, setActiveLink] = useState("Arrival");
-  console.log(activeLink);
+  // console.log(activeLink);
   const location = useLocation(); // Get the current route
   const currentPath = location.pathname;
 

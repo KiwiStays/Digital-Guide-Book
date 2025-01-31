@@ -146,9 +146,9 @@ const Hero2 = ({ wifi, selfcheckin, address, faqs, locationLink }) => {
         />
       </div>
 
-      <div>
+      <div className='w-full px-8 md:max-w-xl lg:max-w-xl'>
         {wifi.password && wifi.username ? (
-          <div className="border-r-4 border-t-4 border-l border-b bg-white border-black rounded-3xl md:w-full md:h-full px-7 py-5 md:px-10 md:py-10  md:mt-10 shadow-lg flex flex-col items-center justify-center hover:border-orange-500">
+          <div className="border-r-4 border-t-4 border-l border-b  bg-white border-black rounded-3xl w-full md:w-full md:h-full px-7 py-5 md:px-10 md:py-10  md:mt-10 shadow-lg flex flex-col items-center justify-center hover:border-orange-500">
             <h2 className="text-2xl md:text-5xl font-semibold text-green-900 mb-2">Wifi Access</h2>
             <p className="text-gray-700 flex items-center">
               <strong className="text-orange-500 md:text-2xl">Username:</strong> {wifi?.username}

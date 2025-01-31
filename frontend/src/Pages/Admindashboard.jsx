@@ -10,8 +10,8 @@ const Admindashboard = () => {
   const [guestcount, setGuestCount] = useState(0);
   const [propertycount, setPropertyCount] = useState(0);
   useEffect(() => {
-    axios.get("http://localhost:3000/api/admin/count").then((response) => {
-      console.log(response.data);
+    axios.get("/api/admin/count").then((response) => {
+      // console.log(response.data);
       setGuestCount(response.data.guestcount);
       setPropertyCount(response.data.propertycount);
 

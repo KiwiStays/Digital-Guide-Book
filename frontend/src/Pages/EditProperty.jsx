@@ -52,7 +52,7 @@ function EditProperty() {
 
   const fetchPropertyData = async (propertyId) => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/admin/getproperty/${propertyId}`);
+      const response = await axios.get(`/api/admin/getproperty/${propertyId}`);
       const propertyData = response.data.data;
 
       // Populate form data
@@ -399,7 +399,7 @@ function EditProperty() {
     formDataToSend.append('coverImage', coverImage);
     formDataToSend.append('coverImageUrl', coverImageUrl);
     formDataToSend.append('imageUrls', imageUrls);
-    
+
 
     // Include existing image URLs
     // imagePreviews.forEach((url, index) => {
@@ -474,17 +474,17 @@ function EditProperty() {
       formDataToSend.append(`perkInfo[${key}]`, formData.perkInfo[key]);
     });
 
-    console.log(formData);
-    console.log(formDataToSend);
-    console.log(coverImageUrl);
-    console.log(imageUrls);
-    console.log(imageFiles);
-    console.log(imagePreviews);
+    // console.log(formData);
+    // console.log(formDataToSend);
+    // console.log(coverImageUrl);
+    // console.log(imageUrls);
+    // console.log(imageFiles);
+    // console.log(imagePreviews);
 
     // PUT request to update property
     try {
       // const propertyId = '123'; // Replace with dynamic ID
-      const response = await axios.put(`http://localhost:3000/api/admin/property/${propertyId}`, formDataToSend, {
+      const response = await axios.put(`/api/admin/property/${propertyId}`, formDataToSend, {
         // headers: {
         //   'Content-Type': 'multipart/form-data',
         // },
@@ -609,14 +609,14 @@ function EditProperty() {
 
   // Update the images section in the JSX
   return (
-    <div className="w-full max-w-md md:max-w-max lg:max-w-max mx-auto bg-gray-100 rounded-lg shadow-lg p-4 sm:p-6 md:p-8 lg:p-12">
-      <div className="w-full  mx-auto bg-white rounded-lg border-2 shadow-md p-4 sm:p-6 lg:p-8">
-        <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-gray-800">Create Property Listing</h1>
+    <div className="w-full max-w-lg md:max-w-max lg:max-w-max mx-auto bg-gray-100 rounded-lg shadow-lg p-4 sm:p-6 md:p-8 lg:p-12 overflow-hidden">
+      <div className="w-full   mx-auto bg-white rounded-lg border-2 shadow-md p-4 sm:p-6 lg:p-8">
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-gray-800">Update Property Listing</h1>
         {/* Property ID input form */}
         <form onSubmit={(e) => {
           e.preventDefault();
           fetchPropertyData(propertyId);
-        }} className="mb-8">
+        }} className="mb-8 ">
           <div className="flex gap-4">
             <input
               type="text"
@@ -632,8 +632,8 @@ function EditProperty() {
               Fetch Property
             </button>
           </div>
-        </form>
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-full md:max-w-max lg:max-w-full mx-auto">
+        </form >
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-full  md:max-w-max lg:max-w-full mx-auto">
           <div className="space-y-4">
             <div>
               <label className="block text-2xl font-medium text-gray-700">Title</label>
@@ -829,25 +829,25 @@ function EditProperty() {
           <div>
             <label className="block text-2xl font-medium text-gray-700">Contacts</label>
             {formData.contacts.map((contact, index) => (
-              <div key={index} className="flex items-center space-x-2 mt-2">
+              <div key={index}className="flex flex-col md:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2">
                 <input
                   value={contact.name}
                   onChange={(e) => handleObjectArrayChange(index, 'contacts', 'name', e.target.value)}
                   placeholder="Contact Name"
-                  className="flex-grow rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className="w-full sm:w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <input
                   value={contact.info}
                   onChange={(e) => handleObjectArrayChange(index, 'contacts', 'info', e.target.value)}
                   placeholder="Contact Info"
-                  className="flex-grow rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className="w-full sm:w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <button
                   type="button"
-                  className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+                  className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
                   onClick={() => removeArrayItem('contacts', index)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="md:h-4 md:w-4 w-full " />
                 </button>
               </div>
             ))}
@@ -863,7 +863,7 @@ function EditProperty() {
           {/* Perks Section */}
           <div>
             <label className="block text-2xl font-medium text-gray-700">Perks</label>
-            <div className="grid grid-cols-4 gap-4 mt-2">
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-4 mt-2">
               {perks.map((perk) => (
                 <div key={perk.name} className="relative">
                   <label className="flex flex-col items-center space-y-1  cursor-pointer group">
@@ -878,7 +878,7 @@ function EditProperty() {
                   </label>
                   {formData.perks.includes(perk.name) && (
                     <textarea
-                      className="mt-2 ml-4 mr-4 max-w-md border-2  rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      className="mt-2 ml-4 mr-4 w-full max-w-md sm:max-w-xs md:max-w-sm border-2 px-4 py-2 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 resize-y"
                       placeholder={`${perk.name} details`}
                       value={formData.perkInfo[perk.name] || ''}
                       onChange={(e) => handlePerkInfoChange(perk.name, e.target.value)}
@@ -899,7 +899,7 @@ function EditProperty() {
                       </select>
                       <div className="mt-2">
                         {formData[perk.name.toLowerCase() + 'Items'].map((item) => (
-                          <span key={item} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-2xl font-semibold text-gray-700 mr-2 mb-2">
+                          <span key={item} className="inline-block bg-gray-200 rounded-full px-3 py-1 md:text-2xl font-semibold text-gray-700 mr-2 mb-2">
                             {item}
                           </span>
                         ))}

@@ -21,7 +21,7 @@ const AdminRegister = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/admin/register', { 
+      const response = await axios.post('/api/auth/admin/register', { 
         email, 
         password 
       });

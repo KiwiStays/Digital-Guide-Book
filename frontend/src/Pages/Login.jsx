@@ -5,6 +5,8 @@ import { Phone, Lock } from "lucide-react"
 import { motion } from "framer-motion"
 import { ArrowRight, Palmtree } from "lucide-react"
 
+const backend_url = import.meta.env.VITE_BACKEND_URL;
+
 const Login = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
@@ -19,7 +21,7 @@ const Login = () => {
         }
     
         try {
-            const response = await fetch('http://localhost:3000/api/auth/login', {
+            const response = await fetch(`${backend_url}/api/auth/login`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json' 
@@ -45,21 +47,21 @@ const Login = () => {
 
     const handleVerifyOtp = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/auth/verify', {
+            const response = await fetch(`${backend_url}/api/auth/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phoneNumber, otp }),
             });
             const data = await response.json();
             // console.log(response);
-            console.log(data.data);
-            console.log(data.data.place_id);
+            // console.log(data.data);
+            // console.log(data.data.place_id);
             if (response.ok) {
                 auth_login(data.data.token, data.data.guest.name, data.data.guest.id,data.data.guest.place_id);
                 alert('Login successful.');
                 navigate('/dashboard');
             } else {
-                console.log(data.message);
+                // console.log(data.message);
                 alert(data.message);
             }
         } catch (err) {
