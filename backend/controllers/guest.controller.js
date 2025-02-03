@@ -85,6 +85,7 @@ export const VerifyGuest = async (req, res)=>{
       const {id} = req.params;
       const { name, phone, property_name, number_of_guests, checkin, checkout } = req.body;
       console.log("req body",req.body);
+      console.log("req files",req.files); 
 
       const checkin_new = checkin.split('T')[0];
       const checkout_new = checkout.split('T')[0];

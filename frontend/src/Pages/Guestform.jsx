@@ -326,10 +326,10 @@ const GuestForm = () => {
                   type="file"
                   onChange={(e) => {
                     const file = e.target.files?.[0] || null;
-                    if (file && file.size > 2 * 1024 * 1024) { // 2MB limit
-                      alert("File size exceeds 2MB. Please upload a smaller file.");
-                      return;
-                    }
+                    // if (file && file.size > 2 * 1024 * 1024) { // 2MB limit
+                    //   alert("File size exceeds 2MB. Please upload a smaller file.");
+                    //   return;
+                    // }
                     handleDocumentChange(index, "file", file);
                   }}
                   className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-900 file:text-white hover:file:bg-green-800"
