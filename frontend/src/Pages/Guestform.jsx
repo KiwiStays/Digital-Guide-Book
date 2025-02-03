@@ -318,7 +318,8 @@ const GuestForm = () => {
                     <option value="">Select ID Type</option>
                     <option value="passport">Passport</option>
                     <option value="driverLicense">Driver's License</option>
-                    <option value="nationalId">National ID</option>
+                    <option value="nationalId">Adhar Card</option>
+                    <option value="nationalId">Voter Id Card</option>
                   </select>
                 </div>
                 <h6 className="font-thin text-sm text-gray-600">PLease ensure the document or image size is less than 3 mb</h6>
