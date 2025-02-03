@@ -322,15 +322,15 @@ const GuestForm = () => {
                     <option value="nationalId">Voter Id Card</option>
                   </select>
                 </div>
-                <h6 className="font-thin text-sm text-gray-600">PLease ensure the document or image size is less than 3 mb</h6>
+                <h6 className="font-thin text-sm text-gray-600">Max Size 5 Mb</h6>
                 <input
                   type="file"
                   onChange={(e) => {
                     const file = e.target.files?.[0] || null;
-                    // if (file && file.size > 2 * 1024 * 1024) { // 2MB limit
-                    //   alert("File size exceeds 2MB. Please upload a smaller file.");
-                    //   return;
-                    // }
+                    if (file && file.size > 5 * 1024 * 1024) { // 2MB limit
+                      alert("Max Size : 5 Mb");
+                      return;
+                    }
                     handleDocumentChange(index, "file", file);
                   }}
                   className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-900 file:text-white hover:file:bg-green-800"
