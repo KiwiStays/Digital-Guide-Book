@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
-console.log("backendurl",backend_url);
+console.log("backendurl", backend_url);
 
 const GuestForm = () => {
   const { id } = useParams(); // Initialize useParams hook
@@ -41,7 +41,7 @@ const GuestForm = () => {
     phone: '',
     property_name: title,
     number_of_guests: 1,
-    documents: [{ name: '', file: '', age: 0, idCardType: '', gender: '' }],
+    documents: [{ name: '', file: '', age: '', idCardType: '', gender: '' }],
     checkin: '',
     checkout: '',
   });
@@ -94,6 +94,9 @@ const GuestForm = () => {
     data.append('checkin', formData.checkin);
     data.append('checkout', formData.checkout);
 
+    if (formData.documents.length > 0) {
+      formData.documents[0].name = formData.name;
+    }
 
     const documentsData = formData.documents.map((doc) => ({
       name: doc.name,
@@ -278,7 +281,8 @@ const GuestForm = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <input
                     type="text"
-                    value={doc.name}
+                    value={index == 0 ? (formData.name) : doc.name}
+                    // value={doc.name}
                     onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
                     className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
                     placeholder="Full name"
@@ -317,9 +321,17 @@ const GuestForm = () => {
                     <option value="nationalId">National ID</option>
                   </select>
                 </div>
+                <h6 className="font-thin text-sm text-gray-600">PLease ensure the document or image size is less than 3 mb</h6>
                 <input
                   type="file"
-                  onChange={(e) => handleDocumentChange(index, "file", e.target.files?.[0] || null)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    if (file && file.size > 2 * 1024 * 1024) { // 2MB limit
+                      alert("File size exceeds 2MB. Please upload a smaller file.");
+                      return;
+                    }
+                    handleDocumentChange(index, "file", file);
+                  }}
                   className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-900 file:text-white hover:file:bg-green-800"
                   required
                 />

@@ -8,7 +8,7 @@ import AuthRouter from "../routes/Auth.route.js";
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: ["https://staysync.in", "https://api.staysync.in"],
+    origin: ["https://staysync.in", "https://api.staysync.in","http://localhost:5173"],
     credentials: true
 }));
 
