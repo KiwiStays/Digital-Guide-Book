@@ -3,3 +3,13 @@
 @tailwind utilities;
 
 /* ... */
+/* Hide scrollbar in Chrome, Safari */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar in Firefox */
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
+  

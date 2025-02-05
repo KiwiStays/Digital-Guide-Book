@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 // Create a function to return icons dynamically
-const getIcon = (IconComponent) => <IconComponent size={28} className="text-green-900 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-10 lg:h-10" strokeWidth={1.5} />;
+const getIcon = (IconComponent) => <IconComponent size={28} className="text-primarytext w-8 h-8 md:w-10 md:h-10 lg:w-10 lg:h-10" strokeWidth={1.5} />;
 
 export const perks = [
   { name: 'Wi-Fi', icon: getIcon(Wifi) },

@@ -4,6 +4,7 @@ import { perks } from '../data/perks';
 import { QuickResponseItems } from '../data/quickresponse';
 import { AiFillHome } from 'react-icons/ai';
 import { Home, X } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const getIconFromImport = (description) => {
   const matchedItem = QuickResponseItems.find(
@@ -103,45 +104,59 @@ const PerkCard = ({ name, icon, content, items, isOpen, setIsOpen }) => {
 
   return (
     <div className="relative">
-      <div className="flex flex-col items-center justify-center p-4 hover:border-green-40000 rounded-lg cursor-pointer"
+      <div className="flex flex-col items-center justify-center p-4  hover:border-green-400 rounded-lg cursor-pointer border-2 shadow-md border-white h-[15vh] bg-white "
         onClick={() => setIsOpen(!isOpen)}>
-        <div className="w-12 h-12 md:w-32 md:h-32 border-2 border-black rounded-full text-green-900 flex  items-center justify-center ">
+        <div className="w-12 h-12 md:w-32 md:h-32  text-red-800 flex  items-center justify-center ">
           {icon}
         </div>
-        <p className="mt-2 text-sm font-medium text-green-600  flex  text-center ">{name}</p>
+        <p className="mt-2 text-sm font-medium text-red-800  flex  text-center ">{name}</p>
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto">
-            <div className="flex justify-between items-center bg-primarybg px-6 py-4">
-              <h3 className="text-xl font-semibold text-green-900 ">{name}</h3>
-              <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-800">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="p-6">
-              <div className="text-gray-700 whitespace-pre-line">
-                {displayContent.split('\n').map((line, index) => {
-                  const parts = line.split(':');
-                  if (parts.length === 1) {
-                    // No colon found
-                    return <p key={index}>{line}</p>;
-                  } else {
-                    const [highlighted, ...rest] = parts;
-                    return (
-                      <p key={index}>
-                        <span className="font-semibold text-green-900">{highlighted}</span> {rest.join(':')}
-                      </p>
-                    );
-                  }
-                })}
-              </div>
+        <motion.div
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        initial={{ opacity: 0, scale: 0.85 }} // Start more subtle
+        animate={{ opacity: 1, scale: 1 }} // Smoothly scale up
+        exit={{ opacity: 0, scale: 0.85 }} // Scale down on exit
+        transition={{ duration: 0.5, ease: "easeInOut" }} // Increased duration for smoothness
+      >
+        <motion.div
+          className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto"
+          initial={{ y: 60, opacity: 0 }} // Start a bit lower
+          animate={{ y: 0, opacity: 1 }} // Slide up more gradually
+          exit={{ y: 60, opacity: 0 }} // Slide down smoothly when closing
+          transition={{ duration: 0.5, ease: "easeInOut" }} // Extended duration for better smoothness
+        >
+          {/* Header */}
+          <div className="flex justify-between items-center bg-primarybg px-6 py-4">
+            <h3 className="text-xl font-semibold text-primarytext">{name}</h3>
+            <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-800">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+    
+          {/* Content */}
+          <div className="p-6">
+            <div className="text-gray-500 whitespace-pre-line">
+              {displayContent.split("\n").map((line, index) => {
+                const parts = line.split(":");
+                if (parts.length === 1) {
+                  return <p key={index}>{line}</p>;
+                } else {
+                  const [highlighted, ...rest] = parts;
+                  return (
+                    <p key={index}>
+                      <span className="font-semibold text-red-900">{highlighted}</span> {rest.join(":")}
+                    </p>
+                  );
+                }
+              })}
             </div>
           </div>
-        </div>
+        </motion.div>
+      </motion.div>
       )}
     </div>
   );
@@ -343,37 +358,16 @@ const Stayinfo = () => {
   
   return (
     <main className="">
-     { /* quick response */}
-        <section className="p-4 md:flex md:flex-col md:items-center md:w-full">
-          <h1 className="text-2xl font-semibold text-green-900 mb-6">Quick Resources</h1>
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {quickResponse.map(item => {
-          
-          return (
-            <InfoCard
-              key={item._id}
-              description={item.description}
-              number={item.number}
-              isOpen={openModals[item.description] || false}
-              setIsOpen={() => setOpenModals((prev) => ({
-                ...prev,
-                [item.description]: !prev[item.description],
-              }))}
-            />
-          );
-            })}
-          </div>
-        </section>
-
+      <h1 className="text-center font-semibold text-3xl text-primarytext mb-10">Your Stay info</h1>
          {/* House Tour Card */}
-       <section className="p-4 md:flex md:flex-col md:items-center">
+       {/* <section className="p-4 md:flex md:flex-col md:items-center">
         <HouseTourCard images={propertyData?.data?.images} />
-      </section>
+      </section> */}
 
 
       {/* perks section */}
       <section className="p-4 md:flex md:flex-col md:items-center">
-  <h2 className="text-2xl font-semibold text-green-900 mb-6">Available Amenities</h2>
+  <h2 className="text-2xl font-semibold text-primarytext mb-6">Available Amenities</h2>
   <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
     {perks.map((perk) => {
       const apiKey = Object.keys(perkInfo).find(
@@ -420,7 +414,7 @@ const Stayinfo = () => {
         </div>
       </section> */}
 
-      <FoodAndDrinksSection foodAndDrinks={foodAndDrinks} />
+      {/* <FoodAndDrinksSection foodAndDrinks={foodAndDrinks} /> */}
 
 
     </main>

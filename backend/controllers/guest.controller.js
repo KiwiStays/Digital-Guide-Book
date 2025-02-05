@@ -87,6 +87,13 @@ export const VerifyGuest = async (req, res)=>{
       console.log("req body",req.body);
       console.log("req files",req.files); 
 
+      const existingGuest = await Guestmodel.findOne({ phone: phone });
+      if (existingGuest) {
+        console.log("Phone number already exists, please use a different number or login.");
+        return res.status(402).json({ message: 'Phone number already exists, please use a different number or login.' });
+      }
+      
+
       const checkin_new = checkin.split('T')[0];
       const checkout_new = checkout.split('T')[0];
   

@@ -19,6 +19,7 @@ import AdminLayout from './components/Admin/AdminLayout';
 import Editguestinfo from './Pages/Editguestinfo';
 import EditProperty from './Pages/EditProperty';
 import axios from 'axios';
+import Nearby from './Pages/Nearby';
 
 
 function App() {
@@ -62,6 +63,10 @@ function App() {
                 <Route
                   path="/contacts"
                   element={token ?<Contacts/>: <GuestForm />}
+                />
+                <Route
+                  path="/nearby"
+                  element={token ? <Nearby /> : <GuestForm />}
                 />
                 <Route path="*" element={<Pagenotfound />} />
               </Routes>

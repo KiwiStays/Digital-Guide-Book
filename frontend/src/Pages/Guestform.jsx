@@ -128,8 +128,13 @@ const GuestForm = () => {
       auth_login(response.data.token, response.data.guestName, response.data.guestId, id); // Call the login function from AuthContext
       navigate('/dashboard'); // Redirect to dashboard after successful registration
     } catch (error) {
+      if (error.response && error.response.status === 402) {
+        alert(error.response.data.message);  // Show the alert with backend message
+        setIsLoading(false);
+      }else{
       console.error('Error:', error);
       setIsLoading(false);
+      }
     }
   };
 
@@ -145,8 +150,8 @@ const GuestForm = () => {
           transition={{ duration: 0.5 }}
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-2">
-            <CheckCircle2 className="text-green-900 w-6 h-6" />
-            <span className="text-green-900 font-semibold">Document submitted successfully!</span>
+            <CheckCircle2 className="text-primarytext w-6 h-6" />
+            <span className="text-primarytext font-semibold">Document submitted successfully!</span>
           </div>
         </motion.div>
       )}
@@ -157,7 +162,7 @@ const GuestForm = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center lg:text-left p-8 bg-gradient-to-r md:from-green-800 md:to-green-900">
+          className="text-center lg:text-left p-8 bg-gradient-to-r md:from-red-800 md:to-primarytext">
           <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-white drop-shadow-lg">
             Welcome to KiwiStays
           </h1>
@@ -171,7 +176,7 @@ const GuestForm = () => {
             <span className="underline hover:text-green-200">Click to Login</span>
           </Link>
 
-          <div className="mt-8 bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+          <div className="mt-8 bg-white/10 md:p-4 rounded-lg backdrop-blur-sm">
             <img
               src={coverImage}
               alt="Property view"
@@ -198,7 +203,7 @@ const GuestForm = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="bg-white/20 backdrop-blur-md">
-          <div className="bg-gradient-to-r from-green-900 to-green-800 p-6 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-primarytext to-red-800 p-6 flex items-center justify-between">
             <h2 className="text-3xl font-semibold text-white">Guest Registration</h2>
             <Palmtree className="text-white w-8 h-8" />
           </div>
@@ -212,7 +217,7 @@ const GuestForm = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                   placeholder="Your full name"
                   required
                 />
@@ -230,7 +235,7 @@ const GuestForm = () => {
                       handleChange(e);
                     }
                   }}
-                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                   placeholder="Your phone number"
                   required
                 />
@@ -243,7 +248,7 @@ const GuestForm = () => {
                   name="property_name"
                   value={title}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                   placeholder="Property Name"
                   required
                 />
@@ -256,7 +261,7 @@ const GuestForm = () => {
                 name="number_of_guests"
                 value={formData.number_of_guests}
                 onChange={handleGuestCountChange}
-                className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                 required
               >
                 {[...Array(10)].map((_, i) => (
@@ -284,7 +289,7 @@ const GuestForm = () => {
                     value={index == 0 ? (formData.name) : doc.name}
                     // value={doc.name}
                     onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
-                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                     placeholder="Full name"
                     required
                   />
@@ -292,7 +297,7 @@ const GuestForm = () => {
                     type="number"
                     value={doc.age}
                     onChange={(e) => handleDocumentChange(index, "age", e.target.value)}
-                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                     placeholder="Age"
                     required
                   />
@@ -301,7 +306,7 @@ const GuestForm = () => {
                   <select
                     value={doc.gender}
                     onChange={(e) => handleDocumentChange(index, "gender", e.target.value)}
-                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                     required
                   >
                     <option value="">Select Gender</option>
@@ -312,14 +317,14 @@ const GuestForm = () => {
                   <select
                     value={doc.idCardType}
                     onChange={(e) => handleDocumentChange(index, "idCardType", e.target.value)}
-                    className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent bg-white/70"
                     required
                   >
                     <option value="">Select ID Type</option>
                     <option value="passport">Passport</option>
                     <option value="driverLicense">Driver's License</option>
                     <option value="nationalId">Adhar Card</option>
-                    <option value="nationalId">Voter Id Card</option>
+                    <option value="voterId">Voter Id Card</option>
                   </select>
                 </div>
                 <h6 className="font-thin text-sm text-gray-600">Max Size 5 Mb</h6>
@@ -333,7 +338,7 @@ const GuestForm = () => {
                     }
                     handleDocumentChange(index, "file", file);
                   }}
-                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-900 file:text-white hover:file:bg-green-800"
+                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primarytext file:text-white hover:file:bg-green-800"
                   required
                 />
               </motion.div>
@@ -346,7 +351,7 @@ const GuestForm = () => {
                   name="checkin"
                   value={formData.checkin}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                   required
                 />
               </motion.div>
@@ -357,7 +362,7 @@ const GuestForm = () => {
                   name="checkout"
                   value={formData.checkout}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-green-900/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
                   required
                 />
               </motion.div>
@@ -369,7 +374,7 @@ const GuestForm = () => {
                 disabled={isLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r from-green-900 to-green-800 text-white font-semibold rounded-md shadow-md hover:from-green-800 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-900 focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r bg-primarytext text-white font-semibold rounded-md shadow-md hover:from-red-800 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-primarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">

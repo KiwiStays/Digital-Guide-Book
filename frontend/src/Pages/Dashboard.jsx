@@ -57,22 +57,16 @@ const Dashboard = () => {
         <div className="bg-primarybg h-full">
             
             {data && data.images && data.images.length > 1 ? (
-                <Hero title={data.title} heroimg={data.coverImage} />
+                <Hero title={data.title} heroimg={data.coverImage} locationLink = {data.location} />
             ) : (
                 <p>Loading...</p> 
             )}
-            {data && data.wifi && data.selfcheckin && data.address && data.faqs ? (
-                <Hero2 wifi={data.wifi} selfcheckin={data.selfcheckin} address={data.address} faqs={data.faqs} locationLink = {data.location}  />
+            {data && data.wifi && data.selfcheckin && data.address && data.faqs && data.houseRules ? (
+                <Hero2 wifi={data.wifi} selfcheckin={data.selfcheckin} address={data.address} faqs={data.faqs} locationLink = {data.location} houseRules={data.houseRules}  />
             ) : (
                 <p>Loading...</p> 
             )}
-            {
-                data && data.houseRules && data.houseRules.length > 1 ? (
-                    <Rules houseRules={data.houseRules}/>
-                ):(
-                    <p>Loading...</p>
-                )
-            }
+           
            
             
 

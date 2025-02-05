@@ -83,7 +83,7 @@ const Login = () => {
         transition={{ duration: 0.5 }}
         className="bg-white/40 backdrop-blur-md rounded-xl shadow-2xl w-full max-w-md overflow-hidden"
       >
-        <div className="bg-gradient-to-r from-green-900 to-green-800 p-8 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-primarytext to-primarytext p-8 relative overflow-hidden">
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -110,20 +110,20 @@ const Login = () => {
               className="space-y-4"
             >
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-900" />
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primarytext" />
                 <input
                   type="text"
                   placeholder="Enter phone number"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full pl-10 pr-3 py-3 border-2 border-green-900/30 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent transition-all duration-300 bg-white/70"
+                  className="w-full pl-10 pr-3 py-3 border-2 border-primarytext/30 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent transition-all duration-300 bg-white/70"
                 />
               </div>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSendOtp}
-                className="w-full px-4 py-3 bg-gradient-to-r from-green-900 to-green-800 text-white font-semibold rounded-lg shadow-md hover:from-green-800 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-900 focus:ring-offset-2 transition-all duration-300 ease-in-out flex items-center justify-center space-x-2"
+                className="w-full px-4 py-3 bg-gradient-to-r from-primarytext to-primarytext text-white font-semibold rounded-lg shadow-md hover:from-primarytext hover:to-primarytext focus:outline-none focus:ring-2 focus:ring-primarytext focus:ring-offset-2 transition-all duration-300 ease-in-out flex items-center justify-center space-x-2"
               >
                 <span>Send OTP</span>
                 <ArrowRight className="w-5 h-5" />
@@ -137,20 +137,20 @@ const Login = () => {
               className="space-y-4"
             >
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-900" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primarytext" />
                 <input
                   type="text"
                   placeholder="Enter OTP"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="w-full pl-10 pr-3 py-3 border-2 border-green-900/30 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-900 focus:border-transparent transition-all duration-300 bg-white/70"
+                  className="w-full pl-10 pr-3 py-3 border-2 border-primarytext/30 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent transition-all duration-300 bg-white/70"
                 />
               </div>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleVerifyOtp}
-                className="w-full px-4 py-3 bg-gradient-to-r from-green-900 to-green-800 text-white font-semibold rounded-lg shadow-md hover:from-green-800 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-900 focus:ring-offset-2 transition-all duration-300 ease-in-out flex items-center justify-center space-x-2"
+                className="w-full px-4 py-3 bg-gradient-to-r from-primarytext to-primarytext text-white font-semibold rounded-lg shadow-md hover:from-primarytext hover:to-primarytext focus:outline-none focus:ring-2 focus:ring-primarytext focus:ring-offset-2 transition-all duration-300 ease-in-out flex items-center justify-center space-x-2"
               >
                 <span>Verify OTP</span>
                 <ArrowRight className="w-5 h-5" />
