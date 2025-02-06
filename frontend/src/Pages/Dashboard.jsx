@@ -26,7 +26,7 @@ const Dashboard = () => {
                 const response = await axios.get(`${backend_url}/api/admin/getproperty/${id}`);
                 
                 // Log the fetched data
-                console.log("Property data fetched successfully:", response.data.data);
+                // console.log("Property data fetched successfully:", response.data.data);
                 setData(response.data.data);
                 
             } catch (error) {

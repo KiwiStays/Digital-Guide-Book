@@ -14,7 +14,7 @@ const getIconFromImport = (description) => {
 };
 
 
-const InfoCard = ({ description, number, isOpen, setIsOpen }) => {
+const InfoCard = ({ description, number,isOpen, setIsOpen }) => {
   const importedIcon = getIconFromImport(description);
 
   return (
@@ -22,40 +22,40 @@ const InfoCard = ({ description, number, isOpen, setIsOpen }) => {
       <div className="flex flex-col items-center" onClick={() => setIsOpen(!isOpen)}>
         {importedIcon && (
           <div className="w-12 h-12 md:w-32 md:h-32 rounded-full overflow-hidden">
-            <img
+                <img
               // Render the image from the URL
-              src={importedIcon}
-              alt={description}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        <p className="mt-2 text-sm font-medium text-green-600">{description}</p>
-      </div>
+                      src={importedIcon}
+                      alt={description}
+                      className="w-full h-full object-cover"
+                    />
+                    </div>
+                  )}
+                  <p className="mt-2 text-sm font-medium text-green-600">{description}</p>
+                  </div>
 
-      {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto overflow-hidden animate-fadeIn">
-            <div className="flex justify-between items-center bg-primarybg px-6 py-4">
-              <h3 className="text-xl font-semibold text-green-900">{description}</h3>
-              <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-800">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="p-6">
-              <div className="text-gray-700 font-semibold text-center">
-                <p className="text-2xl text-red-600 mb-2">{number}</p>
-                <p>{description}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+                  {isOpen && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto overflow-hidden animate-fadeIn">
+                    <div className="flex justify-between items-center bg-primarybg px-6 py-4">
+                      <h3 className="text-xl font-semibold text-green-900">{description}</h3>
+                      <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-800">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      </button>
+                    </div>
+                    <div className="p-6">
+                      <div className="text-gray-700 font-semibold text-center">
+                      <p className="text-2xl text-red-600 mb-2">{number}</p>
+                      <p>{description}</p>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+                  )}
+                </div>
+                );
+              };
 
 // const InfoCard = ({ description, number, icon }) => {
 //   const [isOpen, setIsOpen] = useState(false);
@@ -114,49 +114,49 @@ const PerkCard = ({ name, icon, content, items, isOpen, setIsOpen }) => {
 
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          initial={{ opacity: 0, scale: 0.85 }} // Start more subtle
-          animate={{ opacity: 1, scale: 1 }} // Smoothly scale up
-          exit={{ opacity: 0, scale: 0.85 }} // Scale down on exit
-          transition={{ duration: 0.5, ease: "easeInOut" }} // Increased duration for smoothness
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        initial={{ opacity: 0, scale: 0.85 }} // Start more subtle
+        animate={{ opacity: 1, scale: 1 }} // Smoothly scale up
+        exit={{ opacity: 0, scale: 0.85 }} // Scale down on exit
+        transition={{ duration: 0.5, ease: "easeInOut" }} // Increased duration for smoothness
+      >
+        <motion.div
+          className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto"
+          initial={{ y: 60, opacity: 0 }} // Start a bit lower
+          animate={{ y: 0, opacity: 1 }} // Slide up more gradually
+          exit={{ y: 60, opacity: 0 }} // Slide down smoothly when closing
+          transition={{ duration: 0.5, ease: "easeInOut" }} // Extended duration for better smoothness
         >
-          <motion.div
-            className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto"
-            initial={{ y: 60, opacity: 0 }} // Start a bit lower
-            animate={{ y: 0, opacity: 1 }} // Slide up more gradually
-            exit={{ y: 60, opacity: 0 }} // Slide down smoothly when closing
-            transition={{ duration: 0.5, ease: "easeInOut" }} // Extended duration for better smoothness
-          >
-            {/* Header */}
-            <div className="flex justify-between items-center bg-primarybg px-6 py-4">
-              <h3 className="text-xl font-semibold text-primarytext">{name}</h3>
-              <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-800">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+          {/* Header */}
+          <div className="flex justify-between items-center bg-primarybg px-6 py-4">
+            <h3 className="text-xl font-semibold text-primarytext">{name}</h3>
+            <button onClick={() => setIsOpen(false)} className="text-gray-600 hover:text-gray-800">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+    
+          {/* Content */}
+          <div className="p-6">
+            <div className="text-gray-500 whitespace-pre-line">
+              {displayContent.split("\n").map((line, index) => {
+                const parts = line.split(":");
+                if (parts.length === 1) {
+                  return <p key={index}>{line}</p>;
+                } else {
+                  const [highlighted, ...rest] = parts;
+                  return (
+                    <p key={index}>
+                      <span className="font-semibold text-red-900">{highlighted}</span> {rest.join(":")}
+                    </p>
+                  );
+                }
+              })}
             </div>
-
-            {/* Content */}
-            <div className="p-6">
-              <div className="text-gray-500 whitespace-pre-line">
-                {displayContent.split("\n").map((line, index) => {
-                  const parts = line.split(":");
-                  if (parts.length === 1) {
-                    return <p key={index}>{line}</p>;
-                  } else {
-                    const [highlighted, ...rest] = parts;
-                    return (
-                      <p key={index}>
-                        <span className="font-semibold text-red-900">{highlighted}</span> {rest.join(":")}
-                      </p>
-                    );
-                  }
-                })}
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </motion.div>
+      </motion.div>
       )}
     </div>
   );
@@ -215,15 +215,16 @@ const FoodAndDrinksSection = ({ foodAndDrinks }) => {
       <div className="flex gap-4 mb-8">
         {Object.keys(groupedByTag).map((tag) => (
           <button
-            key={tag}
-            onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-            className={`px-4 py-2 rounded-full transition-all duration-300 ${selectedTag === tag
-                ? 'bg-green-900 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-          >
-            {tag} ({groupedByTag[tag].length})
-          </button>
+          key={tag}
+          onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+          className={`px-4 py-2 rounded-full transition-all duration-300 ${
+            selectedTag === tag
+              ? 'bg-green-900 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          {tag} ({groupedByTag[tag].length})
+        </button>
         ))}
       </div>
 
@@ -333,7 +334,7 @@ const HouseTourCard = ({ images }) => {
 const Stayinfo = () => {
   const { propertyData } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  console.log("perk", propertyData.data.perks);
+  // console.log("perk info",propertyData.data.perks);
   const quickResponse = propertyData?.data?.quickResponse || [];
   const perkInfo = propertyData?.data?.perkInfo || {};
   const foodAndDrinks = propertyData?.data?.foodAndDrinks || [];
@@ -354,34 +355,70 @@ const Stayinfo = () => {
 
 
 
-
+  
   return (
     <main className="">
       <h1 className="text-center font-semibold text-3xl text-primarytext mb-10">Your Stay info</h1>
-      {/* House Tour Card */}
-      {/* <section className="p-4 md:flex md:flex-col md:items-center">
+         {/* House Tour Card */}
+       {/* <section className="p-4 md:flex md:flex-col md:items-center">
         <HouseTourCard images={propertyData?.data?.images} />
       </section> */}
 
+<section className="p-4 md:flex md:flex-col md:items-center">
+  <h2 className="text-2xl font-semibold text-primarytext mb-6">Available Amenities</h2>
+  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    {[
+      // Perks with info (from perkInfo)
+      ...perks.map((perk) => {
+        const apiKey = Object.keys(perkInfo || {}).find(
+          (key) => key.toLowerCase() === perk.name.toLowerCase()
+        );
 
-      {/* perks section */}
-      <section className="p-4 md:flex md:flex-col md:items-center">
-        <h2 className="text-2xl font-semibold text-primarytext mb-6">Available Amenities</h2>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {perks.map((perk) => {
-            const apiKey = Object.keys(perkInfo).find(
-              key => key.toLowerCase() === perk.name.toLowerCase()
-            );
+        if (apiKey) {
+          const { content, items } = getPerkContent(perk.name, perkInfo);
+          return (
+            <PerkCard
+              key={perk.name}
+              name={perk.name}
+              icon={perk.icon}
+              content={content}
+              items={items}
+              isOpen={openModals[perk.name] || false}
+              setIsOpen={() => {
+                setOpenModals((prev) => ({
+                  ...prev,
+                  [perk.name]: !prev[perk.name],
+                }));
+              }}
+            />
+          );
+        }
+        return null;
+      }),
 
-            if (apiKey) {
-              const { content, items } = getPerkContent(perk.name, perkInfo);
+      // Perks in propertyData.data.perks but NOT in perkInfo (empty content)
+      ...(propertyData && propertyData.data && Array.isArray(propertyData.data.perks)
+        ? propertyData.data.perks
+            .filter(
+              (propertyPerk) =>
+                !Object.keys(perkInfo || {}).some(
+                  (key) => key.toLowerCase() === propertyPerk.toLowerCase()
+                )
+            )
+            .map((propertyPerk) => {
+              const perk = perks.find(
+                (p) => p.name.toLowerCase() === propertyPerk.toLowerCase()
+              );
+
+              if (!perk) return null; // Skip if no matching perk found
+
               return (
                 <PerkCard
-                  key={perk.name}
+                  key={propertyPerk}
                   name={perk.name}
                   icon={perk.icon}
-                  content={content}
-                  items={items}
+                  content="" // Empty content for perks without perkInfo
+                  items={[]} // No items
                   isOpen={openModals[perk.name] || false}
                   setIsOpen={() => {
                     setOpenModals((prev) => ({
@@ -391,11 +428,49 @@ const Stayinfo = () => {
                   }}
                 />
               );
-            }
-            return null;
-          })}
-        </div>
-      </section>
+            })
+        : []), // Fallback to empty array if propertyData.data.perks is undefined
+    ]}
+  </div>
+</section>
+
+
+
+
+
+      {/* perks section */}
+      {/* <section className="p-4 md:flex md:flex-col md:items-center">
+  <h2 className="text-2xl font-semibold text-primarytext mb-6">Available Amenities</h2>
+  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    {perks.map((perk) => {
+      const apiKey = Object.keys(perkInfo).find(
+        key => key.toLowerCase() === perk.name.toLowerCase()
+      );
+    
+
+      if (apiKey) {
+        const { content, items } = getPerkContent(perk.name, perkInfo);
+        return (
+          <PerkCard
+            key={perk.name}
+            name={perk.name}
+            icon={perk.icon}
+            content={content}
+            items={items}
+            isOpen={openModals[perk.name] || false}
+            setIsOpen={() => {
+              setOpenModals((prev) => ({
+                ...prev,
+                [perk.name]: !prev[perk.name],
+              }));
+            }}
+          />
+        );
+      }
+      return null;
+    })}
+  </div>
+</section> */}
       {/* food and drinks */}
       {/* <section className="p-4 md:p-8">
         <h2 className="text-2xl font-semibold text-green-900 mb-6">Food & Drinks Nearby</h2>

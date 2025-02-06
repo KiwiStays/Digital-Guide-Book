@@ -6,7 +6,7 @@ import { QuickResponseItems } from "../data/quickresponse";
 const Hero2 = ({ wifi, selfcheckin, address, faqs, locationLink, houseRules }) => {
     const { propertyData } = useContext(AuthContext);
     const quickResponse = propertyData?.data?.quickResponse || [];
-    console.log("quickResponse", quickResponse);
+    // console.log("quickResponse", quickResponse);
     const [isOpen, setIsOpen] = useState(null);
     const [selectedQuickResponse, setSelectedQuickResponse] = useState(null);
 
