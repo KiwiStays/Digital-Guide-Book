@@ -742,7 +742,7 @@ function PropertyForm() {
             /* Food & Drinks Section */
           }
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Food & Drinks</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Our Recommendations</label>
             {formData.foodAndDrinks.map((item, index) => (
               <div key={index} className="mt-2 p-4 bg-gray-50 rounded-md">
                 <div className="space-y-2">

@@ -47,7 +47,7 @@ const Footer = () => {
             </div>
 
             {/* Right Side - Content */}
-            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between h-full">
+            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between h-full text-center items-center">
               {/* Message */}
               <div className="mb-6">
                 <p className="text-white text-sm md:text-xl font-medium leading-relaxed">

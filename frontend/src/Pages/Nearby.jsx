@@ -55,7 +55,7 @@ const Nearby = () => {
 
   return (
     <section className="p-4 md:p-8 md:flex md:flex-col md:items-center md:w-full">
-      <h2 className="text-2xl font-semibold text-primarytext mb-6">Food & Drinks Nearby</h2>
+      <h2 className="text-2xl font-semibold text-primarytext mb-6">Our Recomendations</h2>
 
       {/* Tags */}
       <div className="flex gap-4 mb-8 w-full overflow-x-auto whitespace-nowrap scrollbar-hide">
