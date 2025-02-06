@@ -16,7 +16,7 @@ const Hero = ({ heroimg, title, locationLink }) => {
                 </div>
 
                 {/* title */}
-                <div className='absolute bottom-0 w-full bg-gradient-to-t from-black/30 to-transparent px-4 py-4 bg-white/70 backdrop-blur-sm'>
+                <div className='absolute bottom-0 w-full bg-gradient-to-t  from-black/30 to-transparent px-4 py-4 bg-white/70 backdrop-blur-sm'>
                     <h1 className='text-primarytext text-center text-xl sm:text-xl md:text-3xl lg:text-4xl  font-semibold'>
                         Welcome to <span className="text-primarytext text-xl  shadow-sm font-semibold">{title.split('|')[0]}</span> by KiwiStays
                     </h1>

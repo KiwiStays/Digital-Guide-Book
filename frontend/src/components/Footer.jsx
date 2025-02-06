@@ -26,7 +26,7 @@ const Footer = () => {
                 className="w-full h-full object-cover"
               />
               {/* Dark Overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity hover:bg-opacity-30">
+              <Link to="https://www.instagram.com/reel/DDG9z7LSI6f/" className="absolute inset-0 bg-black bg-opacity-40 transition-opacity hover:bg-opacity-30">
                 {/* Icons Container */}
                 <div className="absolute bottom-4 left-4 flex space-x-4">
                   <button
@@ -43,7 +43,7 @@ const Footer = () => {
                     <MessageCircle className="w-6 h-6 text-white" />
                   </button>
                 </div>
-              </div>
+              </Link>
             </div>
 
             {/* Right Side - Content */}
