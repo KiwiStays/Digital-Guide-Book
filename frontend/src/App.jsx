@@ -46,7 +46,7 @@ function App() {
                 />
                 <Route
                   path="/"
-                  element={token ? <Navigate to="/dashboard" /> : <GuestForm />}
+                  element={token ? <Navigate to="/dashboard" /> : <Login />}
                 />
                 <Route
                   path="/:id"
