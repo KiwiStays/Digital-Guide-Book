@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Instagram, Globe } from "lucide-react";
+import instaImg from "./assets/insta.jpg";
 
 const Footer = () => {
   const [isLiked, setIsLiked] = useState(false);
@@ -19,7 +20,8 @@ const Footer = () => {
             {/* Left Side - Image with overlay */}
             <div className="relative w-full md:w-1/2  h-full">
               <img
-                src="https://plus.unsplash.com/premium_photo-1664304458186-9a67c1330d02?q=80&w=1890&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                // src="https://plus.unsplash.com/premium_photo-1664304458186-9a67c1330d02?q=80&w=1890&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src={instaImg}
                 alt="Goa view"
                 className="w-full h-full object-cover"
               />
@@ -48,15 +50,15 @@ const Footer = () => {
             <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between h-full">
               {/* Message */}
               <div className="mb-6">
-                <p className="text-white text-lg md:text-xl font-medium leading-relaxed">
-                  "Follow us on Instagram @thekiwistays."
+                <p className="text-white text-sm md:text-xl font-medium leading-relaxed">
+                "Follow @thekiwistays on Instagram for updates, travel inspiration, and guest features!”
                 </p>
               </div>
 
               {/* Social Links */}
               <div className="flex items-center justify-end space-x-4">
                 <Link
-                  to="https://www.instagram.com"
+                  to="https://www.instagram.com/thekiwistays/"
                   className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all"
                 >
                   <Instagram className="w-6 h-6 text-white" />

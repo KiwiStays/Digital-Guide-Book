@@ -16,20 +16,21 @@ function Navbar({ name }) {
           <div className="relative w-14 h-14 md:w-20 md:h-20">
             <div className="w-full h-full rounded-full overflow-hidden border-2 border-primarytext">
               <img
-                src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://a0.muscache.com/im/pictures/user/User-90888669/original/f4f89989-4674-48fe-b5ed-ba083c979733.jpeg?im_w=240&im_format=avif"
                 alt="host image"
                 className="w-full h-full object-cover"
               />
             </div>
 
-            {/* Call Icon - Extension of the Circle */}
-            <Link
-              to="/contacts"
+            {/* Call Icon - Click to Call */}
+            <a
+              href="tel:+917249066854" // Replace with actual phone number
               className="absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 bg-primarybg rounded-full flex items-center justify-center border-2 border-primarytext"
             >
               <PhoneCall className="w-5 h-5 md:w-6 md:h-6 text-primarytext" />
-            </Link>
+            </a>
           </div>
+
 
           {/* Welcome Text */}
           <h1 className="text-2xl font-bold md:text-2xl lg:text-3xl text-primarytext">Hi {name.split(" ")[0]}!</h1>
@@ -60,17 +61,17 @@ function Navbar({ name }) {
               <Link to="/">Arrival</Link>
             </li>
             <li>
-              <Link to="/stayinfo">Your Home</Link>
+              <Link to="/stayinfo">Stay info</Link>
             </li>
             <li>
-              <Link to="/contacts">Contacts</Link>
+              <Link to="/nearby">Near by</Link>
             </li>
           </ul>
         </div>
 
         {/* Desktop WhatsApp Button */}
         <div
-          onClick={() => window.open("https://wa.me/1234567890", "_blank")}
+          onClick={() => window.open("https://wa.me/7249066854", "_blank")}
           className="cursor-pointer border-2 border-green-900 hidden lg:flex items-center justify-center rounded-full px-10 md:px-4 py-4 text-2xl text-white bg-green-900"
         >
           Whatsapp Host
@@ -79,22 +80,21 @@ function Navbar({ name }) {
 
       {/* Mobile Menu with Frosted Effect */}
       <div
-        className={`lg:hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        } overflow-hidden bg-primarybg/80 backdrop-blur-sm`}
+        className={`lg:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          } overflow-hidden bg-primarybg/80 backdrop-blur-sm`}
       >
         <ul className="flex flex-col items-center text-xl font-semibold gap-4 text-primarytext py-4">
           <li>
             <Link to="/">Arrival</Link>
           </li>
           <li>
-            <Link to="/stayinfo">Your Home</Link>
+            <Link to="/stayinfo">Stayinfo</Link>
           </li>
           <li>
-            <Link to="/contacts">Contacts</Link>
+            <Link to="/nearby">Near by</Link>
           </li>
           <li
-            onClick={() => window.open("https://wa.me/1234567890", "_blank")}
+            onClick={() => window.open("https://wa.me/7249066854", "_blank")}
             className="cursor-pointer  rounded-full px-6 py-2 text-white bg-green-900"
           >
             Whatsapp Host

@@ -116,8 +116,8 @@ const GuestForm = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Response:', response.data);
-      console.log('Form Data:', formData);
+      // console.log('Response:', response.data);
+      // console.log('Form Data:', formData);
       setIsSubmitted(true);
       setIsLoading(false);
       // resetForm();

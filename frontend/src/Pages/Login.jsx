@@ -12,6 +12,7 @@ const Login = () => {
     const [otp, setOtp] = useState('');
     const [step, setStep] = useState(1);
     const { auth_login } = useContext(AuthContext);
+    const [displayotp , displaysetotp] = useState('');
     const navigate = useNavigate();
 
     const handleSendOtp = async () => {
@@ -33,6 +34,8 @@ const Login = () => {
     
             if (response.ok) {
                 alert(data.message); // OTP sent successfully
+                // console.log(data.otp);
+                displaysetotp(data.otp);
                 setStep(2); // Move to the OTP input step
             } else {
                 // Handle errors gracefully
@@ -136,7 +139,9 @@ const Login = () => {
               transition={{ duration: 0.5 }}
               className="space-y-4"
             >
+              <h1>Your otp : {displayotp}</h1>
               <div className="relative">
+                
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primarytext" />
                 <input
                   type="text"

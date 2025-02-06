@@ -60,7 +60,7 @@ export const login = async (req, res) => {
         // Here, you'd send the OTP via SMS (mocking this for now)
         console.log(`OTP for ${phoneNumber}: ${otp}`);
 
-        res.status(200).json({ message: 'OTP sent successfully.' });
+        res.status(200).json({ message: 'OTP sent successfully.',otp:otp });
 
     }
     catch (err) {
