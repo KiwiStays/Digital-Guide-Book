@@ -16,9 +16,9 @@ const Hero = ({ heroimg, title, locationLink }) => {
                 </div>
 
                 {/* title */}
-                <div className='absolute bottom-0 w-full bg-gradient-to-t from-black/70 to-transparent px-4 py-4 bg-white/40'>
-                    <h1 className='text-black text-center text-xl sm:text-xl md:text-3xl lg:text-4xl font-semibold'>
-                        Welcome to {title.split('|')[0]}, Goa
+                <div className='absolute bottom-0 w-full bg-gradient-to-t from-black/30 to-transparent px-4 py-4 bg-white/70 backdrop-blur-sm'>
+                    <h1 className='text-primarytext text-center text-xl sm:text-xl md:text-3xl lg:text-4xl  font-semibold'>
+                        Welcome to <span className="text-primarytext text-xl  shadow-sm font-semibold">{title.split('|')[0]}</span> by KiwiStays
                     </h1>
                 </div>
             </div>
@@ -27,10 +27,10 @@ const Hero = ({ heroimg, title, locationLink }) => {
                 <Link
                     to={locationLink}
                     className="group transition-all duration-300 
-                   bg-white
-                   border-2 rounded-xl  px-6 py-2 
-                   w-full max-w-md flex items-center justify-between 
-                   gap-4 text-lg font-medium text-[#B7410E] active:text-white"
+                    bg-white
+                    border-2 rounded-xl  px-6 py-2 
+                    w-full max-w-md flex items-center justify-between 
+                    gap-4 text-lg font-medium text-[#B7410E] active:text-white"
                 >
                     Google map location
                     <svg
@@ -53,6 +53,7 @@ const Hero = ({ heroimg, title, locationLink }) => {
 
                 </Link>
             </div>
+                    <h1 className='text-primarytext text-center  text-lg font-semibold items-center  md:text-2xl '>Check In : 2 pm - Check Out: 11 am</h1>
 
 
         </section>

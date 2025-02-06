@@ -64,7 +64,7 @@ function Navbar({ name }) {
               <Link to="/stayinfo">Stay info</Link>
             </li>
             <li>
-              <Link to="/nearby">Near by</Link>
+              <Link to="/nearby">Nearby</Link>
             </li>
           </ul>
         </div>
@@ -91,11 +91,11 @@ function Navbar({ name }) {
             <Link to="/stayinfo">Stayinfo</Link>
           </li>
           <li>
-            <Link to="/nearby">Near by</Link>
+            <Link to="/nearby">Nearby</Link>
           </li>
           <li
             onClick={() => window.open("https://wa.me/7249066854", "_blank")}
-            className="cursor-pointer  rounded-full px-6 py-2 text-white bg-green-900"
+            className="cursor-pointer  rounded-full px-6 py-2 text-white bg-primarytext"
           >
             Whatsapp Host
           </li>

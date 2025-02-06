@@ -42,8 +42,8 @@ const GuestForm = () => {
     property_name: title,
     number_of_guests: 1,
     documents: [{ name: '', file: '', age: '', idCardType: '', gender: '' }],
-    checkin: '',
-    checkout: '',
+    checkin: 'dd/mm/yyyy',
+    checkout: 'dd/mm/yyyy',
   });
 
   const handleChange = (e) => {
@@ -141,7 +141,7 @@ const GuestForm = () => {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-cover bg-center bg-no-repeat bg-fixed"
       style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1515404929826-76fff9fef6fe?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
+        backgroundImage: `url('https://images.unsplash.com/photo-1532484468512-fd9df0aa70f4?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
       }}>
       {isSubmitted && (
         <motion.div
@@ -163,7 +163,7 @@ const GuestForm = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-center lg:text-left p-8 bg-gradient-to-r md:from-red-800 md:to-primarytext">
-          <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-white drop-shadow-lg">
+          <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-white  drop-shadow-lg">
             Welcome to KiwiStays
           </h1>
 
@@ -171,7 +171,7 @@ const GuestForm = () => {
             Your perfect getaway begins here
           </p>
 
-          <Link to="/login" className="text-white mt-4 block">
+          <Link to="/login" className="text-white  mt-4 block">
             Already have an account?{' '}
             <span className="underline hover:text-green-200">Click to Login</span>
           </Link>
@@ -211,7 +211,7 @@ const GuestForm = () => {
           <form onSubmit={handleSubmit} className="p-6 space-y-6 md:px-10  md:max-h-[70vh] overflow-y-auto">
             <div className="grid md:grid-cols-2 gap-6">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-medium text-white mb-1">Name</label>
+                <label className="block text-md font-bold  text-white  mb-1">Name</label>
                 <input
                   type="text"
                   name="name"
@@ -223,7 +223,7 @@ const GuestForm = () => {
                 />
               </motion.div>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-medium text-white mb-1">Phone</label>
+                <label className="block text-sm font-bold  text-white  mb-1">Phone</label>
                 <input
                   type="tel"
                   name="phone"
@@ -242,7 +242,7 @@ const GuestForm = () => {
 
               </motion.div>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-medium text-white mb-1">Property Name</label>
+                <label className="block text-sm font-bold  text-white  mb-1">Property Name</label>
                 <input
                   type="text"
                   name="property_name"
@@ -256,7 +256,7 @@ const GuestForm = () => {
             </div>
 
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <label className="block text-sm font-medium text-white mb-1">Number of Guests</label>
+              <label className="block text-sm font-bold  text-white mb-1">Number of Guests</label>
               <select
                 name="number_of_guests"
                 value={formData.number_of_guests}
@@ -282,7 +282,7 @@ const GuestForm = () => {
                 transition={{ duration: 0.3, delay: index * 0.1 }}
                 className="space-y-4 p-4 bg-white/20 rounded-lg backdrop-blur-sm"
               >
-                <h3 className="text-lg font-semibold text-white">Guest {index + 1} Details</h3>
+                <h3 className="text-lg font-bold  text-white">Guest {index + 1} Details</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <input
                     type="text"
@@ -290,7 +290,7 @@ const GuestForm = () => {
                     // value={doc.name}
                     onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
                     className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
-                    placeholder="Full name"
+                    placeholder="Full name" 
                     required
                   />
                   <input
@@ -345,7 +345,7 @@ const GuestForm = () => {
             ))}
             <div className="grid md:grid-cols-2 gap-6">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-medium text-white mb-1">Check-in Date</label>
+                <label className="block text-sm font-medium text-white  mb-1">Check-in Date</label>
                 <input
                   type="date"
                   name="checkin"
@@ -356,7 +356,7 @@ const GuestForm = () => {
                 />
               </motion.div>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-medium text-white mb-1">Check-out Date</label>
+                <label className="block text-sm font-bold  text-white  mb-1">Check-out Date</label>
                 <input
                   type="date"
                   name="checkout"
@@ -374,7 +374,7 @@ const GuestForm = () => {
                 disabled={isLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r bg-primarytext text-white font-semibold rounded-md shadow-md hover:from-red-800 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-primarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r bg-primarytext text-white  font-semibold rounded-md shadow-md hover:from-red-800 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-primarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">

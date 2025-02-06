@@ -64,7 +64,7 @@ const Footer = () => {
                   <Instagram className="w-6 h-6 text-white" />
                 </Link>
                 <Link
-                  to="https://www.yourwebsite.com"
+                  to="https://www.instagram.com/thekiwistays/"
                   className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all"
                 >
                   <Globe className="w-6 h-6 text-white" />

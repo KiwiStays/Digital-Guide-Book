@@ -3,7 +3,7 @@ import { AuthContext } from '../Context/Authcontext';
 import { perks } from '../data/perks';
 import { QuickResponseItems } from '../data/quickresponse';
 import { AiFillHome } from 'react-icons/ai';
-import { Home, X } from 'lucide-react';
+import { Home, X, MousePointerClick } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const getIconFromImport = (description) => {
@@ -253,21 +253,22 @@ const HouseTourCard = ({ images }) => {
 
   // Render a card anyway, even if images is empty, so it’s always visible
   return (
-    <div className="my-4">
+    <div className=" items-center text-center bg-white rounded-3xl mx-8">
       <div
         onClick={() => {
           if (images?.length) setIsOpen(true);
         }}
-        className="cursor-pointer flex items-center space-x-2 p-4 border rounded-lg hover:bg-gray-50 transition"
+        className="cursor-pointer flex items-center space-x-2 p-2 border rounded-lg hover:bg-gray-50 transition justify-center"
       >
-        <Home className="text-green-800" size={24} />
-        <span className="font-semibold text-green-800">House Tour</span>
+        {/* <Home className="text-primarytext" size={28} /> */}
+        <MousePointerClick className="text-primarytext size={28}"/>
+        <span className="font-semibold text-primarytext text-2xl">House Tour</span>
       </div>
 
       {/* Modal only if there are images */}
       {images?.length > 0 && isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-          <div className="bg-white w-full max-w-3xl rounded-lg overflow-y-auto max-h-[90vh] relative">
+          <div className="bg-primarybg w-full max-w-3xl rounded-lg overflow-y-auto max-h-[90vh] relative">
             {/* Close Button */}
             <button
               onClick={() => setIsOpen(false)}
@@ -277,7 +278,7 @@ const HouseTourCard = ({ images }) => {
             </button>
 
             <div className="p-6">
-              <h2 className="text-xl font-bold text-green-900 mb-4">House Tour</h2>
+              <h2 className="text-xl font-bold text-red-900 mb-4">House Tour</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {images.map((img) => (
                   <div key={img._id} className="border rounded-md overflow-hidden">
@@ -334,9 +335,10 @@ const HouseTourCard = ({ images }) => {
 const Stayinfo = () => {
   const { propertyData } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  // console.log("perk info",propertyData.data.perks);
+  console.log("perk info",propertyData?.data?.perks);
   const quickResponse = propertyData?.data?.quickResponse || [];
   const perkInfo = propertyData?.data?.perkInfo || {};
+  console.log("perk info",perkInfo);
   const foodAndDrinks = propertyData?.data?.foodAndDrinks || [];
   const [openModals, setOpenModals] = useState({});
 
@@ -344,8 +346,8 @@ const Stayinfo = () => {
 
   const getPerkContent = (perkName, perkInfo) => {
     switch (perkName.toLowerCase()) {
-      case 'kitchen':
-        return { content: perkInfo[perkName], items: propertyData?.data?.kitchenItems };
+      // case 'kitchen':
+      //   return { content: perkInfo[perkName], items: propertyData?.data?.kitchenItems };
       case 'appliances':
         return { content: perkInfo[perkName], items: propertyData?.data?.appliancesItems };
       default:
@@ -358,14 +360,14 @@ const Stayinfo = () => {
   
   return (
     <main className="">
-      <h1 className="text-center font-semibold text-3xl text-primarytext mb-10">Your Stay info</h1>
+      {/* <h1 className="text-center font-semibold text-3xl text-primarytext ">Your Stay info</h1> */}
          {/* House Tour Card */}
-       {/* <section className="p-4 md:flex md:flex-col md:items-center">
+       <section className="md:flex md:flex-col md:items-center ">
         <HouseTourCard images={propertyData?.data?.images} />
-      </section> */}
+      </section>
 
 <section className="p-4 md:flex md:flex-col md:items-center">
-  <h2 className="text-2xl font-semibold text-primarytext mb-6">Available Amenities</h2>
+  <h2 className="text-2xl font-semibold text-primarytext mb-6 text-center">Available Amenities</h2>
   <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
     {[
       // Perks with info (from perkInfo)
