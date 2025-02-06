@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
-console.log("backendurl", backend_url);
+// console.log("backendurl", backend_url);
 
 const GuestForm = () => {
   const { id } = useParams(); // Initialize useParams hook
@@ -23,7 +23,7 @@ const GuestForm = () => {
     const fetchPropertyName = async () => {
       try {
         const response = await axios.get(`${backend_url}/api/admin/getproperty/name/${id}`);
-        console.log("response from guestform", response.data);
+        // console.log("response from guestform", response.data);
         setTitle(response.data.data.title);
         setCoverImage(response.data.data.coverImage);
 
@@ -131,9 +131,9 @@ const GuestForm = () => {
       if (error.response && error.response.status === 402) {
         alert(error.response.data.message);  // Show the alert with backend message
         setIsLoading(false);
-      }else{
-      console.error('Error:', error);
-      setIsLoading(false);
+      } else {
+        console.error('Error:', error);
+        setIsLoading(false);
       }
     }
   };
@@ -182,9 +182,7 @@ const GuestForm = () => {
               alt="Property view"
               className="rounded-lg w-full h-48 md:h-64 object-cover"
             />
-            <h2 className="text-white mt-4 text-xl font-semibold">
-              {title}
-            </h2>
+
           </div>
 
           <motion.div
@@ -192,7 +190,11 @@ const GuestForm = () => {
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 1 }}
             className="flex flex-col items-center justify-center mt-8 md:hidden lg:hidden">
+            <h2 className="text-white mt-4 text-xl font-semibold">
+              {title}
+            </h2>
             <span className="text-white text-lg font-bold">Scroll down to fill the form</span>
+            
             <span className="text-white text-2xl mt-2">↓</span>
           </motion.div>
         </motion.div>
@@ -290,7 +292,7 @@ const GuestForm = () => {
                     // value={doc.name}
                     onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
                     className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
-                    placeholder="Full name" 
+                    placeholder="Full name"
                     required
                   />
                   <input
