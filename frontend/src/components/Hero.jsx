@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const Hero = ({ heroimg, title, locationLink }) => {
+    
     return (
         <section className='flex flex-col max-w-7xl mx-auto w-full'>
             <div className="relative">

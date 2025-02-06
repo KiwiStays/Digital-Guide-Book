@@ -26,7 +26,7 @@ const Dashboard = () => {
                 const response = await axios.get(`${backend_url}/api/admin/getproperty/${id}`);
                 
                 // Log the fetched data
-                // console.log("Property data fetched successfully:", response.data.data);
+                console.log("Property data fetched successfully:", response.data.data);
                 setData(response.data.data);
                 
             } catch (error) {
@@ -56,7 +56,7 @@ const Dashboard = () => {
     return (
         <div className="bg-primarybg h-full">
             
-            {data && data.images && data.images.length > 1 ? (
+            {data && data.images && data.images.length >= 1 ? (
                 <Hero title={data.title} heroimg={data.coverImage} locationLink = {data.location} />
             ) : (
                 <p>Loading...</p> 
