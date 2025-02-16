@@ -5,7 +5,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../Context/Authcontext';
 import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
-import { set } from 'mongoose';
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 // console.log("backendurl", backend_url);
