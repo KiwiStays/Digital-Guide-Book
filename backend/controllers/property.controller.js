@@ -481,3 +481,19 @@ export const getallPropertyInfo = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const deleteProperty = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedProperty = await Propertymodel.findByIdAndDelete(id);
+
+        if (!deletedProperty) {
+            return res.status(404).json({ message: "Property not found" });
+        }
+
+        res.status(200).json({ message: "Property deleted successfully" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}

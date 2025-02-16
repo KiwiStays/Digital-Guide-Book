@@ -1,6 +1,6 @@
 import { Router } from "express";
 import upload from "../middlewares/multer.js";
-import { CreateProperty, getProperty,getPropertyName, Allcount, UpdateProperty, getname, getallPropertyInfo, } from "../controllers/property.controller.js";
+import { CreateProperty, getProperty,getPropertyName, Allcount, UpdateProperty, getname, getallPropertyInfo, deleteProperty, } from "../controllers/property.controller.js";
 import { get } from "http";
 
 const router = Router();
@@ -16,5 +16,6 @@ router.route("/getproperty/name/:id").get( getPropertyName);
 router.route("/getproperty").get(getallPropertyInfo);
 router.route("/count").get(Allcount);
 router.route("/property").get(getname);
+router.route("/deleteproperty/:id").delete(deleteProperty);
 
 export default router;

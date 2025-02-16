@@ -522,6 +522,7 @@ function PropertyForm() {
           {
             /* Cover Image Section */
           }
+          <h1 className="text-red-600">*This is a mandatory field </h1>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
             <div className="flex items-center justify-center w-full">
@@ -671,6 +672,7 @@ function PropertyForm() {
           </div>
 
           { /* Perks Section */}
+          <h1 className='text-red-600'>*Make sure to select atleast one perk before submission</h1>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Perks</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-2">
