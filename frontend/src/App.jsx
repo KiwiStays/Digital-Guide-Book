@@ -22,7 +22,7 @@ import axios from 'axios';
 import Nearby from './Pages/Nearby';
 import Thanks from './Pages/Thanks';
 import Active from './Pages/Active';
-import PropertyListing from './Pages/PRopertyListing';
+import PropertyListing from './Pages/PropertyListing';
 
 
 function App() {
