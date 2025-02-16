@@ -22,6 +22,7 @@ import axios from 'axios';
 import Nearby from './Pages/Nearby';
 import Thanks from './Pages/Thanks';
 import Active from './Pages/Active';
+import PropertyListing from './Pages/PRopertyListing';
 
 
 function App() {
@@ -87,6 +88,7 @@ function App() {
                   element={adminToken ? <Admindashboard /> : <AdminLogin />}
                 />
                 <Route path="editguestinfo" element={adminToken ? <Editguestinfo /> : <AdminLogin />} />
+                <Route path="propertylist" element={adminToken ? <PropertyListing /> : <AdminLogin />} />
                 <Route path="editproperty" element={adminToken ? <EditProperty /> : <AdminLogin />} />
                 <Route path="*" element={<Pagenotfound />} />
               </Routes>

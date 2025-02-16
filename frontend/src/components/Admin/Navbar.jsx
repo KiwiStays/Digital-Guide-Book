@@ -18,7 +18,8 @@ const Navbar = () => {
 
     const navItems = [
         { name: 'Dashboard', path: '/admin/dashboard', requireAuth: true },
-        { name: 'Property', path: '/admin/property', requireAuth: true },
+        { name: 'Create Property', path: '/admin/property', requireAuth: true },
+        { name: "Property List", path: '/admin/propertylist', requireAuth: true },
         { name: 'Guest Info', path: '/admin/guestinfo', requireAuth: true },
         { name: "Edit Guest info", path: '/admin/editguestinfo', requireAuth: true },
         { name: "Edit Proerty", path: '/admin/editproperty', requireAuth: true },

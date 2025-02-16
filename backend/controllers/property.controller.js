@@ -470,3 +470,14 @@ export const getname = async (req, res) => {
     }
 
 };
+
+export const getallPropertyInfo = async (req, res) => {
+    try {
+        const properties = await Propertymodel.find({}, 'title coverImage active _id');
+        // console.log(properties);
+        res.status(200).json(properties);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
