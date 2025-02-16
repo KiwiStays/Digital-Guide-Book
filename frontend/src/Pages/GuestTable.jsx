@@ -47,6 +47,7 @@ const GuestTable = () => {
 
             const response = await axios.get(url);
             setGuests(response.data || []); // Ensure we set an array even if empty
+            // console.log(response.data);
         } catch (error) {
             console.error('Error fetching guest data:', error);
             alert('Failed to fetch guest data. Please try again later.');
@@ -70,6 +71,7 @@ const GuestTable = () => {
                 'Guest Name': guest.name,
                 'Guest db id': guest._id,
                 'Phone': guest.phone,
+                'Cleaning Time Slot': guest.cleaningTime,
                 'Number of Guests': guest.number_of_guests,
                 'Check-in Date': guest.checkin.split('T')[0],
                 'Check-out Date': guest.checkout.split('T')[0],
@@ -190,6 +192,7 @@ const GuestTable = () => {
                                     <th className="p-2 border">Number of Guests</th>
                                     <th className="p-2 border">Dates Stayed</th>
                                     <th className="p-2 border">Days Stayed</th>
+                                    <th className="p-2 border">Cleaning time slot</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -220,6 +223,7 @@ const GuestTable = () => {
                                                             )
                                                             : 'N/A'}
                                                     </td>
+                                                    <td className="p-2 border">{guest.cleaningTime||'not choosen'}</td>
                                                 </tr>
 
                                                 {/* Expanded Row for Documents */}

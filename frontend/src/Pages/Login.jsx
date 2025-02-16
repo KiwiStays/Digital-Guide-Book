@@ -58,11 +58,19 @@ const Login = () => {
             const data = await response.json();
             // console.log(response);
             // console.log(data.data);
+            console.log(data.data.property_active);
             // console.log(data.data.place_id);
+            
             if (response.ok) {
-                auth_login(data.data.token, data.data.guest.name, data.data.guest.id,data.data.guest.place_id);
+                auth_login(data.data.token, data.data.guest.name, data.data.guest.id,data.data.guest.place_id,data.data.property_active);
                 alert('Login successful.');
-                navigate('/dashboard');
+                if(!data?.data?.property_active){
+                  navigate('/active');
+                }
+                else{
+
+                  navigate('/dashboard');
+                }
             } else {
                 // console.log(data.message);
                 alert(data.message);

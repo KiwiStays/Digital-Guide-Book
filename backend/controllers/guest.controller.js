@@ -83,7 +83,7 @@ const generateToken = (userId, checkOutDate) => {
 export const VerifyGuest = async (req, res)=>{
   try {
       const {id} = req.params;
-      const { name, phone, property_name, number_of_guests, checkin, checkout } = req.body;
+      const { name, phone, property_name, number_of_guests, checkin, checkout,cleaningTime } = req.body;
       console.log("req body",req.body);
       console.log("req files",req.files); 
 
@@ -135,6 +135,7 @@ export const VerifyGuest = async (req, res)=>{
         Document: documents,
         checkin,
         checkout,
+        cleaningTime,
       });
       const token = generateToken(guest._id,checkout);
       guest.token = token;

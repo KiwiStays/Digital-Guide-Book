@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 
 export const CreateProperty = async (req, res) => {
     try {
-        // console.log("req body" , req.body);
+        console.log("req body" , req.body);
         // console.log("rules " , req.body.houseRules);
         // console.log(req.files);
 
@@ -65,6 +65,7 @@ export const CreateProperty = async (req, res) => {
 
         // Create property data object
         const newPropertyData = {
+            active:propertyData.active,
             title: propertyData.title,
             hostName: propertyData.hostName,
             address: propertyData.address,
@@ -218,7 +219,7 @@ export const getPropertyName = async (req, res) => {
 
     try {
         // const property = await Propertymodel.findById(id);
-        const property = await Propertymodel.findById(id).select('title _id coverImage');
+        const property = await Propertymodel.findById(id).select('title _id coverImage active');
 
         // Check if the property exists
         if (!property) {
@@ -348,6 +349,7 @@ export const UpdateProperty = async (req, res) => {
 
         // Create property data object
         const newPropertyData = {
+            active:propertyData.active,
             title: propertyData.title,
             hostName: propertyData.hostName,
             address: propertyData.address,

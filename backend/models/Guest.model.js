@@ -44,6 +44,10 @@ const Guestschema = new Schema({
     token: {
         type: String,
     },
+    cleaningTime:{
+        type: String,
+        trim: true,
+    },
     otp: { type: String }, // Store the generated OTP
     otpExpiresAt: { type: Date }, // Expiry time for the OTP
 });

@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
 const PropertySchema = new Schema({
+    active:{
+        type:Boolean,
+        default:true,
+    },
     title: {
         type: String,
         trim: true

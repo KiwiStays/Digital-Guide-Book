@@ -7,11 +7,16 @@ export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('authToken') || null);
+   const [active, setActive] = useState(
+    localStorage.getItem('active') ? JSON.parse(localStorage.getItem('active')) : null
+);
+
     const [name, setName] = useState(localStorage.getItem('userName') || null);
     const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
     const [propertyData, setPropertyData] = useState(null);
     const [placeId, setPlaceId] = useState(localStorage.getItem('placeId') || null);
     const [loading, setLoading] = useState(true);
+    // console.log(active);
     // const id = useParams();
     
     // console.log("authcontext: ", token);
@@ -71,7 +76,9 @@ const AuthProvider = ({ children }) => {
 
     
 
-    const auth_login = (token, name, id,place_id) => {
+    const auth_login = (token, name, id,place_id,active) => {
+        console.log("auth_login",active);    
+        setActive(active)
         setToken(token);
         setName(name);
         setUserId(id);
@@ -80,20 +87,23 @@ const AuthProvider = ({ children }) => {
         localStorage.setItem('userName', name);
         localStorage.setItem('userId', id);
         localStorage.setItem('placeId', place_id);
+        localStorage.setItem('active', active);
     };
 
     const logout = () => {
         setToken(null);
         setName(null);
         setUserId(null);
+        setActive(null);
         localStorage.removeItem('authToken');
         localStorage.removeItem('userName');
         localStorage.removeItem('userId');
         localStorage.removeItem('placeId');
+        localStorage.removeItem('active');
     };
 
     return (
-        <AuthContext.Provider value={{ token, auth_login, logout, loading, name, userId, propertyData , placeId }}>
+        <AuthContext.Provider value={{ token, auth_login, logout, loading, name, userId, propertyData , placeId , active }}>
             {children}
         </AuthContext.Provider>
     );

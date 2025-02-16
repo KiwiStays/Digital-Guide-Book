@@ -335,10 +335,10 @@ const HouseTourCard = ({ images }) => {
 const Stayinfo = () => {
   const { propertyData } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  console.log("perk info",propertyData?.data?.perks);
+  // console.log("perk info",propertyData?.data?.perks);
   const quickResponse = propertyData?.data?.quickResponse || [];
   const perkInfo = propertyData?.data?.perkInfo || {};
-  console.log("perk info",perkInfo);
+  // console.log("perk info",perkInfo);
   const foodAndDrinks = propertyData?.data?.foodAndDrinks || [];
   const [openModals, setOpenModals] = useState({});
 

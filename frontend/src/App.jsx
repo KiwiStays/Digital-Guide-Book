@@ -20,10 +20,13 @@ import Editguestinfo from './Pages/Editguestinfo';
 import EditProperty from './Pages/EditProperty';
 import axios from 'axios';
 import Nearby from './Pages/Nearby';
+import Thanks from './Pages/Thanks';
+import Active from './Pages/Active';
 
 
 function App() {
-  const { token, loading } = useContext(AuthContext);
+  const { token, loading, active } = useContext(AuthContext);
+  // console.log("page is active: ",active);
   const { adminToken } = useContext(AdminContext);
   // console.log(token);
 
@@ -31,49 +34,38 @@ function App() {
     return <div>Loading...</div>;
   }
 
+  const ProtectedRoute = ({ children }) => {
+    const { token, active } =  useContext(AuthContext);
+    return token && active ? children : <Navigate to="/" />;
+  };
+  
+  
+
   return (
     <Router>
       <Routes>
+
+
         {/* Main (User) Routes */}
         <Route
-          path="/*"
-          element={
-            <Layout>
-              <Routes>
-                <Route
-                  path="/dashboard"
-                  element={token ? <Dashboard /> : <Navigate to="/" />}
-                />
-                <Route
-                  path="/"
-                  element={token ? <Navigate to="/dashboard" /> : <Login />}
-                />
-                <Route
-                  path="/:id"
-                  element={token ? <Navigate to="/dashboard" /> : <GuestForm />}
-                />
-                <Route
-                  path="/login"
-                  element={token ? <Navigate to="/dashboard" /> : <Login />}
-                />
-                <Route
-                  path="/stayinfo"
-                  element={token ? <Stayinfo /> : <Navigate to="/" />}
-                />
-                <Route
-                  path="/contacts"
-                  element={token ?<Contacts/>: <GuestForm />}
-                />
-                <Route
-                  path="/nearby"
-                  element={token ? <Nearby /> : <GuestForm />}
-                />
-                <Route path="*" element={<Pagenotfound />} />
-              </Routes>
-            </Layout>
-          }
-        />
-
+        path="/*"
+        element={
+          <Layout>
+            <Routes>
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/thanks" element={token && !active ? <Thanks /> : <Navigate to="/" />} />
+              <Route path="/active" element={token && !active ? <Active /> : <Navigate to="/" />} />
+              <Route path="/" element={token && active ? <Navigate to="/dashboard" /> : <Login />} />
+              <Route path="/:id" element={token && active ? <Navigate to="/dashboard" /> : <GuestForm />} />
+              <Route path="/login" element={token && active ? <Navigate to="/dashboard" /> : <Login />} />
+              <Route path="/stayinfo" element={<ProtectedRoute><Stayinfo /></ProtectedRoute>} />
+              <Route path="/contacts" element={token && active ? <Contacts /> : <GuestForm />} />
+              <Route path="/nearby" element={token && active ? <Nearby /> : <GuestForm />} />
+              <Route path="*" element={<Pagenotfound />} />
+            </Routes>
+          </Layout>
+        }
+      />
         {/* Admin Routes */}
         <Route
           path="/admin/*"
@@ -94,8 +86,8 @@ function App() {
                   path="dashboard"
                   element={adminToken ? <Admindashboard /> : <AdminLogin />}
                 />
-                <Route path="editguestinfo" element={adminToken ?<Editguestinfo/>:<AdminLogin />} />
-                <Route path="editproperty" element={adminToken?<EditProperty/>:<AdminLogin />} />
+                <Route path="editguestinfo" element={adminToken ? <Editguestinfo /> : <AdminLogin />} />
+                <Route path="editproperty" element={adminToken ? <EditProperty /> : <AdminLogin />} />
                 <Route path="*" element={<Pagenotfound />} />
               </Routes>
             </AdminLayout>

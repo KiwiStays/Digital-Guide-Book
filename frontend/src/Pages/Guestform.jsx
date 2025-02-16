@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../Context/Authcontext';
 import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
+import { set } from 'mongoose';
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 // console.log("backendurl", backend_url);
@@ -16,6 +17,7 @@ const GuestForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { auth_login } = useContext(AuthContext); // Initialize auth_login function from AuthContext
   const [title, setTitle] = useState('');
+  const [active, setActive] = useState(false);
   const [coverImage, setCoverImage] = useState(''); // Initialize coverImage state
   // console.log("id from guestform",id);
 
@@ -26,6 +28,7 @@ const GuestForm = () => {
         // console.log("response from guestform", response.data);
         setTitle(response.data.data.title);
         setCoverImage(response.data.data.coverImage);
+        setActive(response.data.data.active);
 
       } catch (error) {
         console.error("Error fetching property name:", error);
@@ -34,6 +37,8 @@ const GuestForm = () => {
 
     fetchPropertyName();
   }, [id]);
+
+  // console.log("active", active);
 
 
   const [formData, setFormData] = useState({
@@ -44,6 +49,7 @@ const GuestForm = () => {
     documents: [{ name: '', file: '', age: '', idCardType: '', gender: '' }],
     checkin: 'dd/mm/yyyy',
     checkout: 'dd/mm/yyyy',
+    cleaningTime: '',
   });
 
   const handleChange = (e) => {
@@ -93,6 +99,7 @@ const GuestForm = () => {
     data.append('number_of_guests', formData.number_of_guests);
     data.append('checkin', formData.checkin);
     data.append('checkout', formData.checkout);
+    data.append('cleaningTime', formData.cleaningTime);
 
     if (formData.documents.length > 0) {
       formData.documents[0].name = formData.name;
@@ -125,8 +132,15 @@ const GuestForm = () => {
       // localStorage.setItem('guestId', response.data.guestId); // Store the guest ID in local storage
       // localStorage.setItem('guestName', response.data.guestName); // Store the guest name in local storage
       // Use AuthContext to handle login and redirection
-      auth_login(response.data.token, response.data.guestName, response.data.guestId, id); // Call the login function from AuthContext
-      navigate('/dashboard'); // Redirect to dashboard after successful registration
+      // console.log("active", response.data.active);
+      auth_login(response.data.token, response.data.guestName, response.data.guestId, id,active ); // Call the login function from AuthContext
+      if (active) {
+        navigate('/dashboard'); // Redirect to dashboard after successful registration
+      }
+      else{
+        navigate("/thanks")
+      }
+
     } catch (error) {
       if (error.response && error.response.status === 402) {
         alert(error.response.data.message);  // Show the alert with backend message
@@ -138,23 +152,35 @@ const GuestForm = () => {
     }
   };
 
+  const calculateDateDifference = (checkin, checkout) => {
+    const start = new Date(checkin);
+    const end = new Date(checkout);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-cover bg-center bg-no-repeat bg-fixed"
       style={{
         backgroundImage: `url('https://images.unsplash.com/photo-1532484468512-fd9df0aa70f4?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
       }}>
-      {isSubmitted && (
+      {!active && isSubmitted && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        >
           <div className="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-2">
             <CheckCircle2 className="text-primarytext w-6 h-6" />
-            <span className="text-primarytext font-semibold">Document submitted successfully!</span>
+            <span className="text-primarytext font-semibold">
+              Document submitted successfully!
+            </span>
           </div>
         </motion.div>
       )}
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-w-4xl mx-auto  bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden ">
         {/* Left Section */}
@@ -194,7 +220,7 @@ const GuestForm = () => {
               {title}
             </h2>
             <span className="text-white text-lg font-bold">Scroll down to fill the form</span>
-            
+
             <span className="text-white text-2xl mt-2">↓</span>
           </motion.div>
         </motion.div>
@@ -369,6 +395,52 @@ const GuestForm = () => {
                 />
               </motion.div>
             </div>
+            {calculateDateDifference(formData.checkin, formData.checkout) > 2 && (
+              <div>
+                <motion.div className="space-y-4">
+                  <label className="block text-md font-bold text-white mb-3">Select preferred cleaning time during your stay</label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="morning"
+                        name="cleaningTime"
+                        value="9:30AM - 11:30AM"
+                        onChange={handleChange}
+                        className="w-4 h-4 accent-primarytext"
+                        required
+                      />
+                      <label htmlFor="morning" className="text-gray-600">9:30 AM - 11:30 AM</label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="afternoon"
+                        name="cleaningTime"
+                        value="1PM - 2:30PM"
+                        onChange={handleChange}
+                        className="w-4 h-4 accent-primarytext"
+                        required
+                      />
+                      <label htmlFor="afternoon" className="text-gray-600">1:00 PM - 2:30 PM</label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="evening"
+                        name="cleaningTime"
+                        value="2:30PM - 4:30PM"
+                        onChange={handleChange}
+                        className="w-4 h-4 accent-primarytext"
+                        required
+                      />
+                      <label htmlFor="evening" className="text-gray-600">2:30PM - 4:30PM</label>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>)}
 
             <div className="flex justify-center pt-6">
               <motion.button

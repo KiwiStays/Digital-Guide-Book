@@ -6,6 +6,7 @@ import axios from 'axios';
 
 function EditProperty() {
   const [formData, setFormData] = useState({
+    active: true,
     title: '',
     hostName: '',
     address: '',
@@ -58,6 +59,7 @@ function EditProperty() {
 
       // Populate form data
       setFormData({
+        active: propertyData.active || true,
         title: propertyData.title || '',
         hostName: propertyData.hostName || '',
         address: propertyData.address || '',
@@ -390,6 +392,7 @@ function EditProperty() {
     const formDataToSend = new FormData();
 
     // Add basic form fields
+    formDataToSend.append('active', formData.active);
     formDataToSend.append('title', formData.title);
     formDataToSend.append('hostName', formData.hostName);
     formDataToSend.append('address', formData.address);
@@ -645,6 +648,40 @@ function EditProperty() {
                      </div>
                    </div>
         )}
+        {/* toggle for active -> inactive */}
+        <div className="flex items-center space-x-2 mb-4">
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={formData.active}
+              onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
+            />
+            <div className={`
+      w-11 h-6 rounded-full peer 
+      peer-focus:outline-none peer-focus:ring-4 
+      peer-focus:ring-blue-300 
+     ${formData.active ? 'bg-blue-600' : 'bg-gray-200'}
+      after:content-[''] 
+      after:absolute 
+      after:top-[2px] 
+      after:left-[2px] 
+      after:bg-white 
+      after:border-gray-300 
+      after:border 
+      after:rounded-full 
+      after:h-5 
+      after:w-5 
+      after:transition-all
+      peer-checked:after:translate-x-full
+      peer-checked:after:border-white
+    `}></div>
+            <span className="ml-3 text-sm font-medium text-gray-900">
+              {formData.active ? 'Active' : 'Inactive'}
+            </span>
+          </label>
+        </div>
+
         
         <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-gray-800">Update Property Listing</h1>
         {/* Property ID input form */}

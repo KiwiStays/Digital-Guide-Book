@@ -5,6 +5,7 @@ import axios from 'axios';
 
 function PropertyForm() {
   const [formData, setFormData] = useState({
+    active: true,
     title: '',
     hostName: '',
     address: '',
@@ -262,6 +263,7 @@ function PropertyForm() {
     const formDataToSend = new FormData();
 
     // Add basic form fields to the FormData
+    formDataToSend.append('active', formData.active);
     formDataToSend.append('title', formData.title);
     formDataToSend.append('hostName', formData.hostName);
     formDataToSend.append('address', formData.address);
@@ -377,36 +379,71 @@ function PropertyForm() {
     <div className="w-full max-w-7xl mx-auto bg-gray-50 rounded-lg shadow-xl p-4 sm:p-6 md:p-8 lg:p-12">
       <div className="w-full mx-auto bg-white rounded-lg border border-gray-200 shadow-md p-4 sm:p-6 lg:p-8">
         {isSubmitted && (
-                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                     <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
-                       <div className="flex items-center justify-center mb-4">
-                         <div className="bg-green-100 rounded-full p-2">
-                           <svg 
-                             className="h-8 w-8 text-green-500" 
-                             fill="none" 
-                             viewBox="0 0 24 24" 
-                             stroke="currentColor"
-                           >
-                             <path 
-                               strokeLinecap="round" 
-                               strokeLinejoin="round" 
-                               strokeWidth="2" 
-                               d="M5 13l4 4L19 7"
-                             />
-                           </svg>
-                         </div>
-                       </div>
-                       <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
-                       <p className="text-gray-600 text-center mb-4">Property has been created successfully.</p>
-                       <button 
-                         onClick={() => setIsSubmitted(false)}
-                         className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
-                       >
-                         Close
-                       </button>
-                     </div>
-                   </div>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-green-100 rounded-full p-2">
+                  <svg
+                    className="h-8 w-8 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
+              <p className="text-gray-600 text-center mb-4">Property has been created successfully.</p>
+              <button
+                onClick={() => setIsSubmitted(false)}
+                className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         )}
+
+        {/* toggle for active -> inactive */}
+        <div className="flex items-center space-x-2 mb-4">
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={formData.active}
+              onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
+            />
+            <div className={`
+      w-11 h-6 rounded-full peer 
+      peer-focus:outline-none peer-focus:ring-4 
+      peer-focus:ring-blue-300 
+     ${formData.active ? 'bg-blue-600' : 'bg-gray-200'}
+      after:content-[''] 
+      after:absolute 
+      after:top-[2px] 
+      after:left-[2px] 
+      after:bg-white 
+      after:border-gray-300 
+      after:border 
+      after:rounded-full 
+      after:h-5 
+      after:w-5 
+      after:transition-all
+      peer-checked:after:translate-x-full
+      peer-checked:after:border-white
+    `}></div>
+            <span className="ml-3 text-sm font-medium text-gray-900">
+              {formData.active ? 'Active' : 'Inactive'}
+            </span>
+          </label>
+        </div>
+
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center text-gray-800">Create Property Listing</h1>
         <form onSubmit={handleSubmit}
           className="space-y-6 max-w-4xl mx-auto">
@@ -533,7 +570,7 @@ function PropertyForm() {
                     <p className="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 800x400px)</p>
                   </div>
                 )}
-                <input id="cover-image" type="file" accept="image/*" className="hidden" onChange={handleCoverImage} />
+                <input id="cover-image" type="file" accept="image/*" className="hidden" onChange={handleCoverImage} required />
               </label>
             </div>
           </div>
@@ -798,6 +835,7 @@ function PropertyForm() {
           {
             /* House Rules Section */
           }
+          <div><h1 className="text-red-700 font-semibold text-md"> * Make sure to  add alteast one rule ,sub rule and a FAQ in order to submit  </h1></div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">House Rules</label>
             <div className="space-y-4">
@@ -808,6 +846,7 @@ function PropertyForm() {
                   onChange={(e) => setNewHouseRule(e.target.value)}
                   placeholder="Add a heading"
                   className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+
                 />
                 <button
                   type="button"
@@ -838,6 +877,8 @@ function PropertyForm() {
                       onChange={(e) => setNewRule((prev) => ({ ...prev, [headingIndex]: e.target.value }))}
                       placeholder="Add a rule"
                       className="flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+
+
                     />
                     <button
                       type="button"
@@ -878,6 +919,7 @@ function PropertyForm() {
                   onChange={(e) => setNewFaq((prev) => ({ ...prev, question: e.target.value }))}
                   placeholder="Add a FAQ question"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+
                 />
                 <input
                   type="text"
@@ -885,6 +927,7 @@ function PropertyForm() {
                   onChange={(e) => setNewFaq((prev) => ({ ...prev, answer: e.target.value }))}
                   placeholder="Add a FAQ answer"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+
                 />
                 <button
                   type="button"
