@@ -101,7 +101,7 @@ const GuestForm = () => {
     data.append('cleaningTime', formData.cleaningTime);
 
     if (formData.documents.length > 0) {
-      formData.documents[0].name = formData.name;
+      formData.documents[0].name = formData.name ;
     }
 
     const documentsData = formData.documents.map((doc) => ({
@@ -404,12 +404,12 @@ const GuestForm = () => {
                         type="radio"
                         id="morning"
                         name="cleaningTime"
-                        value="9:30AM - 11:30AM"
+                        value="9:30AM - 10:30AM"
                         onChange={handleChange}
                         className="w-4 h-4 accent-primarytext"
                         required
                       />
-                      <label htmlFor="morning" className="text-gray-600">9:30 AM - 11:30 AM</label>
+                      <label htmlFor="morning" className="text-gray-600">9:30 AM - 10:30 AM</label>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -417,12 +417,24 @@ const GuestForm = () => {
                         type="radio"
                         id="afternoon"
                         name="cleaningTime"
-                        value="1PM - 2:30PM"
+                        value="10:30AM - 11:30AM"
                         onChange={handleChange}
                         className="w-4 h-4 accent-primarytext"
                         required
                       />
-                      <label htmlFor="afternoon" className="text-gray-600">1:00 PM - 2:30 PM</label>
+                      <label htmlFor="afternoon" className="text-gray-600">10:30 AM - 11:30 AM</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="afternoon"
+                        name="cleaningTime"
+                        value="2:00PM - 3:00 PM"
+                        onChange={handleChange}
+                        className="w-4 h-4 accent-primarytext"
+                        required
+                      />
+                      <label htmlFor="afternoon" className="text-gray-600">2:00 PM - 3:00 PM</label>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -430,12 +442,12 @@ const GuestForm = () => {
                         type="radio"
                         id="evening"
                         name="cleaningTime"
-                        value="2:30PM - 4:30PM"
+                        value="3:00PM - 4:00PM"
                         onChange={handleChange}
                         className="w-4 h-4 accent-primarytext"
                         required
                       />
-                      <label htmlFor="evening" className="text-gray-600">2:30PM - 4:30PM</label>
+                      <label htmlFor="evening" className="text-gray-600">3:00PM - 4:00PM</label>
                     </div>
                   </div>
                 </motion.div>
