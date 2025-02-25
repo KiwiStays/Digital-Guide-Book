@@ -345,13 +345,7 @@ const GuestTable = () => {
                         >
                             Download Excel
                         </button>
-                        <button
-                            onClick={handleExportToGoogleSheets}
-                            disabled={isExporting}
-                            className="bg-blue-500 text-white px-6 py-2 rounded w-full md:w-auto disabled:bg-blue-300"
-                        >
-                            {isExporting ? 'Exporting...' : 'Export to Google Sheets'}
-                        </button>
+                       
                     </div>
 
                     {/* Export Status Message */}
