@@ -10,6 +10,12 @@ const GuestTable = () => {
     const [searchTerm, setSearchTerm] = useState(''); // For property name search
     const [propertyOptions, setPropertyOptions] = useState([]); // Store dropdown property names
     const [expandedRows, setExpandedRows] = useState([]); // Track which rows are expanded
+    const [isExporting, setIsExporting] = useState(false); // For Google Sheets export
+    const [exportMessage, setExportMessage] = useState(''); // For export status messages
+
+    // // Google Sheets configuration
+    // const SPREADSHEET_ID = import.meta.env.VITE_SPREAD_SHEET_ID; // Replace with your Google Sheet ID
+    // const SHEET_NAME = 'Guests'; // Replace with your sheet name
 
     const toggleRow = (id) => {
         setExpandedRows((prev) =>
@@ -63,9 +69,9 @@ const GuestTable = () => {
         // eslint-disable-next-line
     }, []);
 
-    // Handle Excel Download
-    const handleDownloadExcel = () => {
-        const formattedData = guests.map((guest) => {
+    // Format guest data for export
+    const formatGuestData = () => {
+        return guests.map((guest) => {
             const baseFields = {
                 'Property Name': guest.property_name,
                 'Guest Name': guest.name,
@@ -92,7 +98,11 @@ const GuestTable = () => {
 
             return { ...baseFields, ...docFields };
         });
-
+    };
+  
+    // Handle Excel Download
+    const handleDownloadExcel = () => {
+        const formattedData = formatGuestData();
         const worksheet = XLSX.utils.json_to_sheet(formattedData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
@@ -107,6 +117,51 @@ const GuestTable = () => {
         });
         saveAs(blob, 'Guests.xlsx');
     };
+
+    // // Handle Google Sheets Export
+    // const handleExportToGoogleSheets = async () => {
+    //     if (guests.length === 0) {
+    //         setExportMessage('No data to export');
+    //         setTimeout(() => setExportMessage(''), 3000);
+    //         return;
+    //     }
+
+    //     setIsExporting(true);
+    //     setExportMessage('Exporting to Google Sheets...');
+
+    //     try {
+    //         // Format the data for Google Sheets
+    //         const formattedData = formatGuestData();
+            
+    //         // Convert objects to arrays for Google Sheets API
+    //         const headers = Object.keys(formattedData[0]);
+    //         const values = [headers]; // First row is headers
+            
+    //         // Add all data rows
+    //         formattedData.forEach(item => {
+    //             values.push(headers.map(header => item[header] || ''));
+    //         });
+
+    //         // Using your backend as a proxy to avoid exposing credentials in frontend
+    //         const response = await axios.post('/api/admin/export/google-sheets', {
+    //             spreadsheetId: SPREADSHEET_ID,
+    //             sheetName: SHEET_NAME,
+    //             values: values
+    //         });
+
+    //         if (response.data.success) {
+    //             setExportMessage('Data successfully exported to Google Sheets!');
+    //         } else {
+    //             throw new Error(response.data.message || 'Export failed');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error exporting to Google Sheets:', error);
+    //         setExportMessage('Failed to export to Google Sheets. Check console for details.');
+    //     } finally {
+    //         setIsExporting(false);
+    //         setTimeout(() => setExportMessage(''), 5000);
+    //     }
+    // };
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -223,16 +278,15 @@ const GuestTable = () => {
                                                             )
                                                             : 'N/A'}
                                                     </td>
-                                                    <td className="p-2 border">{guest.cleaningTime||'not choosen'}</td>
+                                                    <td className="p-2 border">{guest.cleaningTime || 'not choosen'}</td>
                                                 </tr>
 
                                                 {/* Expanded Row for Documents */}
                                                 {isExpanded && guest.Document?.length > 0 && (
                                                     <tr>
-                                                        <td colSpan="7" className="p-4 bg-gray-50 border">
+                                                        <td colSpan="8" className="p-4 bg-gray-50 border">
                                                             {guest.Document.map((doc) => {
                                                                 const fileLower = doc.file.toLowerCase();
-                                                                console.log(fileLower);
                                                                 const isPDF = fileLower.endsWith('.pdf');
 
                                                                 return (
@@ -274,7 +328,7 @@ const GuestTable = () => {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="p-2 border text-center">
+                                        <td colSpan="8" className="p-2 border text-center">
                                             No guests found.
                                         </td>
                                     </tr>
@@ -283,15 +337,29 @@ const GuestTable = () => {
                         </table>
                     </div>
 
-                    {/* Download Button */}
-                    <div className="mt-4 flex justify-center">
+                    {/* Export Buttons */}
+                    <div className="mt-4 flex justify-center gap-4 flex-wrap">
                         <button
                             onClick={handleDownloadExcel}
                             className="bg-green-500 text-white px-6 py-2 rounded w-full md:w-auto"
                         >
                             Download Excel
                         </button>
+                        <button
+                            onClick={handleExportToGoogleSheets}
+                            disabled={isExporting}
+                            className="bg-blue-500 text-white px-6 py-2 rounded w-full md:w-auto disabled:bg-blue-300"
+                        >
+                            {isExporting ? 'Exporting...' : 'Export to Google Sheets'}
+                        </button>
                     </div>
+
+                    {/* Export Status Message */}
+                    {exportMessage && (
+                        <div className="mt-4 p-2 bg-gray-100 border rounded text-center">
+                            {exportMessage}
+                        </div>
+                    )}
                 </>
             )}
         </div>

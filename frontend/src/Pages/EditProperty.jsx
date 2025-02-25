@@ -43,6 +43,8 @@ function EditProperty() {
   const [coverImagePreview, setCoverImagePreview] = useState(null);
   const [updated, setIsUpdated] = useState(false);
 
+  const [created , setIsCreated] = useState(false);
+
   const [propertyId, setPropertyId] = useState('');
 
   // for testing purposes
@@ -494,6 +496,7 @@ function EditProperty() {
         // },
       });
       console.log('Property updated successfully:');
+      // console.log("reposnse update  ",response);
       setIsUpdated(true);
 
     } catch (error) {
@@ -606,6 +609,132 @@ function EditProperty() {
   };
 
 
+  const handleCreation = async (e) => {
+    e.preventDefault();
+    e.preventDefault();
+
+    // formData['coverImageUrl'] = coverImageUrl;
+    // formData['imageUrls'] = imageUrls;
+
+    const formDataToSend = new FormData();
+
+    // Add basic form fields
+    formDataToSend.append('active', formData.active);
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('hostName', formData.hostName);
+    formDataToSend.append('address', formData.address);
+    formDataToSend.append('location', formData.location);
+    formDataToSend.append('info', formData.info);
+    formDataToSend.append('selfcheckin', formData.selfcheckin);
+    formDataToSend.append('wifi', JSON.stringify(formData.wifi));
+    formDataToSend.append('coverImage', coverImage);
+    formDataToSend.append('coverImageUrl', coverImageUrl);
+    formDataToSend.append('imageUrls', imageUrls);
+
+
+    // Include existing image URLs
+    // imagePreviews.forEach((url, index) => {
+    //   formDataToSend.append(`existingImages[${index}]`, url); // Keep track of existing images
+    // });
+
+    formData.imageDescriptions.forEach((item, index) => {
+      formDataToSend.append(`imageDescriptions[${index}]`, item);
+    });
+
+    // Add new image files
+    if (imageFiles.length > 0) {
+      imageFiles.forEach((file) => {
+        formDataToSend.append('images', file); // Add new images to the payload
+      });
+    }
+
+    // Include other form data (e.g., contacts, perks, etc.)
+    formData.contacts.forEach((contact, index) => {
+      formDataToSend.append(`contacts[${index}][name]`, contact.name);
+      formDataToSend.append(`contacts[${index}][info]`, contact.info);
+    });
+
+    // formData.perks.forEach((perk) => formDataToSend.append('perks[]', perk));
+    formData.perks.forEach((perk, index) => {
+      formDataToSend.append(`perks[${index}]`, perk);
+    });
+
+    formData.foodAndDrinks.forEach((fd, index) => {
+      formDataToSend.append(`foodAndDrinks[${index}][tag]`, fd.tag);
+      formDataToSend.append(`foodAndDrinks[${index}][title]`, fd.title);
+      formDataToSend.append(`foodAndDrinks[${index}][img]`, fd.img);
+      formDataToSend.append(`foodAndDrinks[${index}][description]`, fd.description);
+      formDataToSend.append(`foodAndDrinks[${index}][location]`, fd.location);
+    });
+
+    // house rules
+    formData.houseRules.forEach((houseRule, index) => {
+      // Append the heading
+      formDataToSend.append(`houseRules[${index}][heading]`, houseRule.heading);
+
+      // Append each rule under the `rules` array
+      houseRule.rules.forEach((rule, ruleIndex) => {
+        formDataToSend.append(`houseRules[${index}][rules][${ruleIndex}]`, rule);
+      });
+    });
+
+    formData.quickResponse.forEach((qr, index) => {
+      formDataToSend.append(`quickResponse[${index}][icon]`, qr.icon);
+      formDataToSend.append(`quickResponse[${index}][description]`, qr.description);
+      formDataToSend.append(`quickResponse[${index}][number]`, qr.number);
+    });
+
+    // Append faqs array
+    formData.faqs.forEach((faq, index) => {
+      formDataToSend.append(`faqs[${index}][question]`, faq.question);
+      formDataToSend.append(`faqs[${index}][answer]`, faq.answer);
+    });
+
+    // Append kitchenItems array
+    formData.kitchenItems.forEach((item, index) => {
+      formDataToSend.append(`kitchenItems[${index}]`, item);
+    });
+
+    // Append appliancesItems array
+    formData.appliancesItems.forEach((item, index) => {
+      formDataToSend.append(`appliancesItems[${index}]`, item);
+    });
+
+    // Append perkInfo object (each key-value pair as a field)
+    Object.keys(formData.perkInfo).forEach((key) => {
+      formDataToSend.append(`perkInfo[${key}]`, formData.perkInfo[key]);
+    });
+
+    // console.log(formData);
+    // console.log(formDataToSend);
+    // console.log(coverImageUrl);
+    // console.log(imageUrls);
+    // console.log(imageFiles);
+    // console.log(imagePreviews);
+
+    // PUT request to update property
+    try {
+      // const propertyId = '123'; // Replace with dynamic ID
+      const response = await axios.post(`/api/admin/property/${propertyId}`, formDataToSend, {
+        // headers: {
+        //   'Content-Type': 'multipart/form-data',
+        // },
+      });
+      // console.log("form data ", formDataToSend);
+      // console.log("response",response)
+      console.log('Property Created successfully:');
+      setIsCreated(true);
+
+    } catch (error) {
+      console.error('Error updating property:', error);
+    }
+
+  }
+
+
+
+
+
   // Clean up preview URLs when component unmounts
   useEffect(() => {
     return () => {
@@ -641,6 +770,37 @@ function EditProperty() {
                        <p className="text-gray-600 text-center mb-4">Property has been Updated successfully.</p>
                        <button 
                          onClick={() => setIsUpdated(false)}
+                         className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
+                       >
+                         Close
+                       </button>
+                     </div>
+                   </div>
+        )}
+      {created && (
+                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                     <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
+                       <div className="flex items-center justify-center mb-4">
+                         <div className="bg-green-100 rounded-full p-2">
+                           <svg 
+                             className="h-8 w-8 text-green-500" 
+                             fill="none" 
+                             viewBox="0 0 24 24" 
+                             stroke="currentColor"
+                           >
+                             <path 
+                               strokeLinecap="round" 
+                               strokeLinejoin="round" 
+                               strokeWidth="2" 
+                               d="M5 13l4 4L19 7"
+                             />
+                           </svg>
+                         </div>
+                       </div>
+                       <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
+                       <p className="text-gray-600 text-center mb-4">Property has been Created successfully.</p>
+                       <button 
+                         onClick={() => setIsCreated(false)}
                          className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
                        >
                          Close
@@ -1212,14 +1372,23 @@ function EditProperty() {
               rows={4}
             />
           </div>
-
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            Update Property
+            Update  Existing Property
           </button>
+          <button 
+          type = "submit"
+          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          onClick={handleCreation}
+          >
+            Create a New Property
+          </button>
+          
+
         </form>
+       
       </div>
     </div>
   )

@@ -28,7 +28,7 @@ function PropertyForm() {
   const [imageFiles, setImageFiles] = useState([]); // Separate state for image files
   const [imagePreviews, setImagePreviews] = useState([]); // State for preview URLs
   // const [coverImage, setCoverImage] = useState();
-  const [newHouseRule, setNewHouseRule] = useState(''); // For the heading
+  const [newHouseRule, setNewHouseRule] = useState('rules 1'); // For the heading
   const [newRule, setNewRule] = useState({}); // For individual rules under each heading
   const [newFaq, setNewFaq] = useState('');
   const [coverImagePreview, setCoverImagePreview] = useState(null);
