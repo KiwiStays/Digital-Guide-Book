@@ -52,7 +52,6 @@ const GuestTable = () => {
             }
 
             const response = await axios.get(url);
-            // console.log(response.data);
             setGuests(response.data || []); // Ensure we set an array even if empty
             // console.log(response.data);
         } catch (error) {
@@ -346,11 +345,7 @@ const GuestTable = () => {
                         >
                             Download Excel
                         </button>
-<<<<<<< HEAD
-                        
-=======
                        
->>>>>>> 2ba5ef47e2e6c662a856aa66f6f09ed5ce59ddac
                     </div>
 
                     {/* Export Status Message */}
