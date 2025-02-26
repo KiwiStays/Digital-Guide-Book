@@ -52,6 +52,7 @@ const GuestTable = () => {
             }
 
             const response = await axios.get(url);
+            console.log(response.data);
             setGuests(response.data || []); // Ensure we set an array even if empty
             // console.log(response.data);
         } catch (error) {
@@ -345,13 +346,7 @@ const GuestTable = () => {
                         >
                             Download Excel
                         </button>
-                        <button
-                            onClick={handleExportToGoogleSheets}
-                            disabled={isExporting}
-                            className="bg-blue-500 text-white px-6 py-2 rounded w-full md:w-auto disabled:bg-blue-300"
-                        >
-                            {isExporting ? 'Exporting...' : 'Export to Google Sheets'}
-                        </button>
+                        
                     </div>
 
                     {/* Export Status Message */}

@@ -84,8 +84,9 @@ export const VerifyGuest = async (req, res)=>{
   try {
       const {id} = req.params;
       const { name, phone, property_name, number_of_guests, checkin, checkout,cleaningTime } = req.body;
-      console.log("req body",req.body);
-      console.log("req files",req.files); 
+      // console.log("req body",req.body);
+
+      // console.log("req files",req.files); 
 
       const existingGuest = await Guestmodel.findOne({ phone: phone });
       if (existingGuest) {
@@ -140,7 +141,7 @@ export const VerifyGuest = async (req, res)=>{
       const token = generateToken(guest._id,checkout);
       guest.token = token;
       await guest.save();
-      console.log("guest ", guest);
+      // console.log("guest ", guest);
       console.log("Guest Saved Successfully!!");
       
       res.status(201).json({ message: 'Guest created successfully', token, guestId: guest._id, guestName: guest.name  });
@@ -363,7 +364,8 @@ export const GuestinfoById = async (req, res) =>{
 export const updateGuest = async (req, res) => {
   try {
     const { id } = req.params; // Guest ID from URL
-    const { name, phone, property_name, number_of_guests, checkin, checkout } = req.body;
+    const { name, phone, property_name, number_of_guests, checkin, checkout , place_id } = req.body;
+    console.log("req body", req.body);
 
     const checkin_new = checkin?.split('T')[0];
     const checkout_new = checkout?.split('T')[0];
@@ -408,6 +410,7 @@ export const updateGuest = async (req, res) => {
     guest.number_of_guests = number_of_guests || guest.number_of_guests;
     guest.checkin = checkin || guest.checkin;
     guest.checkout = checkout || guest.checkout;
+    guest.place_id = place_id || guest.place_id;
 
     // Append new documents to existing ones
     if (documents.length > 0) {

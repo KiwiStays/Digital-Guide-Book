@@ -4,11 +4,11 @@ import { Guestmodel } from '../models/Guest.model.js';
 import multer from 'multer';
 import fs from 'fs';
 import mongoose from 'mongoose';
-import { google } from 'googleapis';
+
 
 export const CreateProperty = async (req, res) => {
     try {
-        console.log("req body" , req.body);
+        // console.log("req body" , req.body);
         // console.log("rules " , req.body.houseRules);
         // console.log(req.files);
 

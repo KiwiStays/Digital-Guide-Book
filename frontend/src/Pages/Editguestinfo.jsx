@@ -4,7 +4,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
-console.log("backendurl",backend_url);
+// console.log("backendurl",backend_url);
 
 const Editguestinfo = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +18,7 @@ const Editguestinfo = () => {
       documents: [],
       checkin: '',
       checkout: '',
+      place_id: '',
     });
   
     const fetchUserDetails = async () => {
@@ -25,6 +26,7 @@ const Editguestinfo = () => {
         setIsLoading(true);
         const response = await axios.get(`${backend_url}/api/guest/guestinfo/${userId}`);
         const user = response.data.data;
+        // console.log(user);
         setFormData({
           name: user.name,
           phone: user.phone,
@@ -33,6 +35,7 @@ const Editguestinfo = () => {
           documents: user.documents || [],
           checkin: user.checkin.split('T')[0],
           checkout: user.checkout.split('T')[0],
+          place_id: user.place_id,
         });
         setIsLoading(false);
       } catch (error) {
@@ -52,6 +55,7 @@ const Editguestinfo = () => {
         data.append('number_of_guests', formData.number_of_guests);
         data.append('checkin', formData.checkin);
         data.append('checkout', formData.checkout);
+        data.append('place_id', formData.place_id);
   
         const documentsData = formData.documents.map((doc) => ({
           name: doc.name,
@@ -140,6 +144,16 @@ const Editguestinfo = () => {
                 type="text"
                 name="property_name"
                 value={formData.property_name}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Place id</label>
+              <input
+                type="text"
+                name="place_id"
+                value={formData.place_id}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500"
               />
