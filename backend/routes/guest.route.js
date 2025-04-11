@@ -2,13 +2,16 @@ import { Router } from "express";
 import  upload  from "../middlewares/multer.js";
 const router = Router()
 
-import {  guestinfo, GuestinfoById, VerifyGuest,updateGuest } from "../controllers/guest.controller.js";
+import {  CreateGuest, getCloudinarySignature, guestinfo, GuestinfoById,updateGuest, UpdateGuestDocuments } from "../controllers/guest.controller.js";
 
 
-router.route("/verify/:id").post(upload.array('documents'),VerifyGuest)
+// router.route("/verify/:id").post(upload.array('documents'),VerifyGuest)
 router.route("/guestinfo").get(guestinfo)
 router.route("/guestinfo/:id").get(GuestinfoById);
 router.route("/updateguset/:id").put(upload.array('documents'),updateGuest);
+router.route('/create/:id').post(CreateGuest);
+router.route('/update-documents/:guestId').patch(UpdateGuestDocuments);
+router.route('/cloudinary/signature').get(getCloudinarySignature);
 
 
 

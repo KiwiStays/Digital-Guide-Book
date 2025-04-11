@@ -2,6 +2,7 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { Guestmodel } from '../models/Guest.model.js';
 import { Propertymodel } from '../models/Property.model.js';
 import jwt from 'jsonwebtoken';
+import cloudinary from 'cloudinary';
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -80,76 +81,173 @@ const generateToken = (userId, checkOutDate) => {
 //       }
 // }
 
-export const VerifyGuest = async (req, res)=>{
-  try {
-      const {id} = req.params;
-      const { name, phone, property_name, number_of_guests, checkin, checkout,cleaningTime } = req.body;
-      // console.log("req body",req.body);
+// export const VerifyGuest = async (req, res)=>{
+//   try {
+//       const {id} = req.params;
+//       const { name, phone, property_name, number_of_guests, checkin, checkout,cleaningTime } = req.body;
+//       // console.log("req body",req.body);
 
-      // console.log("req files",req.files); 
+//       // console.log("req files",req.files); 
 
-      const existingGuest = await Guestmodel.findOne({ phone: phone });
-      if (existingGuest) {
-        console.log("Phone number already exists, please use a different number or login.");
-        return res.status(402).json({ message: 'Phone number already exists, please use a different number or login.' });
-      }
+//       const existingGuest = await Guestmodel.findOne({ phone: phone });
+//       if (existingGuest) {
+//         console.log("Phone number already exists, please use a different number or login.");
+//         return res.status(402).json({ message: 'Phone number already exists, please use a different number or login.' });
+//       }
       
 
-      const checkin_new = checkin.split('T')[0];
-      const checkout_new = checkout.split('T')[0];
+//       const checkin_new = checkin.split('T')[0];
+//       const checkout_new = checkout.split('T')[0];
   
-      let DocUrls = [];
-      if (req.files && req.files.length > 0) {
-        const documentsData = JSON.parse(req.body.Document || '[]'); // Parse document names
+//       let DocUrls = [];
+//       if (req.files && req.files.length > 0) {
+//         const documentsData = JSON.parse(req.body.Document || '[]'); // Parse document names
       
-        DocUrls = await Promise.all(
-          req.files.map(async (file, index) => {
-            // const username = documentsData[index]?.name + checkin_new + checkout_new  || 'Unnamed';
-            const username = (documentsData[index]?.name + " " + checkin_new + " " + checkout_new) || file.originalname;
-            const gender = documentsData[index]?.gender;
-            const idCardType = documentsData[index]?.idCardType;
-            const age = documentsData[index]?.age;
-            const filepath = file.path;
-            const cloud_data = await uploadToCloudinary(filepath, username); // Wait for Cloudinary upload
+//         DocUrls = await Promise.all(
+//           req.files.map(async (file, index) => {
+//             // const username = documentsData[index]?.name + checkin_new + checkout_new  || 'Unnamed';
+//             const username = (documentsData[index]?.name + " " + checkin_new + " " + checkout_new) || file.originalname;
+//             const gender = documentsData[index]?.gender;
+//             const idCardType = documentsData[index]?.idCardType;
+//             const age = documentsData[index]?.age;
+//             const filepath = file.path;
+//             const cloud_data = await uploadToCloudinary(filepath, username); // Wait for Cloudinary upload
       
-            return { name: documentsData[index]?.name, file: cloud_data.url,gender: gender, idCardType: idCardType, age: age }; // Return the object for DocUrls
-          })
-        );
-      }
+//             return { name: documentsData[index]?.name, file: cloud_data.url,gender: gender, idCardType: idCardType, age: age }; // Return the object for DocUrls
+//           })
+//         );
+//       }
 
-      // console.log(documentsData.name);
-      const documents = DocUrls.map((item) => ({
-        name: item.name || 'Unnamed', // Ensure the name exists
-        file: item.file, // File path from multer
-        gender:item.gender, // Gender
-        age: item.age || 0 ,
-        idcard: item.idCardType || ' ',
-      }));
+//       // console.log(documentsData.name);
+//       const documents = DocUrls.map((item) => ({
+//         name: item.name || 'Unnamed', // Ensure the name exists
+//         file: item.file, // File path from multer
+//         gender:item.gender, // Gender
+//         age: item.age || 0 ,
+//         idcard: item.idCardType || ' ',
+//       }));
 
-      // Create a new guest entry
-      const guest = new Guestmodel({
-        place_id:id,
-        name,
-        phone,
-        property_name,
-        number_of_guests,
-        Document: documents,
-        checkin,
-        checkout,
-        cleaningTime,
-      });
-      const token = generateToken(guest._id,checkout);
-      guest.token = token;
-      await guest.save();
-      // console.log("guest ", guest);
-      console.log("Guest Saved Successfully!!");
+//       // Create a new guest entry
+//       const guest = new Guestmodel({
+//         place_id:id,
+//         name,
+//         phone,
+//         property_name,
+//         number_of_guests,
+//         Document: documents,
+//         checkin,
+//         checkout,
+//         cleaningTime,
+//       });
+//       const token = generateToken(guest._id,checkout);
+//       guest.token = token;
+//       await guest.save();
+//       // console.log("guest ", guest);
+//       console.log("Guest Saved Successfully!!");
       
-      res.status(201).json({ message: 'Guest created successfully', token, guestId: guest._id, guestName: guest.name  });
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ message: 'Server Error', error });
+//       res.status(201).json({ message: 'Guest created successfully', token, guestId: guest._id, guestName: guest.name  });
+//     } catch (error) {
+//       console.error('Error:', error);
+//       res.status(500).json({ message: 'Server Error', error });
+//     }
+// }
+
+// 1. Controller for creating guest with basic info
+export const CreateGuest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, property_name, number_of_guests, checkin, checkout, cleaningTime } = req.body;
+    
+    const existingGuest = await Guestmodel.findOne({ phone: phone });
+    if (existingGuest) {
+      return res.status(402).json({ message: 'Phone number already exists, please use a different number or login.' });
     }
-}
+    
+    // Create a new guest entry with empty documents array
+    const guest = new Guestmodel({
+      place_id: id,
+      name,
+      phone,
+      property_name,
+      number_of_guests,
+      Document: [], // Empty initially
+      checkin,
+      checkout,
+      cleaningTime,
+    });
+    
+    const token = generateToken(guest._id, checkout);
+    guest.token = token;
+    await guest.save();
+    
+    res.status(201).json({ 
+      message: 'Guest created successfully', 
+      token, 
+      guestId: guest._id, 
+      guestName: guest.name 
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+// 2. Controller for updating documents after they're uploaded to Cloudinary
+export const UpdateGuestDocuments = async (req, res) => {
+  try {
+    const { guestId } = req.params;
+    const { documents } = req.body;
+    
+    // Format documents to match your schema
+    const formattedDocuments = documents.map(doc => ({
+      name: doc.name || 'Unnamed',
+      file: doc.file,
+      gender: doc.gender,
+      age: doc.age || 0,
+      idcard: doc.idCardType || ' ',
+    }));
+    
+    // Update the guest record with document information
+    const updatedGuest = await Guestmodel.findByIdAndUpdate(
+      guestId,
+      { Document: formattedDocuments },
+      { new: true }
+    );
+    
+    if (!updatedGuest) {
+      return res.status(404).json({ message: 'Guest not found' });
+    }
+    
+    res.status(200).json({ 
+      message: 'Documents updated successfully',
+      guest: updatedGuest
+    });
+  } catch (error) {
+    console.error('Error updating documents:', error);
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+// 3. Controller for generating Cloudinary signatures
+export const getCloudinarySignature = async (req, res) => {
+  try {
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const signature = cloudinary.utils.api_sign_request({
+      timestamp: timestamp,
+      folder: 'guest_documents'
+    }, process.env.CLOUDINARY_API_SECRET);
+    
+    res.status(200).json({
+      signature,
+      timestamp,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY
+    });
+  } catch (error) {
+    console.error('Error generating signature:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 
 // export const guestinfo = async (req, res) => {

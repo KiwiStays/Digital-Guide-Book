@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../Context/Authcontext';
 import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
+import imageCompression from "browser-image-compression";
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 // console.log("backendurl", backend_url);
@@ -19,7 +20,12 @@ const GuestForm = () => {
   const [active, setActive] = useState(false);
   const [coverImage, setCoverImage] = useState(''); // Initialize coverImage state
   // console.log("id from guestform",id);
+  // At the top of your component
+  const [uploadProgress, setUploadProgress] = useState('');
+  const uploadCounter = useRef({ completed: 0, total: 0 });
 
+  // In your handleSubmit function, before the uploads start:
+  // uploadCounter.current = { completed: 0, total: formData.documents.length };
   useEffect(() => {
     const fetchPropertyName = async () => {
       try {
@@ -87,69 +93,170 @@ const GuestForm = () => {
     }, 3000);
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+
+  //   const data = new FormData();
+  //   data.append('name', formData.name);
+  //   data.append('phone', formData.phone);
+  //   data.append('property_name', title);
+  //   data.append('number_of_guests', formData.number_of_guests);
+  //   data.append('checkin', formData.checkin);
+  //   data.append('checkout', formData.checkout);
+  //   data.append('cleaningTime', formData.cleaningTime);
+
+  //   if (formData.documents.length > 0) {
+  //     formData.documents[0].name = formData.name ;
+  //   }
+
+  //   const documentsData = formData.documents.map((doc) => ({
+  //     name: doc.name,
+  //     age: doc.age,
+  //     gender: doc.gender,
+  //     idCardType: doc.idCardType,
+  //   }));
+
+  //   data.append('Document', JSON.stringify(documentsData));
+  //   formData.documents.forEach((doc) => {
+  //     data.append('documents', doc.file);
+  //   });
+
+  //   try {
+  //     const response = await axios.post(`${backend_url}/api/guest/verify/${id}`, data, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //     });
+  //     // console.log('Response:', response.data);
+  //     // console.log('Form Data:', formData);
+  //     setIsSubmitted(true);
+  //     setIsLoading(false);
+  //     // resetForm();
+  //     // localStorage.setItem('authToken', response.data.token); // Store the token in local storage
+  //     // localStorage.setItem('guestId', response.data.guestId); // Store the guest ID in local storage
+  //     // localStorage.setItem('guestName', response.data.guestName); // Store the guest name in local storage
+  //     // Use AuthContext to handle login and redirection
+  //     // console.log("active", response.data.active);
+  //     auth_login(response.data.token, response.data.guestName, response.data.guestId, id,active ); // Call the login function from AuthContext
+  //     if (active) {
+  //       navigate('/dashboard'); // Redirect to dashboard after successful registration
+  //     }
+  //     else{
+  //       navigate("/thanks")
+  //     }
+
+  //   } catch (error) {
+  //     if (error.response && error.response.status === 402) {
+  //       alert(error.response.data.message);  // Show the alert with backend message
+  //       setIsLoading(false);
+  //     } else {
+  //       console.error('Error:', error);
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // };
+
+  // Modified handleSubmit function for two-phase submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const data = new FormData();
-    data.append('name', formData.name);
-    data.append('phone', formData.phone);
-    data.append('property_name', title);
-    data.append('number_of_guests', formData.number_of_guests);
-    data.append('checkin', formData.checkin);
-    data.append('checkout', formData.checkout);
-    data.append('cleaningTime', formData.cleaningTime);
-
-    if (formData.documents.length > 0) {
-      formData.documents[0].name = formData.name ;
-    }
-
-    const documentsData = formData.documents.map((doc) => ({
-      name: doc.name,
-      age: doc.age,
-      gender: doc.gender,
-      idCardType: doc.idCardType,
-    }));
-
-    data.append('Document', JSON.stringify(documentsData));
-    formData.documents.forEach((doc) => {
-      data.append('documents', doc.file);
-    });
-
     try {
-      const response = await axios.post(`${backend_url}/api/guest/verify/${id}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      // PHASE 1: Save basic guest info quickly
+      const basicData = {
+        name: formData.name,
+        phone: formData.phone,
+        property_name: title,
+        number_of_guests: formData.number_of_guests,
+        checkin: formData.checkin,
+        checkout: formData.checkout,
+        cleaningTime: formData.cleaningTime
+      };
+
+      // First create the guest with basic info
+      const initialResponse = await axios.post(`${backend_url}/api/guest/create/${id}`, basicData);
+      const guestId = initialResponse.data.guestId;
+
+      // Update progress status for user
+      setUploadProgress("Guest information saved. Uploading documents...");
+
+      // PHASE 2: Process and upload images directly to Cloudinary
+      // Get upload signature from your server
+      const signatureResponse = await axios.get(`${backend_url}/api/guest/cloudinary/signature`);
+      const { signature, timestamp, cloudName, apiKey } = signatureResponse.data;
+
+      // Upload all images in parallel
+      uploadCounter.current = { completed: 0, total: formData.documents.length };
+
+      const uploadPromises = formData.documents.map(async (doc, index) => {
+        // Prepare document metadata
+        const docData = {
+          name: index === 0 ? formData.name : doc.name,
+          age: doc.age,
+          gender: doc.gender,
+          idCardType: doc.idCardType
+        };
+
+        // Create upload form for Cloudinary
+        const uploadData = new FormData();
+        uploadData.append('file', doc.file);
+        uploadData.append('api_key', apiKey);
+        uploadData.append('timestamp', timestamp);
+        uploadData.append('signature', signature);
+        uploadData.append('folder', 'guest_documents');
+
+        try {
+          // Upload directly to Cloudinary
+          const uploadResponse = await axios.post(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            uploadData
+          );
+
+          // Only increment counter after successful upload completion
+          uploadCounter.current.completed += 1;
+          setUploadProgress(`Uploading document ${uploadCounter.current.completed}/${uploadCounter.current.total}...`);
+
+          // Return document info with Cloudinary URL
+          return {
+            ...docData,
+            file: uploadResponse.data.secure_url
+          };
+        } catch (error) {
+          console.error(`Error uploading document ${index}:`, error);
+          throw error;
+        }
       });
-      // console.log('Response:', response.data);
-      // console.log('Form Data:', formData);
+
+      // Wait for all uploads to complete
+      const uploadedDocs = await Promise.all(uploadPromises);
+
+      // Finally, update the guest record with document information
+      await axios.patch(`${backend_url}/api/guest/update-documents/${guestId}`, {
+        documents: uploadedDocs
+      });
+
       setIsSubmitted(true);
       setIsLoading(false);
-      // resetForm();
-      // localStorage.setItem('authToken', response.data.token); // Store the token in local storage
-      // localStorage.setItem('guestId', response.data.guestId); // Store the guest ID in local storage
-      // localStorage.setItem('guestName', response.data.guestName); // Store the guest name in local storage
-      // Use AuthContext to handle login and redirection
-      // console.log("active", response.data.active);
-      auth_login(response.data.token, response.data.guestName, response.data.guestId, id,active ); // Call the login function from AuthContext
-      if (active) {
-        navigate('/dashboard'); // Redirect to dashboard after successful registration
-      }
-      else{
-        navigate("/thanks")
-      }
 
+      // Handle login and navigation as before
+      auth_login(initialResponse.data.token, initialResponse.data.guestName, guestId, id, active);
+
+      if (active) {
+        navigate('/dashboard');
+      } else {
+        navigate("/thanks");
+      }
     } catch (error) {
       if (error.response && error.response.status === 402) {
-        alert(error.response.data.message);  // Show the alert with backend message
-        setIsLoading(false);
+        alert(error.response.data.message);
       } else {
         console.error('Error:', error);
-        setIsLoading(false);
       }
+      setIsLoading(false);
     }
   };
+
 
   const calculateDateDifference = (checkin, checkout) => {
     const start = new Date(checkin);
@@ -462,9 +569,11 @@ const GuestForm = () => {
                 className="px-6 py-3 bg-gradient-to-r bg-primarytext text-white  font-semibold rounded-md shadow-md hover:from-red-800 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-primarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <Loader2 className="animate-spin h-5 w-5" />
-                    <span>Submitting...</span>
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="animate-spin h-5 w-5" />
+                      <span className="min-w-[150px] text-center">{uploadProgress || "Submitting..."}</span>
+                    </div>
                   </div>
                 ) : (
                   "Submit Registration"

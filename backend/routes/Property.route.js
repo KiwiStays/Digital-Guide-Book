@@ -2,6 +2,7 @@ import { Router } from "express";
 import upload from "../middlewares/multer.js";
 import  {CreateProperty, getProperty,getPropertyName, Allcount, UpdateProperty, getname, getallPropertyInfo, deleteProperty, CreatePropertyinUpdate, } from "../controllers/property.controller.js";
 import { get } from "http";
+import { CreateGuest, getCloudinarySignature } from "../controllers/guest.controller.js";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.route("/getproperty").get(getallPropertyInfo);
 router.route("/count").get(Allcount);
 router.route("/property").get(getname);
 router.route("/deleteproperty/:id").delete(deleteProperty);
+
 // router.route("/export/google-sheets").post(handler);
 
 export default router;
