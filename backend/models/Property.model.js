@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
 const PropertySchema = new Schema({
-    active:{
-        type:Boolean,
-        default:true,
+    active: {
+        type: Boolean,
+        default: true,
     },
     title: {
         type: String,
@@ -18,27 +18,27 @@ const PropertySchema = new Schema({
         type: String,
         trim: true
     },
-    selfcheckin:{
-        type:String,
-        trimg:true
+    selfcheckin: {
+        type: String,
+        trimg: true
     },
-    coverImage:{
-        type:String,
+    coverImage: {
+        type: String,
         trim: true,
     },
-    wifi:{
-        password:{
-            type:String,
-            trim:true
+    wifi: {
+        password: {
+            type: String,
+            trim: true
         },
-        username:{
-            type:String,
-            trim:true
+        username: {
+            type: String,
+            trim: true
         }
     },
-    location:{
+    location: {
         type: String,
-        trim:true,
+        trim: true,
     },
     contacts: [{
         name: {
@@ -81,7 +81,7 @@ const PropertySchema = new Schema({
             type: String,
             trim: true
         },
-        description:{
+        description: {
             type: String,
             trim: true
         },
@@ -95,7 +95,7 @@ const PropertySchema = new Schema({
         }
     }],
     houseRules: [{
-        heading:{
+        heading: {
             type: String,
             trim: true,
         },
@@ -109,6 +109,31 @@ const PropertySchema = new Schema({
         answer: {
             type: String,
             trim: true
+        }
+    }],
+    questions: [{
+        type: {
+            type: String,
+            enum: ['fill-up', 'multiple-choice'],
+            required: true
+        },
+        questionText: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        options: {
+            type: [String],
+            default: null,
+            validate: {
+                validator: function (v) {
+                    if (this.type === 'multiple-choice') {
+                        return Array.isArray(v) && v.length > 0;
+                    }
+                    return true;
+                },
+                message: 'Multiple choice questions must have at least one option'
+            }
         }
     }],
     info: {

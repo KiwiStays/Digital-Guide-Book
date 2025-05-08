@@ -19,6 +19,7 @@ function EditProperty() {
     foodAndDrinks: [{ tag: '', title: '', img: '', location: '', description: '' }],
     houseRules: [],
     faqs: [],
+    questions: [],
     info: '',
     kitchenItems: [],
     appliancesItems: [],
@@ -40,10 +41,14 @@ function EditProperty() {
   const [newRule, setNewRule] = useState({}); // For individual rules under each heading
   const [newFaq, setNewFaq] = useState('');
 
+  const [newQuestion, setNewQuestion] = useState('');
+  const [isOptionType, setIsOptionType] = useState(false);
+  const [newOption, setNewOption] = useState({});
+
   const [coverImagePreview, setCoverImagePreview] = useState(null);
   const [updated, setIsUpdated] = useState(false);
 
-  const [created , setIsCreated] = useState(false);
+  const [created, setIsCreated] = useState(false);
 
   const [propertyId, setPropertyId] = useState('');
 
@@ -58,6 +63,12 @@ function EditProperty() {
     try {
       const response = await axios.get(`/api/admin/getproperty/${propertyId}`);
       const propertyData = response.data.data;
+      console.log("property data : ", propertyData);
+
+      const transformedQuestions = propertyData.questions.map(q => ({
+      question: `${q.type === 'multiple-choice' ? 'opt_' : 'f_'}${q.questionText}`,
+      options: q.type === 'multiple-choice' ? q.options : null
+    }))
 
       // Populate form data
       setFormData({
@@ -75,12 +86,15 @@ function EditProperty() {
         foodAndDrinks: propertyData.foodAndDrinks || [{ tag: '', title: '', img: '', location: '', description: '' }],
         houseRules: propertyData.houseRules || [],
         faqs: propertyData.faqs || [],
+        questions: transformedQuestions || [],
         kitchenItems: propertyData.kitchenItems || [],
         appliancesItems: propertyData.appliancesItems || [],
         perkInfo: propertyData.perkInfo || {},
         imageDescriptions: propertyData.images.map((item) => item.description) || [],
       });
 
+
+      
       // Handle images
       if (propertyData.images && propertyData.images.length > 0) {
         setImagePreviews(propertyData.images.map((img) => img.url)); // Preload image URLs
@@ -166,6 +180,61 @@ function EditProperty() {
   //     alert('Failed to fetch property data');
   //   }
   // };
+
+
+  const addQuestion = () => {
+    if (newQuestion.trim()) {
+      // Format the question based on type
+      const questionPrefix = isOptionType ? 'opt_' : 'f_';
+      const formattedQuestion = `${questionPrefix}${newQuestion}`;
+
+      setFormData(prev => ({
+        ...prev,
+        questions: [...(Array.isArray(prev.questions) ? prev.questions : []), {
+          question: formattedQuestion,
+          options: isOptionType ? [] : null
+        }],
+      }));
+
+      setNewQuestion('');
+      setIsOptionType(false);
+    }
+  };
+
+  const addOption = (questionIndex) => {
+    const optionText = newOption[questionIndex]?.trim();
+    if (optionText) {
+      setFormData((prev) => {
+        const updatedQuestions = prev.questions.map((item, index) =>
+          index === questionIndex
+            ? { ...item, options: [...(item.options || []), optionText] }
+            : item
+        );
+
+        return { ...prev, questions: updatedQuestions };
+      });
+
+      // Clear the input for the specific question
+      setNewOption((prev) => ({ ...prev, [questionIndex]: '' }));
+    }
+  };
+
+  const removeOption = (questionIndex, optionIndex) => {
+    setFormData(prev => {
+      const updatedQuestions = [...prev.questions];
+      updatedQuestions[questionIndex].options = updatedQuestions[questionIndex].options.filter(
+        (_, i) => i !== optionIndex
+      );
+      return { ...prev, questions: updatedQuestions };
+    });
+  };
+
+  const removeQuestion = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      questions: prev.questions.filter((_, i) => i !== index),
+    }));
+  };
 
   const handleCoverImage = (event) => {
     const file = event.target.files[0];
@@ -480,6 +549,23 @@ function EditProperty() {
       formDataToSend.append(`perkInfo[${key}]`, formData.perkInfo[key]);
     });
 
+
+    formData.questions?.forEach((question, index) => {
+      const type = question.question?.startsWith('opt_') ? 'multiple-choice' : 'fill-up';
+      const questionText = question.question?.substring(2) || '';
+
+      formDataToSend.append(`questions[${index}][type]`, type);
+      formDataToSend.append(`questions[${index}][questionText]`, questionText);
+
+      // If it's a multiple choice question, append the options
+      if (type === 'multiple-choice' && Array.isArray(question.options)) {
+        question.options.forEach((option, optionIndex) => {
+          formDataToSend.append(`questions[${index}][options][${optionIndex}]`, option);
+        });
+      }
+    });
+
+
     // console.log(formData);
     // console.log(formDataToSend);
     // console.log(coverImageUrl);
@@ -488,6 +574,10 @@ function EditProperty() {
     // console.log(imagePreviews);
 
     // PUT request to update property
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
     try {
       // const propertyId = '123'; // Replace with dynamic ID
       const response = await axios.put(`/api/admin/property/${propertyId}`, formDataToSend, {
@@ -495,8 +585,9 @@ function EditProperty() {
         //   'Content-Type': 'multipart/form-data',
         // },
       });
+      // console.log("form data ", formData);
       console.log('Property updated successfully:');
-      // console.log("reposnse update  ",response);
+      console.log("reposnse update  ", response);
       setIsUpdated(true);
 
     } catch (error) {
@@ -632,6 +723,8 @@ function EditProperty() {
     formDataToSend.append('imageUrls', imageUrls);
 
 
+
+
     // Include existing image URLs
     // imagePreviews.forEach((url, index) => {
     //   formDataToSend.append(`existingImages[${index}]`, url); // Keep track of existing images
@@ -705,6 +798,17 @@ function EditProperty() {
       formDataToSend.append(`perkInfo[${key}]`, formData.perkInfo[key]);
     });
 
+    formData.questions.map(item => {
+      const type = item.question?.startsWith('opt_') ? 'multiple-choice' : 'fill-up';
+      const questionText = item.question?.substring(2) || '';
+
+      return {
+        type,
+        questionText,
+        options: type === 'multiple-choice' ? (item.options || []) : [],
+      };
+    })
+
     // console.log(formData);
     // console.log(formDataToSend);
     // console.log(coverImageUrl);
@@ -715,12 +819,12 @@ function EditProperty() {
     // PUT request to update property
     try {
       // const propertyId = '123'; // Replace with dynamic ID
-      const response = await axios.post(`/api/admin/property/${propertyId}`, formDataToSend, {
-        // headers: {
-        //   'Content-Type': 'multipart/form-data',
-        // },
-      });
-      // console.log("form data ", formDataToSend);
+      // const response = await axios.post(`/api/admin/property/${propertyId}`, formDataToSend, {
+      //   // headers: {
+      //   //   'Content-Type': 'multipart/form-data',
+      //   // },
+      // });
+      console.log("form data ", formDataToSend);
       // console.log("response",response)
       console.log('Property Created successfully:');
       setIsCreated(true);
@@ -746,67 +850,67 @@ function EditProperty() {
   return (
     <div className="w-full max-w-lg md:max-w-max lg:max-w-max mx-auto bg-gray-100 rounded-lg shadow-lg p-4 sm:p-6 md:p-8 lg:p-12 overflow-hidden">
       <div className="w-full   mx-auto bg-white rounded-lg border-2 shadow-md p-4 sm:p-6 lg:p-8">
-      {updated && (
-                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                     <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
-                       <div className="flex items-center justify-center mb-4">
-                         <div className="bg-green-100 rounded-full p-2">
-                           <svg 
-                             className="h-8 w-8 text-green-500" 
-                             fill="none" 
-                             viewBox="0 0 24 24" 
-                             stroke="currentColor"
-                           >
-                             <path 
-                               strokeLinecap="round" 
-                               strokeLinejoin="round" 
-                               strokeWidth="2" 
-                               d="M5 13l4 4L19 7"
-                             />
-                           </svg>
-                         </div>
-                       </div>
-                       <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
-                       <p className="text-gray-600 text-center mb-4">Property has been Updated successfully.</p>
-                       <button 
-                         onClick={() => setIsUpdated(false)}
-                         className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
-                       >
-                         Close
-                       </button>
-                     </div>
-                   </div>
+        {updated && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-green-100 rounded-full p-2">
+                  <svg
+                    className="h-8 w-8 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
+              <p className="text-gray-600 text-center mb-4">Property has been Updated successfully.</p>
+              <button
+                onClick={() => setIsUpdated(false)}
+                className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         )}
-      {created && (
-                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                     <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
-                       <div className="flex items-center justify-center mb-4">
-                         <div className="bg-green-100 rounded-full p-2">
-                           <svg 
-                             className="h-8 w-8 text-green-500" 
-                             fill="none" 
-                             viewBox="0 0 24 24" 
-                             stroke="currentColor"
-                           >
-                             <path 
-                               strokeLinecap="round" 
-                               strokeLinejoin="round" 
-                               strokeWidth="2" 
-                               d="M5 13l4 4L19 7"
-                             />
-                           </svg>
-                         </div>
-                       </div>
-                       <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
-                       <p className="text-gray-600 text-center mb-4">Property has been Created successfully.</p>
-                       <button 
-                         onClick={() => setIsCreated(false)}
-                         className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
-                       >
-                         Close
-                       </button>
-                     </div>
-                   </div>
+        {created && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-green-100 rounded-full p-2">
+                  <svg
+                    className="h-8 w-8 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-2">Success!</h3>
+              <p className="text-gray-600 text-center mb-4">Property has been Created successfully.</p>
+              <button
+                onClick={() => setIsCreated(false)}
+                className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         )}
         {/* toggle for active -> inactive */}
         <div className="flex items-center space-x-2 mb-4">
@@ -842,7 +946,7 @@ function EditProperty() {
           </label>
         </div>
 
-        
+
         <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 text-center text-gray-800">Update Property Listing</h1>
         {/* Property ID input form */}
         <form onSubmit={(e) => {
@@ -1061,7 +1165,7 @@ function EditProperty() {
           <div>
             <label className="block text-2xl font-medium text-gray-700">Contacts</label>
             {formData.contacts.map((contact, index) => (
-              <div key={index}className="flex flex-col md:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2">
+              <div key={index} className="flex flex-col md:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-2">
                 <input
                   value={contact.name}
                   onChange={(e) => handleObjectArrayChange(index, 'contacts', 'name', e.target.value)}
@@ -1360,6 +1464,116 @@ function EditProperty() {
             </div>
           </div>
 
+          {/* Adding Questions to be displayed on form */}
+          <div className="p-6 max-w-4xl mx-auto bg-gray-50">
+            <div>
+              <label className="block text-2xl font-medium text-gray-700 mb-4">Questions</label>
+              <div className="space-y-6">
+                {/* Input for adding a new question */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="text"
+                      value={newQuestion}
+                      onChange={(e) => setNewQuestion(e.target.value)}
+                      placeholder="Enter your question"
+                      className="flex-grow rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="optionTypeCheckbox"
+                        checked={isOptionType}
+                        onChange={(e) => setIsOptionType(e.target.checked)}
+                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      />
+                      <label htmlFor="optionTypeCheckbox" className="text-sm text-gray-700">
+                        Has Options
+                      </label>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addQuestion}
+                      className="px-4 py-2 flex items-center bg-green-500 gap-1 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                    >
+                      <PlusCircle className="w-4 h-4 mr-2" /> Add Question
+                    </button>
+                  </div>
+                </div>
+
+                {/* Display questions and their options */}
+                {formData?.questions?.map((item, questionIndex) => (
+                  <div key={questionIndex} className="p-4 bg-white shadow-lg rounded-md space-y-3">
+                    {/* Question Title */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-semibold">
+                        {item?.question?.substring(2)} {/* Remove prefix when displaying */}
+                        <span className="ml-2 text-sm text-gray-500 font-normal">
+                          ({item?.question?.startsWith('opt_') ? 'Multiple choice' : 'Fill-up'})
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeQuestion(questionIndex)}
+                        className="p-1 text-red-500 hover:text-red-600"
+                      >
+                        <Plus className="rotate-45 w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Input for adding options if it's an option-type question */}
+                    {item?.question?.startsWith('opt_') && (
+                      <>
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            value={newOption[questionIndex] || ""}
+                            onChange={(e) =>
+                              setNewOption((prev) => ({ ...prev, [questionIndex]: e.target.value }))
+                            }
+                            placeholder="Add an option"
+                            className="flex-grow rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => addOption(questionIndex)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                          >
+                            Add Option
+                          </button>
+                        </div>
+
+                        {/* Display list of options */}
+                        <div className="mt-2 space-y-2">
+                          {item.options && item.options.map((option, optionIndex) => (
+                            <div key={optionIndex} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                              <span>{option}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeOption(questionIndex, optionIndex)}
+                                className="p-1 text-red-500 hover:text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Preview of the data structure */}
+            {/* <div className="mt-8 p-4 bg-gray-100 rounded-md">
+              <h3 className="text-lg font-medium text-gray-700 mb-2">Current Data Structure:</h3>
+              <pre className="text-xs overflow-auto p-2 bg-gray-800 text-white rounded-md">
+                {JSON.stringify(formData, null, 2)}
+              </pre>
+            </div> */}
+          </div>
+
           {/* Additional Info Section */}
           <div>
             <label htmlFor="info" className="block text-2xl font-medium text-gray-700">Additional Info</label>
@@ -1378,17 +1592,17 @@ function EditProperty() {
           >
             Update  Existing Property
           </button>
-          <button 
-          type = "submit"
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          onClick={handleCreation}
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            onClick={handleCreation}
           >
             Create a New Property
           </button>
-          
+
 
         </form>
-       
+
       </div>
     </div>
   )

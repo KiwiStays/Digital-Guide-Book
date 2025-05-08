@@ -48,6 +48,7 @@ const Guestschema = new Schema({
         type: String,
         trim: true,
     },
+    answers:[String],
     otp: { type: String }, // Store the generated OTP
     otpExpiresAt: { type: Date }, // Expiry time for the OTP
 });

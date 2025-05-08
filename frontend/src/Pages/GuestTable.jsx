@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { set } from 'mongoose';
 
 const GuestTable = () => {
     const [guests, setGuests] = useState([]); // State to store guest data
@@ -12,7 +13,7 @@ const GuestTable = () => {
     const [expandedRows, setExpandedRows] = useState([]); // Track which rows are expanded
     const [isExporting, setIsExporting] = useState(false); // For Google Sheets export
     const [exportMessage, setExportMessage] = useState(''); // For export status messages
-
+    const [answers, setAnswers] = useState([]); // For storing answers
     // // Google Sheets configuration
     // const SPREADSHEET_ID = import.meta.env.VITE_SPREAD_SHEET_ID; // Replace with your Google Sheet ID
     // const SHEET_NAME = 'Guests'; // Replace with your sheet name
@@ -26,8 +27,8 @@ const GuestTable = () => {
     // Fetch property names for the dropdown
     const fetchPropertyNames = async () => {
         try {
-            const response = await axios.get('/api/admin/property'); // Replace with your endpoint
-            setPropertyOptions(response.data || []); // Ensure an array is set
+            const response = await axios.get('/api/admin/property');
+            setPropertyOptions(response.data || []);
         } catch (error) {
             console.error('Error fetching property names:', error);
             alert('Failed to fetch property names. Please try again later.');
@@ -53,7 +54,11 @@ const GuestTable = () => {
 
             const response = await axios.get(url);
             setGuests(response.data || []); // Ensure we set an array even if empty
-            // console.log(response.data);
+            console.log(response.data);
+            // setAnswers(response.data.map(item=>{
+            //     return item.answers
+
+            // }) || []); // Store answers if available
         } catch (error) {
             console.error('Error fetching guest data:', error);
             alert('Failed to fetch guest data. Please try again later.');
@@ -62,6 +67,7 @@ const GuestTable = () => {
         }
     };
 
+    console.log("ans: ", answers);
     // Fetch data when the component mounts
     useEffect(() => {
         fetchPropertyNames(); // Load property names for the dropdown
@@ -85,6 +91,10 @@ const GuestTable = () => {
                     (new Date(guest.checkout) - new Date(guest.checkin)) /
                     (1000 * 60 * 60 * 24)
                 ),
+                'QnA': guest?.answers?.map((item, index) => {
+                const [question, answer] = item.split('_');
+                return `Q${index + 1}: ${question} | A${index + 1}: ${answer}`;
+            }).join('\n') || 'No answers provided'
             };
 
             const docFields = {};
@@ -99,7 +109,7 @@ const GuestTable = () => {
             return { ...baseFields, ...docFields };
         });
     };
-  
+
     // Handle Excel Download
     const handleDownloadExcel = () => {
         const formattedData = formatGuestData();
@@ -132,11 +142,11 @@ const GuestTable = () => {
     //     try {
     //         // Format the data for Google Sheets
     //         const formattedData = formatGuestData();
-            
+
     //         // Convert objects to arrays for Google Sheets API
     //         const headers = Object.keys(formattedData[0]);
     //         const values = [headers]; // First row is headers
-            
+
     //         // Add all data rows
     //         formattedData.forEach(item => {
     //             values.push(headers.map(header => item[header] || ''));
@@ -248,6 +258,7 @@ const GuestTable = () => {
                                     <th className="p-2 border">Dates Stayed</th>
                                     <th className="p-2 border">Days Stayed</th>
                                     <th className="p-2 border">Cleaning time slot</th>
+                                    <th className="p-2 border">QnA</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -279,7 +290,17 @@ const GuestTable = () => {
                                                             : 'N/A'}
                                                     </td>
                                                     <td className="p-2 border">{guest.cleaningTime || 'not choosen'}</td>
+                                                    <td className='p-2 border'>{guest?.answers?.map((item, index) => {
+                                                        const [question, answer] = item.split('_');
+                                                        return (
+                                                            <div key={index} className="mb-2 p-2 bg-gray-50 rounded">
+                                                                <p className='text-xs text-gray-500'>Q: {question}</p>
+                                                                <p className='text-sm font-medium text-gray-800'>A: {answer}</p>
+                                                            </div>
+                                                        );
+                                                    })}</td>
                                                 </tr>
+
 
                                                 {/* Expanded Row for Documents */}
                                                 {isExpanded && guest.Document?.length > 0 && (
@@ -297,6 +318,7 @@ const GuestTable = () => {
                                                                                 <p className="font-semibold text-gray-700">Age: {doc?.age}</p>
                                                                                 <p className="font-semibold text-gray-700">Gender: {doc?.gender}</p>
                                                                                 <p className="font-semibold text-gray-700">Id Type: {doc?.idcard}</p>
+                                                                                {/* <p className="font-semibold text-gray-700">File: {}</p> */}
                                                                             </div>
                                                                             <div>
                                                                                 {isPDF ? (
@@ -345,7 +367,7 @@ const GuestTable = () => {
                         >
                             Download Excel
                         </button>
-                       
+
                     </div>
 
                     {/* Export Status Message */}

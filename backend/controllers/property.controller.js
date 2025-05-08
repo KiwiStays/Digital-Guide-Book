@@ -220,7 +220,7 @@ export const getPropertyName = async (req, res) => {
 
     try {
         // const property = await Propertymodel.findById(id);
-        const property = await Propertymodel.findById(id).select('title _id coverImage active');
+        const property = await Propertymodel.findById(id).select('title _id coverImage active questions');
 
         // Check if the property exists
         if (!property) {
@@ -425,6 +425,7 @@ export const CreatePropertyinUpdate = async (req, res) => {
 export const UpdateProperty = async (req, res) => {
     // console.log("req files",req.files);
     // console.log("req body",req.body);
+    console.dir((req.body), { depth: null })
 
     try {
         // console.log("req body" , req.body);
@@ -436,6 +437,13 @@ export const UpdateProperty = async (req, res) => {
 
         const uploadedFiles = [];
         let coverImageUrl = '';
+
+        // const questions = [];
+
+       
+        
+        // Get all form keys
+       
 
         // Handle cover image first
         if (req.files?.coverImage && req.files.coverImage[0]) {
@@ -509,6 +517,12 @@ export const UpdateProperty = async (req, res) => {
             console.error('imageDescription is not an array or is missing.');
         }
 
+        const questions = propertyData.questions.map(q => ({
+            type: q.type,
+            questionText: q.questionText,
+            options: q.type === 'multiple-choice' ? q.options : null
+        }));
+        
 
         // Create property data object
         const newPropertyData = {
@@ -551,6 +565,7 @@ export const UpdateProperty = async (req, res) => {
                 question: faq.question,
                 answer: faq.answer
             })),
+            questions: questions,
             info: propertyData.info,
             kitchenItems: propertyData.kitchenItems,
             appliancesItems: propertyData.appliancesItems || [],
@@ -559,9 +574,12 @@ export const UpdateProperty = async (req, res) => {
 
         // house rules,
         // Create new property
-        console.log(newPropertyData);
+        console.log("new property data : ",newPropertyData);
         
-        const property = await Propertymodel.findByIdAndUpdate(id, newPropertyData);
+        const property = await Propertymodel.findByIdAndUpdate(id, newPropertyData,{ 
+            new: true,  // Return updated document
+            runValidators: true  // Run schema validations
+        });
         if (!property) {
             return res.status(404).json({
                 status: 'error',
@@ -585,24 +603,7 @@ export const UpdateProperty = async (req, res) => {
         // console.log('Created in DB: ', savedProperty);
 
     } catch (error) {
-        // if(req.files.coverImage){
-        //     for(const file of req.files.coverImage){
-        //         try{
-        //             await fs.unlinkSync(file.path);
-        //         }catch(unlinkError){
-        //             console.error('Error deleting file:', unlinkError);
-        //         }
-        //     }
-        // }
-        // if (req.files.images) {
-        //     for (const file of req.files.images) {
-        //         try {
-        //             await fs.unlinkSync(file.path);
-        //         } catch (unlinkError) {
-        //             console.error('Error deleting file:', unlinkError);
-        //         }
-        //     }
-        // }
+   
 
         if (error.name === 'ValidationError') {
             return res.status(400).json({

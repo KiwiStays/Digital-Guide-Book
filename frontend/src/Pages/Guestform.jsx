@@ -19,10 +19,23 @@ const GuestForm = () => {
   const [title, setTitle] = useState('');
   const [active, setActive] = useState(false);
   const [coverImage, setCoverImage] = useState(''); // Initialize coverImage state
+  const [newQuestion, setNewQuestion] = useState('');
+
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [completedQuestions, setCompletedQuestions] = useState(new Set());
+  const questionsPerPage = 1;
+  // const [isOptionType, setIsOptionType] = useState(false);
+  const [questions, setQuestions] = useState({
+    multipleChoice: [], // Will store multiple choice questions
+    fillUp: [] // Will store fill-up questions
+  });
+
   // console.log("id from guestform",id);
   // At the top of your component
   const [uploadProgress, setUploadProgress] = useState('');
   const uploadCounter = useRef({ completed: 0, total: 0 });
+
+  const getTotalQuestions = () => questions.multipleChoice.length + questions.fillUp.length;
 
   // In your handleSubmit function, before the uploads start:
   // uploadCounter.current = { completed: 0, total: formData.documents.length };
@@ -30,7 +43,32 @@ const GuestForm = () => {
     const fetchPropertyName = async () => {
       try {
         const response = await axios.get(`${backend_url}/api/admin/getproperty/name/${id}`);
-        // console.log("response from guestform", response.data);
+        // console.log("response from guestform", response.data.data);
+        const multipleChoiceQuestions = [];
+        const fillUpQuestions = [];
+        response?.data?.data?.questions?.forEach((question) => {
+          console.log("question", question);
+          const cleanedQuestionText = question.questionText.replace(/t_/g, '');
+          if (question.type === 'multiple-choice') {
+            multipleChoiceQuestions.push({
+              questionText: cleanedQuestionText,
+              options: question.options,
+              id: question._id
+            });
+          } else if (question.type === 'fill-up') {
+            fillUpQuestions.push({
+              questionText: cleanedQuestionText,
+              id: question._id
+            });
+
+          }
+
+        });
+        // console.log("newType", newType);
+        setQuestions({
+          multipleChoice: multipleChoiceQuestions,
+          fillUp: fillUpQuestions
+        });
         setTitle(response.data.data.title);
         setCoverImage(response.data.data.coverImage);
         setActive(response.data.data.active);
@@ -42,6 +80,10 @@ const GuestForm = () => {
 
     fetchPropertyName();
   }, [id]);
+
+  // console.log("newMultipleChoicequestion", newMultipleChoicequestion);
+  // console.log("multipleChoice", multipleChoice);
+  // console.log("fillUp", fillUp);
 
   // console.log("active", active);
 
@@ -55,6 +97,7 @@ const GuestForm = () => {
     checkin: 'dd/mm/yyyy',
     checkout: 'dd/mm/yyyy',
     cleaningTime: '',
+    answers: []
   });
 
   const handleChange = (e) => {
@@ -87,80 +130,38 @@ const GuestForm = () => {
       documents: [],
       checkin: '',
       checkout: '',
+      answers: [],
     });
     setTimeout(() => {
       setIsSubmitted(false);
     }, 3000);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-
-  //   const data = new FormData();
-  //   data.append('name', formData.name);
-  //   data.append('phone', formData.phone);
-  //   data.append('property_name', title);
-  //   data.append('number_of_guests', formData.number_of_guests);
-  //   data.append('checkin', formData.checkin);
-  //   data.append('checkout', formData.checkout);
-  //   data.append('cleaningTime', formData.cleaningTime);
-
-  //   if (formData.documents.length > 0) {
-  //     formData.documents[0].name = formData.name ;
-  //   }
-
-  //   const documentsData = formData.documents.map((doc) => ({
-  //     name: doc.name,
-  //     age: doc.age,
-  //     gender: doc.gender,
-  //     idCardType: doc.idCardType,
-  //   }));
-
-  //   data.append('Document', JSON.stringify(documentsData));
-  //   formData.documents.forEach((doc) => {
-  //     data.append('documents', doc.file);
-  //   });
-
-  //   try {
-  //     const response = await axios.post(`${backend_url}/api/guest/verify/${id}`, data, {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data',
-  //       },
-  //     });
-  //     // console.log('Response:', response.data);
-  //     // console.log('Form Data:', formData);
-  //     setIsSubmitted(true);
-  //     setIsLoading(false);
-  //     // resetForm();
-  //     // localStorage.setItem('authToken', response.data.token); // Store the token in local storage
-  //     // localStorage.setItem('guestId', response.data.guestId); // Store the guest ID in local storage
-  //     // localStorage.setItem('guestName', response.data.guestName); // Store the guest name in local storage
-  //     // Use AuthContext to handle login and redirection
-  //     // console.log("active", response.data.active);
-  //     auth_login(response.data.token, response.data.guestName, response.data.guestId, id,active ); // Call the login function from AuthContext
-  //     if (active) {
-  //       navigate('/dashboard'); // Redirect to dashboard after successful registration
-  //     }
-  //     else{
-  //       navigate("/thanks")
-  //     }
-
-  //   } catch (error) {
-  //     if (error.response && error.response.status === 402) {
-  //       alert(error.response.data.message);  // Show the alert with backend message
-  //       setIsLoading(false);
-  //     } else {
-  //       console.error('Error:', error);
-  //       setIsLoading(false);
-  //     }
-  //   }
-  // };
-
   // Modified handleSubmit function for two-phase submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    console.log('Form Data being sent:', {
+      basicData: {
+        name: formData.name,
+        phone: formData.phone,
+        property_name: title,
+        number_of_guests: formData.number_of_guests,
+        checkin: formData.checkin,
+        checkout: formData.checkout,
+        cleaningTime: formData.cleaningTime,
+        answers:formData.answers
+      },
+      documents: formData.documents.map(doc => ({
+        name: doc.name,
+        age: doc.age,
+        gender: doc.gender,
+        idCardType: doc.idCardType,
+        file: doc.file ? 'File present' : 'No file'
+      }))
+    });
+
 
     try {
       // PHASE 1: Save basic guest info quickly
@@ -171,11 +172,13 @@ const GuestForm = () => {
         number_of_guests: formData.number_of_guests,
         checkin: formData.checkin,
         checkout: formData.checkout,
-        cleaningTime: formData.cleaningTime
+        cleaningTime: formData.cleaningTime,
+        answers: formData.answers
       };
 
       // First create the guest with basic info
       const initialResponse = await axios.post(`${backend_url}/api/guest/create/${id}`, basicData);
+      // console.log('Initial Response:', initialResponse.data);
       const guestId = initialResponse.data.guestId;
 
       // Update progress status for user
@@ -184,6 +187,7 @@ const GuestForm = () => {
       // PHASE 2: Process and upload images directly to Cloudinary
       // Get upload signature from your server
       const signatureResponse = await axios.get(`${backend_url}/api/guest/cloudinary/signature`);
+      console.log('Signature Response:', signatureResponse.data);
       const { signature, timestamp, cloudName, apiKey } = signatureResponse.data;
 
       // Upload all images in parallel
@@ -558,7 +562,100 @@ const GuestForm = () => {
                     </div>
                   </div>
                 </motion.div>
+
               </div>)}
+
+            {/* Questions Section */}
+            <div className="space-y-8 p-6 bg-gradient-to-br from-red-900/40 to-red-800/40 rounded-xl backdrop-blur-md shadow-xl border border-red-800/30">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-white pb-2">
+                  🤔 Quick Questions for You
+                </h3>
+                <p className="text-gray-200 text-sm">Your answers help us serve you better</p>
+              </div>
+
+              {/* Multiple Choice Questions */}
+              <div className="space-y-6">
+                {questions.multipleChoice.map((question, index) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    key={question.id}
+                    className="bg-white/10 p-6 rounded-lg border border-red-400/20 shadow-lg hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.01]"
+                  >
+                    <p className="text-white mb-5 font-semibold text-lg">
+                      <span className="text-red-300 mr-2">Q{index + 1}.</span>
+                      {question.questionText}
+                    </p>
+                    <div className="space-y-3 pl-4">
+                      {question.options.map((option, optIndex) => (
+                        <label
+                          key={optIndex}
+                          className="flex items-center p-3 hover:bg-red-900/50 rounded-lg cursor-pointer transition-all duration-200 group"
+                        >
+                          <input
+                            type="radio"
+                            name={`question-${question.id}`}
+                            value={option}
+                            onChange={(e) => {
+                              setFormData(prev => ({
+                                ...prev,
+                                answers: [
+                                  ...prev.answers.filter(ans => !ans.startsWith(`${question.questionText}_`)),
+                                  `${question.questionText}_${e.target.value}`
+                                ]
+                              }));
+                            }}
+                            className="w-5 h-5 accent-red-600 cursor-pointer"
+                            required
+                          />
+                          <span className="text-white text-base font-medium ml-4 group-hover:text-red-200 transition-colors">
+                            {option}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Fill Up Questions */}
+              <div className="space-y-6">
+                {questions.fillUp.map((question, index) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: (questions.multipleChoice.length + index) * 0.1 }}
+                    key={question.id}
+                    className="bg-white/10 p-6 rounded-lg border border-red-400/20 shadow-lg hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.01]"
+                  >
+                    <p className="text-white mb-5 font-semibold text-lg">
+                      <span className="text-red-300 mr-2">Q{questions.multipleChoice.length + index + 1}.</span>
+                      {question.questionText}
+                    </p>
+                    <input
+                      type="text"
+                      onChange={(e) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          answers: [
+                            ...prev.answers.filter(ans => !ans.startsWith(`${question.questionText}_`)),
+                            `${question.questionText}_${e.target.value}`
+                          ]
+                        }));
+                      }}
+                      className="w-full px-5 py-4 bg-white/90 rounded-lg border-2 border-red-800/30 
+               focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/50 
+               placeholder-gray-500 text-gray-800 font-medium transition-all duration-300
+               hover:bg-white"
+                      placeholder="Type your answer here..."
+                      required
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
 
             <div className="flex justify-center pt-6">
               <motion.button
@@ -580,6 +677,7 @@ const GuestForm = () => {
                 )}
               </motion.button>
             </div>
+
           </form>
         </motion.div>
       </div>

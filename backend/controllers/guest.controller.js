@@ -156,7 +156,9 @@ const generateToken = (userId, checkOutDate) => {
 export const CreateGuest = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, phone, property_name, number_of_guests, checkin, checkout, cleaningTime } = req.body;
+    console.log("id", id);
+    console.log("req body", req.body);
+    const { name, phone, property_name, number_of_guests, checkin, checkout, cleaningTime,answers } = req.body;
     
     const existingGuest = await Guestmodel.findOne({ phone: phone });
     if (existingGuest) {
@@ -174,6 +176,7 @@ export const CreateGuest = async (req, res) => {
       checkin,
       checkout,
       cleaningTime,
+      answers, // Initialize answers as an empty array
     });
     
     const token = generateToken(guest._id, checkout);
@@ -191,8 +194,7 @@ export const CreateGuest = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error });
   }
 };
-
-// 2. Controller for updating documents after they're uploaded to Cloudinary
+ // 2. Controller for updating documents after they're uploaded to Cloudinary
 export const UpdateGuestDocuments = async (req, res) => {
   try {
     const { guestId } = req.params;
