@@ -1,11 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Trash2 } from "lucide-react";
+import { Trash2, Copy } from "lucide-react";
 
 const PropertyListing = () => {
     const backendurl = import.meta.env.VITE_BACKEND_URL;
-    console.log(backendurl);
+    // console.log(backendurl);
     const [propertyData, setPropertyData] = useState([]);
     const [error, setError] = useState(null);
     const [selectedProperty, setSelectedProperty] = useState(null); // Track property to delete
@@ -94,14 +94,25 @@ const PropertyListing = () => {
                                     {property.title}
                                 </h2>
                                 <p className="text-sm text-gray-600 mb-4">ID: {property._id}</p>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(property._id);
+                                        // Optional: Show a brief confirmation
+                                        alert("ID copied to clipboard!");
+                                    }}
+                                   
+                                    className="mx-2 text-gray-500 hover:text-blue-500 transition-colors focus:outline-none"
+                                    title="Copy ID"
+                                >
+                                    <Copy size={14} />
+                                </button>
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className={`${
-                                        property.active
-                                            ? "bg-green-500 hover:bg-green-600"
-                                            : "bg-red-500 hover:bg-red-600"
-                                    } text-white px-4 py-2 rounded-md transition-colors duration-300`}
+                                    className={`${property.active
+                                        ? "bg-green-500 hover:bg-green-600"
+                                        : "bg-red-500 hover:bg-red-600"
+                                        } text-white px-4 py-2 rounded-md transition-colors duration-300`}
                                 >
                                     {property.active ? "Active" : "Inactive"}
                                 </motion.button>

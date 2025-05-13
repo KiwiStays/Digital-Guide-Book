@@ -819,13 +819,13 @@ function EditProperty() {
     // PUT request to update property
     try {
       // const propertyId = '123'; // Replace with dynamic ID
-      // const response = await axios.post(`/api/admin/property/${propertyId}`, formDataToSend, {
-      //   // headers: {
-      //   //   'Content-Type': 'multipart/form-data',
-      //   // },
-      // });
+      const response = await axios.post(`/api/admin/property/${propertyId}`, formDataToSend, {
+        // headers: {
+        //   'Content-Type': 'multipart/form-data',
+        // },
+      });
       console.log("form data ", formDataToSend);
-      // console.log("response",response)
+      console.log("response",response)
       console.log('Property Created successfully:');
       setIsCreated(true);
 
