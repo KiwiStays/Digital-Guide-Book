@@ -1,7 +1,7 @@
 import mongoose,{ Schema } from "mongoose";
 
 const GuestHistorySchema = new Schema({
-    place_id:{
+    place_id: {
         type: String,
     },
     name: {
@@ -13,11 +13,21 @@ const GuestHistorySchema = new Schema({
     property_name: {
         type: String,
     },
-    number_of_guests:{
+    number_of_guests: {
         type: Number,
     },
     Document: [{
         name: {
+            type: String,
+        },
+        age: {
+            type: Number,
+        },
+        gender: {
+            type: String,
+
+        },
+        idcard: {
             type: String,
         },
         file: {
