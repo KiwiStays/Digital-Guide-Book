@@ -40,7 +40,6 @@ const Guestschema = new Schema({
     checkout: {
         type: Date,
     },
-    deleteAt: { type: Date },
     token: {
         type: String,
     },
@@ -51,23 +50,12 @@ const Guestschema = new Schema({
     answers:[String],
     otp: { type: String }, // Store the generated OTP
     otpExpiresAt: { type: Date }, // Expiry time for the OTP
-});
+},
+{Timestamp : true});
 // Pre-save middleware to calculate deleteAt
-Guestschema.pre('save', function (next) {
-    try {
-        if (this.checkout) {
-            // Set deleteAt to checkout + 7 days
-            this.deleteAt = new Date(this.checkout.getTime() + 7 * 24 * 60 * 60 * 1000);
-        }
-        next();
-    } catch (e) {
-        console.log(e)
-    }
 
-});
 
 // Create TTL Index
-Guestschema.index({ deleteAt: 1 }, { expireAfterSeconds: 0 });
-Guestschema.index({ otpExpiresAt: 1 }, { expireAfterSeconds: 0 });
+
 
 export const Guestmodel = mongoose.model('Guest', Guestschema); 
