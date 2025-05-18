@@ -82,65 +82,65 @@ connectDB(process.env.MONGO_URI).then(() => {
 
 // Define the guest transfer logic
 // Define the guest transfer logic
-const transferExpiredGuests = async () => {
-    try {
-        const currentDate = new Date();
+// const transferExpiredGuests = async () => {
+//     try {
+//         const currentDate = new Date();
 
-        const expiredGuests = await Guestmodel.find({
-            checkout: {
-                $lt: new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000),
-            },
-        });
+//         const expiredGuests = await Guestmodel.find({
+//             checkout: {
+//                 $lt: new Date(currentDate.getTime() - 7 * 24 * 60 * 60 * 1000),
+//             },
+//         });
 
-        console.log(`Found ${expiredGuests.length} expired guests to transfer`);
+//         console.log(`Found ${expiredGuests.length} expired guests to transfer`);
 
-        for (const guest of expiredGuests) {
-            try {
-                console.log(`Transferring guest: ${guest.name}, ID: ${guest._id}`);
+//         for (const guest of expiredGuests) {
+//             try {
+//                 console.log(`Transferring guest: ${guest.name}, ID: ${guest._id}`);
 
-                const historyData = {
-                    place_id: guest.place_id,
-                    name: guest.name,
-                    phone: guest.phone,
-                    property_name: guest.property_name,
-                    number_of_guests: guest.number_of_guests,
-                    Document: guest.Document ? guest.Document.map(doc => ({
-                        name: doc.name,
-                        age: doc.age || null,
-                        gender: doc.gender || '',
-                        idcard: doc.idcard || '',
-                        file: doc.file || ''
-                    })) : [],
-                    checkin: guest.checkin,
-                    checkout: guest.checkout,
-                };
+//                 const historyData = {
+//                     place_id: guest.place_id,
+//                     name: guest.name,
+//                     phone: guest.phone,
+//                     property_name: guest.property_name,
+//                     number_of_guests: guest.number_of_guests,
+//                     Document: guest.Document ? guest.Document.map(doc => ({
+//                         name: doc.name,
+//                         age: doc.age || null,
+//                         gender: doc.gender || '',
+//                         idcard: doc.idcard || '',
+//                         file: doc.file || ''
+//                     })) : [],
+//                     checkin: guest.checkin,
+//                     checkout: guest.checkout,
+//                 };
 
-                console.log('Creating history record with data:', JSON.stringify(historyData));
+//                 console.log('Creating history record with data:', JSON.stringify(historyData));
 
-                const newGuest = new GuestHistoryModel(historyData);
-                const savedGuest = await newGuest.save();
+//                 const newGuest = new GuestHistoryModel(historyData);
+//                 const savedGuest = await newGuest.save();
 
-                console.log(`Successfully saved to history with ID: ${savedGuest._id}`);
-                await Guestmodel.findByIdAndDelete(guest._id);
-                console.log(`Deleted original guest record with ID: ${guest._id}`);
-            } catch (guestError) {
-                console.error(`Error transferring guest ${guest._id}:`, guestError);
-                // Continue with next guest even if one fails
-            }
-        }
+//                 console.log(`Successfully saved to history with ID: ${savedGuest._id}`);
+//                 await Guestmodel.findByIdAndDelete(guest._id);
+//                 console.log(`Deleted original guest record with ID: ${guest._id}`);
+//             } catch (guestError) {
+//                 console.error(`Error transferring guest ${guest._id}:`, guestError);
+//                 // Continue with next guest even if one fails
+//             }
+//         }
 
-        if (expiredGuests.length > 0) {
-            console.log(`Transferred ${expiredGuests.length} guests to GuestHistory`);
-        } else {
-            console.log('No guests to transfer at this time.');
-        }
-    } catch (error) {
-        console.error('Data transfer failed:', error);
-    }
-};
+//         if (expiredGuests.length > 0) {
+//             console.log(`Transferred ${expiredGuests.length} guests to GuestHistory`);
+//         } else {
+//             console.log('No guests to transfer at this time.');
+//         }
+//     } catch (error) {
+//         console.error('Data transfer failed:', error);
+//     }
+// };
 
-// Schedule the task to run every day at 12:00 AM
-cron.schedule('0 0 * * *', async () => {
-    console.log('Running guest transfer job at midnight...');
-    await transferExpiredGuests();
-});
+// // Schedule the task to run every day at 12:00 AM
+// cron.schedule('0 0 * * *', async () => {
+//     console.log('Running guest transfer job at midnight...');
+//     await transferExpiredGuests();
+// });
