@@ -51,11 +51,9 @@ const Guestschema = new Schema({
     otp: { type: String }, // Store the generated OTP
     otpExpiresAt: { type: Date }, // Expiry time for the OTP
 },
-<<<<<<< HEAD
-{timestamps : true});
-=======
-{ timestamps: true });
->>>>>>> 24ed682fae4d2d33001de9b147c4c827735cea9f
+{ 
+    timestamps: true 
+});
 // Pre-save middleware to calculate deleteAt
 
 
