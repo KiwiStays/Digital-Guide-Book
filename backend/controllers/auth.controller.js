@@ -133,6 +133,7 @@ export const verifyOTP = async (req, res) => {
 
 export const verifyToken = async (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
+  console.log("Token coming to backend :", token);
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided.' });
@@ -145,7 +146,7 @@ export const verifyToken = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
     const guest = await Guestmodel.findById(decoded.guestId || decoded.userId);
-    // console.log("Guest found:", guest);
+    console.log("Guest found:", guest);
 
     if (!guest) {
       return res.status(404).json({ message: 'Guest not found.' });
@@ -153,7 +154,7 @@ export const verifyToken = async (req, res, next) => {
 
     req.guest = guest;
     next();
-    // console.log("Decoded token:", decoded);
+    console.log("Decoded token:", decoded);
 
 
 

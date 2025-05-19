@@ -179,6 +179,8 @@ const GuestForm = () => {
       // First create the guest with basic info
       const initialResponse = await axios.post(`${backend_url}/api/guest/create/${id}`, basicData);
       // console.log('Initial Response:', initialResponse.data);
+      // console.log('Guest ID:', initialResponse.data.guestId);
+      // console.log('token :', initialResponse.data.token);
       const guestId = initialResponse.data.guestId;
 
       // Update progress status for user

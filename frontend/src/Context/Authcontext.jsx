@@ -7,6 +7,7 @@ export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('authToken') || null);
+    console.log("token from local storage: ", token);
    const [active, setActive] = useState(
     localStorage.getItem('active') ? JSON.parse(localStorage.getItem('active')) : null
 );
@@ -27,8 +28,8 @@ const AuthProvider = ({ children }) => {
         const validateToken = async () => {
             if (token) {
                 try {
-                    // console.log("authcontext: ", token);
-                    // console.log("placrId: ", placeId);  
+                    console.log("authcontext: ", token);
+                    console.log("placrId: ", placeId);  
 
                     const response = await axios.get('/api/auth/protected', {
                         headers: { Authorization: `Bearer ${token}` },
@@ -42,6 +43,7 @@ const AuthProvider = ({ children }) => {
                 } catch (error) {
                     // setToken(null);
                     // localStorage.removeItem('authToken');
+                    console.error("Token validation failed", error.response || error);
                     logout();
                     setLoading(false); // Token invalid
                 }
