@@ -23,7 +23,7 @@ import Nearby from './Pages/Nearby';
 import Thanks from './Pages/Thanks';
 import Active from './Pages/Active';
 import PropertyListing from './Pages/PropertyListing';
-import RentalwiseGuest from './Pages/RentalwiseGuest';
+import RentalwiseGuest from './Pages/Rentalwiseguest';
 import Guestlandingpage from './Pages/Guestlandingpage';
 import Addon from './Pages/Addon';
 
