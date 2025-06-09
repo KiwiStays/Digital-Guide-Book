@@ -1013,11 +1013,7 @@ export const updateGuest = async (req, res) => {
 export const guestinfo = async (req, res) => {
   try {
     // Add rate limiting check
-    if (!checkRateLimit(req.ip, 'GENERAL')) {
-      return res.status(429).json({ 
-        message: 'Too many requests. Please try again later.' 
-      });
-    }
+   
 
     // Extract query parameters
     const {
