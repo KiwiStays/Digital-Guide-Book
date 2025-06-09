@@ -23,6 +23,9 @@ import Nearby from './Pages/Nearby';
 import Thanks from './Pages/Thanks';
 import Active from './Pages/Active';
 import PropertyListing from './Pages/PropertyListing';
+import RentalwiseGuest from './Pages/RentalwiseGuest';
+import Guestlandingpage from './Pages/Guestlandingpage';
+import Addon from './Pages/Addon';
 
 
 function App() {
@@ -58,10 +61,13 @@ function App() {
               <Route path="/active" element={token && !active ? <Active /> : <Navigate to="/" />} />
               <Route path="/" element={token && active ? <Navigate to="/dashboard" /> : <Login />} />
               <Route path="/:id" element={token && active ? <Navigate to="/dashboard" /> : <GuestForm />} />
+              {/* this is the main landing page component  */}
+              <Route path="/:guestId/:propertyId" element={ <Guestlandingpage />} />
               <Route path="/login" element={token && active ? <Navigate to="/dashboard" /> : <Login />} />
               <Route path="/stayinfo" element={<ProtectedRoute><Stayinfo /></ProtectedRoute>} />
               <Route path="/contacts" element={token && active ? <Contacts /> : <GuestForm />} />
               <Route path="/nearby" element={token && active ? <Nearby /> : <GuestForm />} />
+              <Route path="/addon" element={<Addon/>} />
               <Route path="*" element={<Pagenotfound />} />
             </Routes>
           </Layout>
@@ -90,6 +96,7 @@ function App() {
                 <Route path="editguestinfo" element={adminToken ? <Editguestinfo /> : <AdminLogin />} />
                 <Route path="propertylist" element={adminToken ? <PropertyListing /> : <AdminLogin />} />
                 <Route path="editproperty" element={adminToken ? <EditProperty /> : <AdminLogin />} />
+                <Route path="rentalwiseguest" element={adminToken ? <RentalwiseGuest /> : <AdminLogin />} />
                 <Route path="*" element={<Pagenotfound />} />
               </Routes>
             </AdminLayout>

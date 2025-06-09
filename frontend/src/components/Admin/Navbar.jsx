@@ -23,6 +23,7 @@ const Navbar = () => {
         { name: 'Guest Info', path: '/admin/guestinfo', requireAuth: true },
         { name: "Edit Guest info", path: '/admin/editguestinfo', requireAuth: true },
         { name: "Edit Proerty", path: '/admin/editproperty', requireAuth: true },
+        { name: "rentalwiseguest", path: '/admin/rentalwiseguest', requireAuth: true },
     ];
 
     return (

@@ -3,20 +3,21 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
-
 const GuestTable = () => {
     const [guests, setGuests] = useState([]); // State to store guest data
-    const [filters, setFilters] = useState({ startDate: '', endDate: '', propertyName: '' }); // Added propertyName to filters
+    const [filters, setFilters] = useState({ startDate: '', endDate: '', propertyName: '' });
     const [loading, setLoading] = useState(false); // State for loading spinner
     const [searchTerm, setSearchTerm] = useState(''); // For property name search
     const [propertyOptions, setPropertyOptions] = useState([]); // Store dropdown property names
     const [expandedRows, setExpandedRows] = useState([]); // Track which rows are expanded
-    const [isExporting, setIsExporting] = useState(false); // For Google Sheets export
+    const [isExporting, setIsExporting] = useState(false); // For export loading
     const [exportMessage, setExportMessage] = useState(''); // For export status messages
-    const [answers, setAnswers] = useState([]); // For storing answers
-    // // Google Sheets configuration
-    // const SPREADSHEET_ID = import.meta.env.VITE_SPREAD_SHEET_ID; // Replace with your Google Sheet ID
-    // const SHEET_NAME = 'Guests'; // Replace with your sheet name
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalGuests, setTotalGuests] = useState(0);
+    const [itemsPerPage] = useState(10); // Fixed items per page
 
     const toggleRow = (id) => {
         setExpandedRows((prev) =>
@@ -35,66 +36,113 @@ const GuestTable = () => {
         }
     };
 
-    // Fetch guest data
-    const fetchGuests = async () => {
+    // Fetch guest data with pagination and sorting by timestamp
+    // Fetch guest data with pagination and sorting by timestamp
+    const fetchGuests = async (page = 1) => {
         try {
             setLoading(true);
 
             // Build query params
             const queryParams = [];
+            queryParams.push(`page=${page}`);
+            queryParams.push(`limit=${itemsPerPage}`);
+            queryParams.push(`sortBy=_id`); // Sort by ObjectId for timestamp
+            queryParams.push(`sortOrder=desc`); // Latest first (newest timestamps)
+
             if (filters.startDate) queryParams.push(`startDate=${filters.startDate}`);
             if (filters.endDate) queryParams.push(`endDate=${filters.endDate}`);
             if (filters.propertyName) queryParams.push(`propertyName=${encodeURIComponent(filters.propertyName)}`);
             if (searchTerm) queryParams.push(`searchTerm=${encodeURIComponent(searchTerm)}`);
 
-            let url = '/api/guest/guestinfo';
-            if (queryParams.length > 0) {
-                url += `?${queryParams.join('&')}`;
-            }
+            const url = `/api/guest/guestinfo?${queryParams.join('&')}`;
+            // console.log('🔄 Fetching URL:', url);
 
             const response = await axios.get(url);
-            setGuests(response.data || []); // Ensure we set an array even if empty
-            console.log(response.data);
-            // setAnswers(response.data.map(item=>{
-            //     return item.answers
+            // console.log('📥 Response:', response.data);
 
-            // }) || []); // Store answers if available
+            // Handle the new paginated response structure
+            if (response.data.success && response.data.guests) {
+                setGuests(response.data.guests);
+                setCurrentPage(response.data.pagination.currentPage);
+                setTotalPages(response.data.pagination.totalPages);
+                setTotalGuests(response.data.pagination.totalGuests);
+
+                // console.log(`✅ Loaded page ${response.data.pagination.currentPage} of ${response.data.pagination.totalPages}`);
+                // console.log(`📊 Showing ${response.data.guests.length} guests out of ${response.data.pagination.totalGuests} total`);
+            } else {
+                // Fallback for old response format
+                // console.log('⚠️ Using fallback pagination');
+                const allGuests = response.data || [];
+
+                // Sort by timestamp
+                const sortedGuests = allGuests.sort((a, b) => {
+                    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : new Date(parseInt(a._id.substring(0, 8), 16) * 1000).getTime();
+                    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : new Date(parseInt(b._id.substring(0, 8), 16) * 1000).getTime();
+                    return timeB - timeA; // Latest first
+                });
+
+                // Manual pagination
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedGuests = sortedGuests.slice(startIndex, endIndex);
+
+                setGuests(paginatedGuests);
+                setTotalGuests(sortedGuests.length);
+                setTotalPages(Math.ceil(sortedGuests.length / itemsPerPage));
+                setCurrentPage(page);
+            }
+
         } catch (error) {
-            console.error('Error fetching guest data:', error);
+            console.error('❌ Error fetching guest data:', error);
             alert('Failed to fetch guest data. Please try again later.');
+            // Reset states on error
+            setGuests([]);
+            setTotalGuests(0);
+            setTotalPages(1);
+            setCurrentPage(1);
         } finally {
             setLoading(false);
         }
     };
+    // Handle page changes
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            fetchGuests(newPage);
+            setExpandedRows([]); // Collapse all rows when changing pages
+        }
+    };
 
-    console.log("ans: ", answers);
     // Fetch data when the component mounts
     useEffect(() => {
         fetchPropertyNames(); // Load property names for the dropdown
-        fetchGuests(); // Fetch guest data
+        fetchGuests(1); // Fetch guest data starting from page 1
         // eslint-disable-next-line
     }, []);
 
-    // Format guest data for export
-    const formatGuestData = () => {
-        return guests.map((guest) => {
+    // Format guest data for export (fetch all data for export)
+    const formatGuestData = (allGuests) => {
+        return allGuests.map((guest) => {
             const baseFields = {
                 'Property Name': guest.property_name,
                 'Guest Name': guest.name,
-                'Guest db id': guest._id,
+                'Guest DB ID': guest._id,
                 'Phone': guest.phone,
                 'Cleaning Time Slot': guest.cleaningTime,
                 'Number of Guests': guest.number_of_guests,
                 'Check-in Date': guest.checkin.split('T')[0],
                 'Check-out Date': guest.checkout.split('T')[0],
+                'Created Date': guest.createdAt
+                    ? new Date(guest.createdAt).toLocaleString()
+                    : new Date(parseInt(guest._id.substring(0, 8), 16) * 1000).toLocaleString(),
                 'Number of Days Stayed': Math.ceil(
                     (new Date(guest.checkout) - new Date(guest.checkin)) /
                     (1000 * 60 * 60 * 24)
                 ),
                 'QnA': guest?.answers?.map((item, index) => {
-                const [question, answer] = item.split('_');
-                return `Q${index + 1}: ${question} | A${index + 1}: ${answer}`;
-            }).join('\n') || 'No answers provided'
+                    const [question, answer] = item.split('_');
+                    return `Q${index + 1}: ${question} | A${index + 1}: ${answer}`;
+                }).join('\n') || 'No answers provided'
             };
 
             const docFields = {};
@@ -110,82 +158,113 @@ const GuestTable = () => {
         });
     };
 
-    // Handle Excel Download
-    const handleDownloadExcel = () => {
-        const formattedData = formatGuestData();
-        const worksheet = XLSX.utils.json_to_sheet(formattedData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
+    // Export all data (fetch all pages)
+    // Export all data (fetch all pages)
+    const exportAllData = async () => {
+        try {
+            setIsExporting(true);
+            setExportMessage('Fetching all data for export...');
 
-        const workbookBinary = XLSX.write(workbook, {
-            bookType: 'xlsx',
-            type: 'array',
-        });
+            // Fetch all data without pagination but with timestamp sorting
+            const queryParams = [];
+            queryParams.push(`sortBy=_id`);
+            queryParams.push(`sortOrder=desc`);
+            queryParams.push(`limit=10000`); // Large limit to get all data
+            queryParams.push(`page=1`); // Always get page 1 with large limit
 
-        const blob = new Blob([workbookBinary], {
-            type: 'application/octet-stream',
-        });
-        saveAs(blob, 'Guests.xlsx');
+            if (filters.startDate) queryParams.push(`startDate=${filters.startDate}`);
+            if (filters.endDate) queryParams.push(`endDate=${filters.endDate}`);
+            if (filters.propertyName) queryParams.push(`propertyName=${encodeURIComponent(filters.propertyName)}`);
+            if (searchTerm) queryParams.push(`searchTerm=${encodeURIComponent(searchTerm)}`);
+
+            const url = `/api/guest/guestinfo?${queryParams.join('&')}`;
+            const response = await axios.get(url);
+
+            const allGuests = response.data.guests || response.data || [];
+            // console.log(`📊 Exporting ${allGuests.length} guests`);
+
+            if (allGuests.length === 0) {
+                setExportMessage('No data found to export.');
+                return;
+            }
+
+            const formattedData = formatGuestData(allGuests);
+
+            const worksheet = XLSX.utils.json_to_sheet(formattedData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
+
+            const workbookBinary = XLSX.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array',
+            });
+
+            const blob = new Blob([workbookBinary], {
+                type: 'application/octet-stream',
+            });
+
+            const timestamp = new Date().toISOString().split('T')[0];
+            saveAs(blob, `Guests_${timestamp}.xlsx`);
+
+            setExportMessage(`Excel file downloaded successfully! (${allGuests.length} records)`);
+        } catch (error) {
+            console.error('Error exporting data:', error);
+            setExportMessage('Failed to export data. Please try again.');
+        } finally {
+            setIsExporting(false);
+            setTimeout(() => setExportMessage(''), 5000);
+        }
     };
-
-    // // Handle Google Sheets Export
-    // const handleExportToGoogleSheets = async () => {
-    //     if (guests.length === 0) {
-    //         setExportMessage('No data to export');
-    //         setTimeout(() => setExportMessage(''), 3000);
-    //         return;
-    //     }
-
-    //     setIsExporting(true);
-    //     setExportMessage('Exporting to Google Sheets...');
-
-    //     try {
-    //         // Format the data for Google Sheets
-    //         const formattedData = formatGuestData();
-
-    //         // Convert objects to arrays for Google Sheets API
-    //         const headers = Object.keys(formattedData[0]);
-    //         const values = [headers]; // First row is headers
-
-    //         // Add all data rows
-    //         formattedData.forEach(item => {
-    //             values.push(headers.map(header => item[header] || ''));
-    //         });
-
-    //         // Using your backend as a proxy to avoid exposing credentials in frontend
-    //         const response = await axios.post('/api/admin/export/google-sheets', {
-    //             spreadsheetId: SPREADSHEET_ID,
-    //             sheetName: SHEET_NAME,
-    //             values: values
-    //         });
-
-    //         if (response.data.success) {
-    //             setExportMessage('Data successfully exported to Google Sheets!');
-    //         } else {
-    //             throw new Error(response.data.message || 'Export failed');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error exporting to Google Sheets:', error);
-    //         setExportMessage('Failed to export to Google Sheets. Check console for details.');
-    //     } finally {
-    //         setIsExporting(false);
-    //         setTimeout(() => setExportMessage(''), 5000);
-    //     }
-    // };
-
     const handleSearch = (e) => {
         e.preventDefault();
-        fetchGuests(); // Re-fetch data with updated filters
+        setCurrentPage(1); // Reset to first page
+        fetchGuests(1); // Re-fetch data with updated filters
     };
 
     const clearAll = () => {
         setFilters({ startDate: '', endDate: '', propertyName: '' });
         setSearchTerm('');
-        fetchGuests();
+        setCurrentPage(1);
+        fetchGuests(1);
     };
 
     const handleFilterChange = (field, value) => {
         setFilters({ ...filters, [field]: value });
+    };
+
+    // Generate page numbers for pagination
+    const getPageNumbers = () => {
+        const delta = 2; // Number of pages to show on each side of current page
+        const pages = [];
+        const start = Math.max(1, currentPage - delta);
+        const end = Math.min(totalPages, currentPage + delta);
+
+        if (start > 1) {
+            pages.push(1);
+            if (start > 2) pages.push('...');
+        }
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        if (end < totalPages) {
+            if (end < totalPages - 1) pages.push('...');
+            pages.push(totalPages);
+        }
+
+        return pages;
+    };
+
+    // Helper function to get readable timestamp
+    // Helper function to get readable timestamp
+    const getReadableTimestamp = (guest) => {
+        if (guest.createdAt) {
+            return new Date(guest.createdAt).toLocaleString();
+        }
+        // Fallback to ObjectId timestamp
+        const timestamp = new Date(parseInt(guest._id.substring(0, 8), 16) * 1000);
+        return timestamp.toLocaleString();
     };
 
     return (
@@ -240,9 +319,24 @@ const GuestTable = () => {
                 </button>
             </form>
 
+            {/* Results Summary */}
+            <div className="mb-4 text-gray-600 text-sm">
+                {totalGuests > 0 ? (
+                    <p>
+                        Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalGuests)} of {totalGuests} guests
+                        (Page {currentPage} of {totalPages}) - Sorted by latest first
+                    </p>
+                ) : (
+                    <p>No guests found</p>
+                )}
+            </div>
+
             {/* Loading Spinner */}
             {loading ? (
-                <p className="text-center">Loading...</p>
+                <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <p className="mt-2">Loading...</p>
+                </div>
             ) : (
                 <>
                     {/* Responsive Table */}
@@ -250,14 +344,15 @@ const GuestTable = () => {
                         <table className="min-w-full border border-gray-200 text-left text-sm">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="p-2 border">Guest DB id</th>
+                                    <th className="p-2 border">Guest DB ID</th>
                                     <th className="p-2 border">Guest Name</th>
                                     <th className="p-2 border">Phone</th>
                                     <th className="p-2 border">Property Name</th>
                                     <th className="p-2 border">Number of Guests</th>
                                     <th className="p-2 border">Dates Stayed</th>
                                     <th className="p-2 border">Days Stayed</th>
-                                    <th className="p-2 border">Cleaning time slot</th>
+                                    <th className="p-2 border">Cleaning Time Slot</th>
+                                    <th className="p-2 border">Created At</th>
                                     <th className="p-2 border">QnA</th>
                                 </tr>
                             </thead>
@@ -289,7 +384,10 @@ const GuestTable = () => {
                                                             )
                                                             : 'N/A'}
                                                     </td>
-                                                    <td className="p-2 border">{guest.cleaningTime || 'not choosen'}</td>
+                                                    <td className="p-2 border">{guest.cleaningTime || 'not chosen'}</td>
+                                                    <td className="p-2 border text-xs">
+                                                        {getReadableTimestamp(guest)}
+                                                    </td>
                                                     <td className='p-2 border'>{guest?.answers?.map((item, index) => {
                                                         const [question, answer] = item.split('_');
                                                         return (
@@ -301,47 +399,49 @@ const GuestTable = () => {
                                                     })}</td>
                                                 </tr>
 
-
                                                 {/* Expanded Row for Documents */}
                                                 {isExpanded && guest.Document?.length > 0 && (
                                                     <tr>
-                                                        <td colSpan="8" className="p-4 bg-gray-50 border">
-                                                            {guest.Document.map((doc) => {
-                                                                const fileLower = doc.file.toLowerCase();
-                                                                const isPDF = fileLower.endsWith('.pdf');
+                                                        <td colSpan="10" className="p-4 bg-gray-50 border">
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                                {guest.Document.map((doc) => {
+                                                                    const fileLower = doc.file.toLowerCase();
+                                                                    const isPDF = fileLower.endsWith('.pdf');
 
-                                                                return (
-                                                                    <div key={doc._id} className="mb-4 w-full">
-                                                                        <div className="flex gap-4 items-center border-2 rounded-lg max-w-sm bg-gray-100 shadow-sm md:max-w-md px-4 py-5">
-                                                                            <div className="grid grid-cols-2 gap-4 items-center justify-evenly">
-                                                                                <p className="font-semibold text-gray-700">Name: {doc.name}</p>
-                                                                                <p className="font-semibold text-gray-700">Age: {doc?.age}</p>
-                                                                                <p className="font-semibold text-gray-700">Gender: {doc?.gender}</p>
-                                                                                <p className="font-semibold text-gray-700">Id Type: {doc?.idcard}</p>
-                                                                                {/* <p className="font-semibold text-gray-700">File: {}</p> */}
-                                                                            </div>
-                                                                            <div>
-                                                                                {isPDF ? (
-                                                                                    <a
-                                                                                        href={doc.file}
-                                                                                        target="_blank"
-                                                                                        rel="noopener noreferrer"
-                                                                                        className="text-blue-600 underline block"
-                                                                                    >
-                                                                                        View PDF
-                                                                                    </a>
-                                                                                ) : (
-                                                                                    <img
-                                                                                        src={doc.file}
-                                                                                        alt={doc.name}
-                                                                                        className="mt-1 border w-32 h-auto"
-                                                                                    />
-                                                                                )}
+                                                                    return (
+                                                                        <div key={doc._id} className="mb-4 w-full">
+                                                                            <div className="flex gap-4 items-center border-2 rounded-lg bg-white shadow-sm px-4 py-5">
+                                                                                <div className="flex-1">
+                                                                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                                                                        <p><span className="font-semibold">Name:</span> {doc.name}</p>
+                                                                                        <p><span className="font-semibold">Age:</span> {doc?.age}</p>
+                                                                                        <p><span className="font-semibold">Gender:</span> {doc?.gender}</p>
+                                                                                        <p><span className="font-semibold">ID Type:</span> {doc?.idcard}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="flex-shrink-0">
+                                                                                    {isPDF ? (
+                                                                                        <a
+                                                                                            href={doc.file}
+                                                                                            target="_blank"
+                                                                                            rel="noopener noreferrer"
+                                                                                            className="bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600"
+                                                                                        >
+                                                                                            View PDF
+                                                                                        </a>
+                                                                                    ) : (
+                                                                                        <img
+                                                                                            src={doc.file}
+                                                                                            alt={doc.name}
+                                                                                            className="w-20 h-20 object-cover border rounded"
+                                                                                        />
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-                                                                );
-                                                            })}
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 )}
@@ -350,7 +450,7 @@ const GuestTable = () => {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan="8" className="p-2 border text-center">
+                                        <td colSpan="10" className="p-8 border text-center text-gray-500">
                                             No guests found.
                                         </td>
                                     </tr>
@@ -359,20 +459,66 @@ const GuestTable = () => {
                         </table>
                     </div>
 
-                    {/* Export Buttons */}
-                    <div className="mt-4 flex justify-center gap-4 flex-wrap">
-                        <button
-                            onClick={handleDownloadExcel}
-                            className="bg-green-500 text-white px-6 py-2 rounded w-full md:w-auto"
-                        >
-                            Download Excel
-                        </button>
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-6 flex justify-center items-center gap-2 flex-wrap">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-2 text-sm border rounded ${currentPage === 1
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Previous
+                            </button>
 
+                            {getPageNumbers().map((page, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => typeof page === 'number' && handlePageChange(page)}
+                                    disabled={page === '...'}
+                                    className={`px-3 py-2 text-sm border rounded ${page === currentPage
+                                        ? 'bg-blue-500 text-white'
+                                        : page === '...'
+                                            ? 'bg-white text-gray-400 cursor-default'
+                                            : 'bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className={`px-3 py-2 text-sm border rounded ${currentPage === totalPages
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                                    }`}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Export Buttons */}
+                    <div className="mt-6 flex justify-center gap-4 flex-wrap">
+                        <button
+                            onClick={exportAllData}
+                            disabled={isExporting}
+                            className={`px-6 py-2 rounded w-full md:w-auto ${isExporting
+                                ? 'bg-gray-400 text-white cursor-not-allowed'
+                                : 'bg-green-500 text-white hover:bg-green-600'
+                                }`}
+                        >
+                            {isExporting ? 'Exporting...' : 'Download Excel (All Data)'}
+                        </button>
                     </div>
 
                     {/* Export Status Message */}
                     {exportMessage && (
-                        <div className="mt-4 p-2 bg-gray-100 border rounded text-center">
+                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-center text-blue-800">
                             {exportMessage}
                         </div>
                     )}

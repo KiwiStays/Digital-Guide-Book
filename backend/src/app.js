@@ -4,11 +4,12 @@ import  { v2 as cloudinary } from 'cloudinary';
 import Guestrouter from '../routes/guest.route.js';
 import PropertyRouter from "../routes/Property.route.js";
 import AuthRouter from "../routes/Auth.route.js";
+import RentalwiseRouter from "../routes/Rentalwise.route.js";
 
 const app = express();
 app.use(express.json({limit: '10mb'}));
 app.use(cors({
-    origin: ["https://staysync.in", "https://api.staysync.in","http://localhost:5173"],
+    origin: ["https://staysync.in", "https://api.staysync.in"],
     credentials: true
 }));
 
@@ -35,6 +36,7 @@ cloudinary.config({
 app.use("/api/guest", Guestrouter);
 app.use("/api/admin", PropertyRouter);
 app.use("/api/auth/", AuthRouter);
+app.use("/api/rentalwise", RentalwiseRouter);
 
 
 
