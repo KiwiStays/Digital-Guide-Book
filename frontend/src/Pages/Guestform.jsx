@@ -606,7 +606,7 @@ const GuestForm = () => {
                 {/* Enhanced file upload with support for ALL image types */}
 
                 <div className="space-y-2">
-                  <h6 className="font-thin text-sm text-gray-900 bg-secondarytext/40 p-2 rounded">
+                  <h6 className="font-medium text-sm  text-gray-900 bg-secondarytext/40 p-2 rounded">
                     📁 Max file size: 10MB <br />
                     🔄 Files over 5MB will be automatically compressed (images only)<br />
                   </h6>
