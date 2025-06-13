@@ -473,7 +473,7 @@ const GuestForm = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="bg-white/20 backdrop-blur-md">
-          <div className="bg-gradient-to-r from-primarybanner to-primarybanner p-6 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-primarytext to-primarytext p-6 flex items-center justify-between">
             <h2 className="text-3xl font-semibold text-white">Guest Registration</h2>
             <Palmtree className="text-white w-8 h-8" />
           </div>
@@ -596,10 +596,9 @@ const GuestForm = () => {
                 {/* Enhanced file upload with support for ALL image types */}
 
                 <div className="space-y-2">
-                  <h6 className="font-thin text-sm text-gray-200 bg-secondarytext/40 p-2 rounded">
-                    📁 Max file size: 10MB | Accepts: ALL file types<br />
+                  <h6 className="font-thin text-sm text-gray-900 bg-secondarytext/40 p-2 rounded">
+                    📁 Max file size: 10MB <br />
                     🔄 Files over 5MB will be automatically compressed (images only)<br />
-                    ⚠️ File upload is required for each guest
                   </h6>
                   <input
                     type="file"
@@ -628,7 +627,7 @@ const GuestForm = () => {
 
                   {/* Show error if no file selected */}
                   {!doc.file && (
-                    <div className="text-xs text-red-300 bg-red-900/20 p-2 rounded">
+                    <div className="text-xs text-red-900 bg-red-900/20 p-2 rounded">
                       ⚠️ Please select a document file for Guest {index + 1}
                     </div>
                   )}
@@ -722,7 +721,7 @@ const GuestForm = () => {
             )}
 
             {/* Questions Section */}
-            <div className="space-y-8 p-6 bg-gradient-to-br from-primarybanner/50 to-primarybanner/50 rounded-xl backdrop-blur-md shadow-xl border border-red-800/30">
+            <div className="space-y-8 p-6 bg-gradient-to-br from-primarytext/50 to-primarytext/50 rounded-xl backdrop-blur-md shadow-xl border border-red-800/30">
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-white pb-2">
                   🤔 Quick Questions for You
@@ -740,8 +739,8 @@ const GuestForm = () => {
                     key={question.id}
                     className="bg-white/10 p-6 rounded-lg border border-red-400/20 shadow-lg hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.01]"
                   >
-                    <p className="text-secondarytext mb-5 font-semibold text-lg">
-                      <span className="text-secondarytext mr-2">Q{index + 1}.</span>
+                    <p className="text-red-900 mb-5 font-semibold text-lg">
+                      <span className="text-red-900 mr-2">Q{index + 1}.</span>
                       {question.questionText}
                     </p>
                     <div className="space-y-3 pl-4">
@@ -766,7 +765,7 @@ const GuestForm = () => {
                             className="w-5 h-5 accent-green-400 cursor-pointer"
                             required
                           />
-                          <span className="text-secondarytext text-base font-medium ml-4 group-hover:text-red-200 transition-colors">
+                          <span className="text-red-900 text-base font-medium ml-4 group-hover:text-red-200 transition-colors">
                             {option}
                           </span>
                         </label>
@@ -786,8 +785,8 @@ const GuestForm = () => {
                     key={question.id}
                     className="bg-white/10 p-6 rounded-lg border border-red-400/20 shadow-lg hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.01]"
                   >
-                    <p className="text-secondarytext mb-5 font-semibold text-lg">
-                      <span className="text-secondarytext mr-2">Q{questions.multipleChoice.length + index + 1}.</span>
+                    <p className="text-red-900 mb-5 font-semibold text-lg">
+                      <span className="text-red-900 mr-2">Q{questions.multipleChoice.length + index + 1}.</span>
                       {question.questionText}
                     </p>
                     <input
@@ -819,7 +818,7 @@ const GuestForm = () => {
                 disabled={isLoading}
                 whileHover={{ scale: isLoading ? 1 : 1.05 }}
                 whileTap={{ scale: isLoading ? 1 : 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r bg-primarybanner text-white font-semibold rounded-md shadow-md hover:from-primarybanner hover:to-primarybanner focus:outline-none focus:ring-2 focus:ring-secondarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
+                className="px-6 py-3 bg-gradient-to-r bg-primarytext text-white font-semibold rounded-md shadow-md hover:from-primarybanner hover:to-primarybanner focus:outline-none focus:ring-2 focus:ring-secondarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
               >
                 {isLoading ? (
                   <div className="flex flex-col items-center space-y-1">
