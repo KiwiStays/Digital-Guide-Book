@@ -281,11 +281,21 @@ const GuestForm = () => {
         uploadData.append('folder', 'guest_documents');
 
         try {
+          // Determine the correct endpoint based on file type
+          let uploadEndpoint;
+          if (doc.file.type.startsWith('image/')) {
+            uploadEndpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+          } else {
+            // For PDFs and other non-image files, use auto upload
+            uploadEndpoint = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+            uploadData.append('resource_type', 'auto'); // This tells Cloudinary to auto-detect file type
+          }
+
           const uploadResponse = await axios.post(
-            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            uploadEndpoint,
             uploadData,
             {
-              timeout: 30000, // Reduced timeout to 30 seconds
+              timeout: 30000,
               onUploadProgress: (progressEvent) => {
                 const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                 setUploadProgress(`Uploading documents... Document ${index + 1}: ${percentCompleted}%`);
@@ -432,7 +442,7 @@ const GuestForm = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center lg:text-left p-8 bg-gradient-to-r md:from-primarybanner md:to-primarybanner">
+          className="text-center lg:text-left p-8 bg-gradient-to-r md:from-primarytext md:to-primarytext">
           <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-white  drop-shadow-lg">
             Welcome to KiwiStays
           </h1>
