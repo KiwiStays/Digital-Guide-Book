@@ -199,6 +199,11 @@ export const UpdateGuestDocuments = async (req, res) => {
   try {
     const { guestId } = req.params;
     const { documents } = req.body;
+
+   
+   
+    
+
     
     // Format documents to match your schema
     const formattedDocuments = documents.map(doc => ({
@@ -574,10 +579,11 @@ export const guestinfo = async (req, res) => {
       }
     }
 
-    // Property name filtering
+     // Property name filtering - EXACT MATCH ONLY
     if (propertyName && propertyName.trim() !== '') {
-      filter.property_name = { $regex: propertyName.trim(), $options: 'i' };
+      filter.property_name = propertyName.trim(); // Exact match instead of regex
     }
+
 
     // Search term filtering (searches across multiple fields)
     if (searchTerm && searchTerm.trim() !== '') {
