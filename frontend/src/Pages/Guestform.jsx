@@ -19,7 +19,7 @@ const GuestForm = () => {
   const [active, setActive] = useState(false);
   const [coverImage, setCoverImage] = useState('');
   const [newQuestion, setNewQuestion] = useState('');
-  const { rentalwiseguest } = useContext(AuthContext);
+  const { rentalwiseguest, rentalwiseGuestSetup } = useContext(AuthContext);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [completedQuestions, setCompletedQuestions] = useState(new Set());
@@ -35,6 +35,15 @@ const GuestForm = () => {
   const getTotalQuestions = () => questions.multipleChoice.length + questions.fillUp.length;
 
   useEffect(() => {
+    const fetchGuestData = async () => {
+      const response = await axios.get(`${backend_url}/api/rentalwise/guest/684bcd37614707ee7923907d`);
+      console.log("guest data:", response.data.data);
+      rentalwiseGuestSetup(response.data.data);
+
+
+
+    };
+
     const fetchPropertyName = async () => {
       try {
         const response = await axios.get(`${backend_url}/api/admin/getproperty/name/${id}`);
@@ -68,6 +77,7 @@ const GuestForm = () => {
       }
     };
 
+    fetchGuestData();
     fetchPropertyName();
   }, [id]);
 
@@ -415,11 +425,9 @@ const GuestForm = () => {
     return diffDays;
   };
 
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-cover bg-center bg-no-repeat bg-fixed"
-      style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1532484468512-fd9df0aa70f4?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
-      }}>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-primarybg">
       {!active && isSubmitted && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -428,33 +436,30 @@ const GuestForm = () => {
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
         >
           <div className="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-2">
-            <CheckCircle2 className="text-primarytext w-6 h-6" />
-            <span className="text-primarytext font-semibold">
+            <CheckCircle2 className="text-primarybanner w-6 h-6" />
+            <span className="text-primarybanner font-semibold">
               Document submitted successfully!
             </span>
           </div>
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-w-4xl mx-auto  bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden ">
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-w-4xl mx-auto bg-white/10 backdrop-blur-sm rounded-lg overflow-hidden">
         {/* Left Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center lg:text-left p-8 bg-gradient-to-r md:from-primarytext md:to-primarytext">
-          <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-white  drop-shadow-lg">
+          className="text-center lg:text-left p-8 bg-gradient-to-r md:from-primarybanner md:to-primarybanner">
+          <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-primarybanner lg:text-white drop-shadow-lg">
             Welcome to KiwiStays
           </h1>
 
-          <p className="text-xl md:text-xl lg:text-xl text-white mt-4 drop-shadow-md">
+          <p className="text-xl md:text-xl lg:text-xl text-green-600 lg:text-white mt-4 drop-shadow-md">
             Your perfect getaway begins here
           </p>
 
-          <Link to="/login" className="text-white  mt-4 block">
-            Already have an account?{' '}
-            <span className="underline hover:text-green-200">Click to Login</span>
-          </Link>
+         
 
           <div className="mt-8 bg-white/10 md:p-4 rounded-lg backdrop-blur-sm">
             <img
@@ -469,11 +474,11 @@ const GuestForm = () => {
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 1 }}
             className="flex flex-col items-center justify-center mt-8 md:hidden lg:hidden">
-            <h2 className="text-white mt-4 text-xl font-semibold">
+            <h2 className="text-green-600 lg:text-white mt-4 text-xl font-semibold">
               {title}
             </h2>
-            <span className="text-white text-lg font-bold">Scroll down to fill the form</span>
-            <span className="text-white text-2xl mt-2">↓</span>
+            <span className="text-green-600 lg:text-white text-lg font-bold">Scroll down to fill the form</span>
+            <span className="text-green-600 lg:text-white text-2xl mt-2">↓</span>
           </motion.div>
         </motion.div>
 
@@ -483,27 +488,27 @@ const GuestForm = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           className="bg-white/20 backdrop-blur-md">
-          <div className="bg-gradient-to-r from-primarytext to-primarytext p-6 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-primarybanner to-primarybanner p-6 flex items-center justify-between">
             <h2 className="text-3xl font-semibold text-white">Guest Registration</h2>
             <Palmtree className="text-white w-8 h-8" />
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-6 md:px-10  md:max-h-[70vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-6 space-y-6 md:px-10 md:max-h-[70vh] overflow-y-auto">
             <div className="grid md:grid-cols-2 gap-6">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-md font-bold  text-white  mb-1">Name</label>
+                <label className="block text-md font-bold text-secondarytext mb-1">Name</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                   placeholder="Your full name"
                   required
                 />
               </motion.div>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-bold  text-white  mb-1">Phone</label>
+                <label className="block text-sm font-bold text-secondarytext mb-1">Phone</label>
                 <input
                   type="tel"
                   name="phone"
@@ -514,19 +519,19 @@ const GuestForm = () => {
                       handleChange(e);
                     }
                   }}
-                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                   placeholder="Your phone number"
                   required
                 />
               </motion.div>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-bold  text-white  mb-1">Property Name</label>
+                <label className="block text-sm font-bold text-secondarytext mb-1">Property Name</label>
                 <input
                   type="text"
                   name="property_name"
                   value={title}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                   placeholder="Property Name"
                   required
                 />
@@ -534,12 +539,12 @@ const GuestForm = () => {
             </div>
 
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <label className="block text-sm font-bold  text-white mb-1">Number of Guests</label>
+              <label className="block text-sm font-bold text-secondarytext mb-1">Number of Guests</label>
               <select
                 name="number_of_guests"
                 value={formData.number_of_guests}
                 onChange={handleGuestCountChange}
-                className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                 required
               >
                 {[...Array(10)].map((_, i) => (
@@ -558,13 +563,13 @@ const GuestForm = () => {
                 transition={{ duration: 0.3, delay: index * 0.1 }}
                 className="space-y-4 p-4 bg-white/20 rounded-lg backdrop-blur-sm"
               >
-                <h3 className="text-lg font-bold  text-white">Guest {index + 1} Details</h3>
+                <h3 className="text-lg font-bold text-secondarytext">Guest {index + 1} Details</h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <input
                     type="text"
                     value={index == 0 ? (formData.name) : doc.name}
                     onChange={(e) => handleDocumentChange(index, "name", e.target.value)}
-                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                     placeholder="Full name"
                     required
                   />
@@ -572,7 +577,7 @@ const GuestForm = () => {
                     type="number"
                     value={doc.age}
                     onChange={(e) => handleDocumentChange(index, "age", e.target.value)}
-                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                     placeholder="Age"
                     required
                   />
@@ -581,7 +586,7 @@ const GuestForm = () => {
                   <select
                     value={doc.gender}
                     onChange={(e) => handleDocumentChange(index, "gender", e.target.value)}
-                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                     required
                   >
                     <option value="">Select Gender</option>
@@ -592,7 +597,7 @@ const GuestForm = () => {
                   <select
                     value={doc.idCardType}
                     onChange={(e) => handleDocumentChange(index, "idCardType", e.target.value)}
-                    className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-900 focus:border-transparent bg-white/70"
+                    className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                     required
                   >
                     <option value="">Select ID Type</option>
@@ -603,10 +608,8 @@ const GuestForm = () => {
                   </select>
                 </div>
 
-                {/* Enhanced file upload with support for ALL image types */}
-
                 <div className="space-y-2">
-                  <h6 className="font-medium text-sm  text-gray-900 bg-secondarytext/40 p-2 rounded">
+                  <h6 className="font-medium text-sm text-secondarytext bg-primarytextlight/40 p-2 rounded">
                     📁 Max file size: 10MB <br />
                     🔄 Files over 5MB will be automatically compressed (images only)<br />
                   </h6>
@@ -618,26 +621,24 @@ const GuestForm = () => {
                         handleDocumentChange(index, "file", file);
                       }
                     }}
-                    className="w-full px-3 py-2 border border-secondarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primarytext file:text-white hover:file:bg-green-800"
+                    className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primarybanner file:text-white hover:file:bg-secondarytext"
                     required
                   />
 
-                  {/* Show file info after selection */}
                   {doc.file && (
-                    <div className="text-xs text-gray-200 bg-green-900/30 p-2 rounded">
+                    <div className="text-xs text-secondarytext bg-primarytextlight/30 p-2 rounded">
                       ✅ {doc.file.name} ({(doc.file.size / 1024 / 1024).toFixed(2)}MB)
                       {doc.file.type.startsWith('image/') && (
-                        <span className="text-blue-200 ml-2">📷 Image</span>
+                        <span className="text-primarybanner ml-2">📷 Image</span>
                       )}
                       {doc.file.size > 5 * 1024 * 1024 && doc.file.type.startsWith('image/') && (
-                        <span className="text-yellow-200 ml-2">🔄 Compressed</span>
+                        <span className="text-primarytextlight ml-2">🔄 Compressed</span>
                       )}
                     </div>
                   )}
 
-                  {/* Show error if no file selected */}
                   {!doc.file && (
-                    <div className="text-xs text-red-900 bg-red-900/20 p-2 rounded">
+                    <div className="text-xs text-primarybanner bg-primarybanner/20 p-2 rounded">
                       ⚠️ Please select a document file for Guest {index + 1}
                     </div>
                   )}
@@ -647,24 +648,24 @@ const GuestForm = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-medium text-white  mb-1">Check-in Date</label>
+                <label className="block text-sm font-medium text-secondarytext mb-1">Check-in Date</label>
                 <input
                   type="date"
                   name="checkin"
                   value={formData.checkin}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                   required
                 />
               </motion.div>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <label className="block text-sm font-bold  text-white  mb-1">Check-out Date</label>
+                <label className="block text-sm font-bold text-secondarytext mb-1">Check-out Date</label>
                 <input
                   type="date"
                   name="checkout"
                   value={formData.checkout}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-primarytext/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarytext focus:border-transparent bg-white/70"
+                  className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
                   required
                 />
               </motion.div>
@@ -673,7 +674,7 @@ const GuestForm = () => {
             {calculateDateDifference(formData.checkin, formData.checkout) > 2 && (
               <div>
                 <motion.div className="space-y-4">
-                  <label className="block text-md font-bold text-white mb-3">Select preferred cleaning time during your stay</label>
+                  <label className="block text-md font-bold text-secondarytext mb-3">Select preferred cleaning time during your stay</label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="flex items-center space-x-2">
                       <input
@@ -682,10 +683,10 @@ const GuestForm = () => {
                         name="cleaningTime"
                         value="9:30AM - 10:30AM"
                         onChange={handleChange}
-                        className="w-4 h-4 accent-primarytext"
+                        className="w-4 h-4 accent-primarybanner"
                         required
                       />
-                      <label htmlFor="morning" className="text-gray-600">9:30 AM - 10:30 AM</label>
+                      <label htmlFor="morning" className="text-secondarytext">9:30 AM - 10:30 AM</label>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -695,10 +696,10 @@ const GuestForm = () => {
                         name="cleaningTime"
                         value="10:30AM - 11:30AM"
                         onChange={handleChange}
-                        className="w-4 h-4 accent-primarytext"
+                        className="w-4 h-4 accent-primarybanner"
                         required
                       />
-                      <label htmlFor="afternoon" className="text-gray-600">10:30 AM - 11:30 AM</label>
+                      <label htmlFor="afternoon" className="text-secondarytext">10:30 AM - 11:30 AM</label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <input
@@ -707,10 +708,10 @@ const GuestForm = () => {
                         name="cleaningTime"
                         value="2:00PM - 3:00 PM"
                         onChange={handleChange}
-                        className="w-4 h-4 accent-primarytext"
+                        className="w-4 h-4 accent-primarybanner"
                         required
                       />
-                      <label htmlFor="afternoon2" className="text-gray-600">2:00 PM - 3:00 PM</label>
+                      <label htmlFor="afternoon2" className="text-secondarytext">2:00 PM - 3:00 PM</label>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -720,10 +721,10 @@ const GuestForm = () => {
                         name="cleaningTime"
                         value="3:00PM - 4:00PM"
                         onChange={handleChange}
-                        className="w-4 h-4 accent-primarytext"
+                        className="w-4 h-4 accent-primarybanner"
                         required
                       />
-                      <label htmlFor="evening" className="text-gray-600">3:00PM - 4:00PM</label>
+                      <label htmlFor="evening" className="text-secondarytext">3:00PM - 4:00PM</label>
                     </div>
                   </div>
                 </motion.div>
@@ -731,7 +732,7 @@ const GuestForm = () => {
             )}
 
             {/* Questions Section */}
-            <div className="space-y-8 p-6 bg-gradient-to-br from-primarytext/50 to-primarytext/50 rounded-xl backdrop-blur-md shadow-xl border border-red-800/30">
+            <div className="space-y-8 p-6 bg-gradient-to-br from-primarybanner/50 to-primarybanner/50 rounded-xl backdrop-blur-md shadow-xl border border-primarybanner/30">
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-white pb-2">
                   🤔 Quick Questions for You
@@ -747,17 +748,17 @@ const GuestForm = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     key={question.id}
-                    className="bg-white/10 p-6 rounded-lg border border-red-400/20 shadow-lg hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.01]"
+                    className="bg-white/10 p-6 rounded-lg border border-primarybanner/20 shadow-lg hover:shadow-primarybanner/20 transition-all duration-300 hover:scale-[1.01]"
                   >
-                    <p className="text-red-900 mb-5 font-semibold text-lg">
-                      <span className="text-red-900 mr-2">Q{index + 1}.</span>
+                    <p className="text-secondarytext mb-5 font-semibold text-lg">
+                      <span className="text-secondarytext mr-2">Q{index + 1}.</span>
                       {question.questionText}
                     </p>
                     <div className="space-y-3 pl-4">
                       {question.options.map((option, optIndex) => (
                         <label
                           key={optIndex}
-                          className="flex items-center p-3 hover:bg-green-900/50 rounded-lg cursor-pointer transition-all duration-200 group"
+                          className="flex items-center p-3 hover:bg-secondarytext/50 rounded-lg cursor-pointer transition-all duration-200 group"
                         >
                           <input
                             type="radio"
@@ -772,10 +773,10 @@ const GuestForm = () => {
                                 ]
                               }));
                             }}
-                            className="w-5 h-5 accent-green-400 cursor-pointer"
+                            className="w-5 h-5 accent-secondarytext cursor-pointer"
                             required
                           />
-                          <span className="text-red-900 text-base font-medium ml-4 group-hover:text-red-200 transition-colors">
+                          <span className="text-secondarytext text-base font-medium ml-4 group-hover:text-white transition-colors">
                             {option}
                           </span>
                         </label>
@@ -793,10 +794,10 @@ const GuestForm = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: (questions.multipleChoice.length + index) * 0.1 }}
                     key={question.id}
-                    className="bg-white/10 p-6 rounded-lg border border-red-400/20 shadow-lg hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.01]"
+                    className="bg-white/10 p-6 rounded-lg border border-primarybanner/20 shadow-lg hover:shadow-primarybanner/20 transition-all duration-300 hover:scale-[1.01]"
                   >
-                    <p className="text-red-900 mb-5 font-semibold text-lg">
-                      <span className="text-red-900 mr-2">Q{questions.multipleChoice.length + index + 1}.</span>
+                    <p className="text-secondarytext mb-5 font-semibold text-lg">
+                      <span className="text-secondarytext mr-2">Q{questions.multipleChoice.length + index + 1}.</span>
                       {question.questionText}
                     </p>
                     <input
@@ -810,7 +811,7 @@ const GuestForm = () => {
                           ]
                         }));
                       }}
-                      className="w-full px-5 py-4 bg-white/90 rounded-lg border-2 border-primarrybanner/30 
+                      className="w-full px-5 py-4 bg-white/90 rounded-lg border-2 border-primarybanner/30 
                focus:outline-none focus:border-secondarytext focus:ring-2 focus:ring-secondarytext/50 
                placeholder-gray-500 text-gray-800 font-medium transition-all duration-300
                hover:bg-white"
@@ -828,7 +829,7 @@ const GuestForm = () => {
                 disabled={isLoading}
                 whileHover={{ scale: isLoading ? 1 : 1.05 }}
                 whileTap={{ scale: isLoading ? 1 : 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r bg-primarytext text-white font-semibold rounded-md shadow-md hover:from-primarybanner hover:to-primarybanner focus:outline-none focus:ring-2 focus:ring-secondarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
+                className="px-6 py-3 bg-gradient-to-r bg-primarybanner text-white font-semibold rounded-md shadow-md hover:from-secondarytext hover:to-secondarytext focus:outline-none focus:ring-2 focus:ring-secondarytext focus:ring-offset-2 transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
               >
                 {isLoading ? (
                   <div className="flex flex-col items-center space-y-1">
@@ -837,7 +838,7 @@ const GuestForm = () => {
                       <span className="text-sm">Processing...</span>
                     </div>
                     {uploadProgress && (
-                      <span className="text-xs text-green-200 max-w-[180px] truncate">
+                      <span className="text-xs text-primarytextlight max-w-[180px] truncate">
                         {uploadProgress}
                       </span>
                     )}
@@ -852,6 +853,7 @@ const GuestForm = () => {
       </div>
     </div>
   );
+
 };
 
 export default GuestForm;
