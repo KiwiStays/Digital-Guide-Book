@@ -8,6 +8,9 @@ export default {
     extend: {
       colors:{
         primarybg:'#f3e2d2',
+        primarybanner:'#118EC2',
+        primarytextlight:'#ABCF38',
+        secondarytext:'#2E8B57',
         primarytext:'#cb4e2e',
         primaryicon :"#ecc19a",
 
