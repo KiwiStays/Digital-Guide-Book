@@ -6,6 +6,7 @@ import { AuthContext } from '../Context/Authcontext';
 import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
 import imageCompression from "browser-image-compression";
+import KiwiFinalLogo from '../components/assets/KiwiFinallogo.png';
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 
@@ -451,9 +452,16 @@ const GuestForm = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-center lg:text-left p-8 bg-gradient-to-r md:from-primarybanner md:to-primarybanner">
-          <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-primarybanner lg:text-white drop-shadow-lg">
-            Welcome to KiwiStays
-          </h1>
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 mb-4">
+            <img 
+              src={KiwiFinalLogo} 
+              alt="Kiwi Stays Logo" 
+              className="w-28 h-28 md:w-32 md:h-32 lg:w-28 lg:h-28 object-contain rounded-full shadow-lg shadow-black/30 bg-white/20 p-3 backdrop-blur-sm border border-white/20"
+            />
+            <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-primarybanner lg:text-white drop-shadow-lg">
+              Welcome to KiwiStays
+            </h1>
+          </div>
 
           <p className="text-xl md:text-xl lg:text-xl text-green-600 lg:text-white mt-4 drop-shadow-md">
             Your perfect getaway begins here
