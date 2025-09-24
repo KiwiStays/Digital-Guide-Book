@@ -3,17 +3,19 @@ import { Guestmodel } from '../models/Guest.model.js';
 import { Propertymodel } from '../models/Property.model.js';
 import jwt from 'jsonwebtoken';
 import cloudinary from 'cloudinary';
+import geoip from "geoip-lite";
 
 const secretKey = process.env.JWT_SECRET;
 
 const generateToken = (userId, checkOutDate) => {
   return jwt.sign(
-      { userId, 
-        exp: Math.floor(new Date(checkOutDate).getTime() / 1000) 
-        // exp: Math.floor(Date.now() / 1000) + 10
-        // exp:Math.floor(Date.now() / 1000) + 10
-      },
-      secretKey
+    {
+      userId,
+      exp: Math.floor(new Date(checkOutDate).getTime() / 1000)
+      // exp: Math.floor(Date.now() / 1000) + 10
+      // exp:Math.floor(Date.now() / 1000) + 10
+    },
+    secretKey
   );
 };
 
@@ -33,20 +35,20 @@ const generateToken = (userId, checkOutDate) => {
 
 //         const checkin_new =checkin.split('T')[0];
 //         const checkout_new =checkout.split('T')[0];
-    
+
 //         let DocUrls = [];
 //         if (req.files && req.files.length > 0) {
 //           const documentsData = JSON.parse(req.body.Document || '[]'); // Parse document names
-        
+
 //           DocUrls = await Promise.all(
 //             req.files.map(async (file, index) => {
 //               // const username = documentsData[index]?.name + checkin_new + checkout_new  || 'Unnamed';
 //               const username = (documentsData[index]?.name + " "+ checkin_new +" "+ checkout_new) || 'Unnamed';
-              
-        
+
+
 //               const filepath = file.path;
 //               const cloud_data = await uploadToCloudinary(filepath, username); // Wait for Cloudinary upload
-        
+
 //               return { name: username, file: cloud_data.url }; // Return the object for DocUrls
 //             })
 //           );
@@ -73,7 +75,7 @@ const generateToken = (userId, checkOutDate) => {
 //         guest.token = token;
 //         await guest.save();
 //         console.log("Guest Saved Successfully!!");
-        
+
 //         res.status(201).json({ message: 'Guest created successfully', token, guestId: guest._id, guestName: guest.name  });
 //       } catch (error) {
 //         console.error('Error:', error);
@@ -94,15 +96,15 @@ const generateToken = (userId, checkOutDate) => {
 //         console.log("Phone number already exists, please use a different number or login.");
 //         return res.status(402).json({ message: 'Phone number already exists, please use a different number or login.' });
 //       }
-      
+
 
 //       const checkin_new = checkin.split('T')[0];
 //       const checkout_new = checkout.split('T')[0];
-  
+
 //       let DocUrls = [];
 //       if (req.files && req.files.length > 0) {
 //         const documentsData = JSON.parse(req.body.Document || '[]'); // Parse document names
-      
+
 //         DocUrls = await Promise.all(
 //           req.files.map(async (file, index) => {
 //             // const username = documentsData[index]?.name + checkin_new + checkout_new  || 'Unnamed';
@@ -112,7 +114,7 @@ const generateToken = (userId, checkOutDate) => {
 //             const age = documentsData[index]?.age;
 //             const filepath = file.path;
 //             const cloud_data = await uploadToCloudinary(filepath, username); // Wait for Cloudinary upload
-      
+
 //             return { name: documentsData[index]?.name, file: cloud_data.url,gender: gender, idCardType: idCardType, age: age }; // Return the object for DocUrls
 //           })
 //         );
@@ -144,7 +146,7 @@ const generateToken = (userId, checkOutDate) => {
 //       await guest.save();
 //       // console.log("guest ", guest);
 //       console.log("Guest Saved Successfully!!");
-      
+
 //       res.status(201).json({ message: 'Guest created successfully', token, guestId: guest._id, guestName: guest.name  });
 //     } catch (error) {
 //       console.error('Error:', error);
@@ -158,13 +160,24 @@ export const CreateGuest = async (req, res) => {
     const { id } = req.params;
     console.log("id", id);
     console.log("req body", req.body);
-    const { name, phone, property_name, number_of_guests, checkin, checkout, cleaningTime,answers } = req.body;
-    
+    const { name, phone, property_name, number_of_guests, checkin, checkout, cleaningTime, answers, location } = req.body;
+
+    const ipAddress = req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.connection.remoteAddress;
+    let city = location?.address?.city || '';
+    if (!location) {
+      // console.log("User IP:", ipAddress);
+      const ipLocation = geoip.lookup(ipAddress);
+      // console.log("IP Location:", ipLocation);
+      // console.log("Google IP: ", geoip.lookup('8.8.8.8'));
+      location = ipLocation ? ipLocation : {};
+      city = ipLocation.city || '';
+    }
+
     const existingGuest = await Guestmodel.findOne({ phone: phone });
     if (existingGuest) {
       return res.status(402).json({ message: 'Phone number already exists, please use a different number or login.' });
     }
-    
+
     // Create a new guest entry with empty documents array
     const guest = new Guestmodel({
       place_id: id,
@@ -177,34 +190,35 @@ export const CreateGuest = async (req, res) => {
       checkout,
       cleaningTime,
       answers, // Initialize answers as an empty array
+      digitalSignature: {
+        ipAddress: ipAddress,
+        timestamp: new Date(),
+        location: location || {},
+        city: city || '',
+      },
     });
-    
+
     const token = generateToken(guest._id, checkout);
     guest.token = token;
     await guest.save();
-    
-    res.status(201).json({ 
-      message: 'Guest created successfully', 
-      token, 
-      guestId: guest._id, 
-      guestName: guest.name 
+
+    res.status(201).json({
+      message: 'Guest created successfully',
+      token,
+      guestId: guest._id,
+      guestName: guest.name
     });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'Server Error', error });
   }
 };
- // 2. Controller for updating documents after they're uploaded to Cloudinary
+// 2. Controller for updating documents after they're uploaded to Cloudinary
 export const UpdateGuestDocuments = async (req, res) => {
   try {
     const { guestId } = req.params;
     const { documents } = req.body;
 
-   
-   
-    
-
-    
     // Format documents to match your schema
     const formattedDocuments = documents.map(doc => ({
       name: doc.name || 'Unnamed',
@@ -213,19 +227,19 @@ export const UpdateGuestDocuments = async (req, res) => {
       age: doc.age || 0,
       idcard: doc.idCardType || ' ',
     }));
-    
+
     // Update the guest record with document information
     const updatedGuest = await Guestmodel.findByIdAndUpdate(
       guestId,
       { Document: formattedDocuments },
       { new: true }
     );
-    
+
     if (!updatedGuest) {
       return res.status(404).json({ message: 'Guest not found' });
     }
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       message: 'Documents updated successfully',
       guest: updatedGuest
     });
@@ -243,7 +257,7 @@ export const getCloudinarySignature = async (req, res) => {
       timestamp: timestamp,
       folder: 'guest_documents'
     }, process.env.CLOUDINARY_API_SECRET);
-    
+
     res.status(200).json({
       signature,
       timestamp,
@@ -278,7 +292,7 @@ export const getCloudinarySignature = async (req, res) => {
 //         $lte: new Date(endDate),
 //       };
 //     }
-   
+
 
 //     if(startDate){
 //       filter.checkin = {
@@ -298,7 +312,7 @@ export const getCloudinarySignature = async (req, res) => {
 //       } 
 //     }
 
-    
+
 
 
 //     // Property name filter
@@ -341,13 +355,13 @@ export const getCloudinarySignature = async (req, res) => {
 //   try {
 //     const { startDate, endDate, propertyName } = req.query;
 //     console.log("Query params:", { startDate, endDate, propertyName });
-    
+
 //     const filter = {};
 
 //     // Date filtering
 //     if (startDate || endDate) {
 //       filter.$or = [];
-      
+
 //       if (startDate && endDate) {
 //         // Find stays that overlap with the date range
 //         filter.$or.push({
@@ -360,15 +374,15 @@ export const getCloudinarySignature = async (req, res) => {
 //         // Find stays that start on or after startDate
 //         filter.$or.push({
 //           checkin: { $gte: new Date(startDate) }
-          
+
 //         });
 //         // filter.$or.push({
 //         //   checkout: { $gte: new Date(startDate) }
-          
+
 //         // });
 
 //       } 
-      
+
 //       else if (endDate) {
 //         // Find stays that end on or before endDate
 //         filter.$or.push({
@@ -382,7 +396,7 @@ export const getCloudinarySignature = async (req, res) => {
 //       const matchedProperties = await Propertymodel.find({
 //         title: { $regex: propertyName, $options: 'i' }
 //       }).select('_id');
-      
+
 //       const matchedPropertyIds = matchedProperties.map(prop => prop._id);
 //       filter.place_id = { $in: matchedPropertyIds };
 //     }
@@ -420,7 +434,7 @@ export const getCloudinarySignature = async (req, res) => {
 // };
 
 
-export const GuestinfoById = async (req, res) =>{
+export const GuestinfoById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await Guestmodel.findById(id);
@@ -469,7 +483,7 @@ export const GuestinfoById = async (req, res) =>{
 export const updateGuest = async (req, res) => {
   try {
     const { id } = req.params; // Guest ID from URL
-    const { name, phone, property_name, number_of_guests, checkin, checkout , place_id } = req.body;
+    const { name, phone, property_name, number_of_guests, checkin, checkout, place_id } = req.body;
     console.log("req body", req.body);
 
     const checkin_new = checkin?.split('T')[0];
@@ -488,7 +502,7 @@ export const updateGuest = async (req, res) => {
           const age = documentsData[index]?.age;
           const cloud_data = await uploadToCloudinary(filepath, username); // Upload file to Cloudinary
 
-          return { name: documentsData[index]?.name, file: cloud_data.url,gender: gender, idCardType: idCardType, age: age}; // Return the object for DocUrls
+          return { name: documentsData[index]?.name, file: cloud_data.url, gender: gender, idCardType: idCardType, age: age }; // Return the object for DocUrls
         })
       );
     }
@@ -497,8 +511,8 @@ export const updateGuest = async (req, res) => {
     const documents = DocUrls.map((item, index) => ({
       name: item.name || 'Unnamed', // Ensure the name exists
       file: item.file, // File path from Cloudinary
-      gender:item.gender, // Gender
-      age: item.age || 0 ,
+      gender: item.gender, // Gender
+      age: item.age || 0,
       idcard: item.idCardType || ' ',
     }));
 
@@ -543,7 +557,7 @@ export const updateGuest = async (req, res) => {
 export const guestinfo = async (req, res) => {
   try {
     // Add rate limiting check
-   
+
 
     // Extract query parameters
     const {
@@ -579,7 +593,7 @@ export const guestinfo = async (req, res) => {
       }
     }
 
-     // Property name filtering - EXACT MATCH ONLY
+    // Property name filtering - EXACT MATCH ONLY
     if (propertyName && propertyName.trim() !== '') {
       filter.property_name = propertyName.trim(); // Exact match instead of regex
     }
@@ -593,7 +607,7 @@ export const guestinfo = async (req, res) => {
         { phone: searchRegex },
         { property_name: searchRegex }
       ];
-      
+
       // If searchTerm looks like an ObjectId, also search by _id
       if (searchTerm.trim().match(/^[0-9a-fA-F]{24}$/)) {
         filter.$or.push({ _id: searchTerm.trim() });

@@ -142,7 +142,9 @@ const GuestTable = () => {
                 'QnA': guest?.answers?.map((item, index) => {
                     const [question, answer] = item.split('_');
                     return `Q${index + 1}: ${question} | A${index + 1}: ${answer}`;
-                }).join('\n') || 'No answers provided'
+                }).join('\n') || 'No answers provided',
+                'Digital Signature Timestamp': guest.digitalSignature?.timestamp.split('T')[0] + ', ' + guest.digitalSignature?.timestamp.split('T')[1],
+                'Digital Signature Location': guest.digitalSignature?.city || guest.digitalSignature?.ipAddress || 'Unknown Location',
             };
 
             const docFields = {};
@@ -354,6 +356,7 @@ const GuestTable = () => {
                                     <th className="p-2 border">Cleaning Time Slot</th>
                                     <th className="p-2 border">Created At</th>
                                     <th className="p-2 border">QnA</th>
+                                    <th className='p-2 border'>Digital Signature</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -397,6 +400,11 @@ const GuestTable = () => {
                                                             </div>
                                                         );
                                                     })}</td>
+                                                    <td>
+                                                        <div>
+                                                            Accepted the T&Cs on <strong>{guest.digitalSignature?.timestamp.split('T')[0].split('-').reverse().join('-')}</strong> at <strong>{guest.digitalSignature?.timestamp.split('T')[1].split('-').reverse().join('-')}</strong> from <strong>{guest.digitalSignature?.city || 'Unknown Location'}</strong>
+                                                        </div>
+                                                    </td>
                                                 </tr>
 
                                                 {/* Expanded Row for Documents */}
