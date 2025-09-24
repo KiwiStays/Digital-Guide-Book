@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { Loader2, CheckCircle2 } from 'lucide-react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Loader2, CheckCircle2, MessageSquareWarning, X } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../Context/Authcontext';
 import { motion } from "framer-motion";
 import { Palmtree } from "lucide-react"
@@ -19,30 +19,59 @@ const GuestForm = () => {
   const [title, setTitle] = useState('');
   const [active, setActive] = useState(false);
   const [coverImage, setCoverImage] = useState('');
-  const [newQuestion, setNewQuestion] = useState('');
+  // const [newQuestion, setNewQuestion] = useState('');
   const { rentalwiseguest, rentalwiseGuestSetup } = useContext(AuthContext);
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [completedQuestions, setCompletedQuestions] = useState(new Set());
-  const questionsPerPage = 1;
+  // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  // const [completedQuestions, setCompletedQuestions] = useState(new Set());
+  // const questionsPerPage = 1;
+
   const [questions, setQuestions] = useState({
     multipleChoice: [],
     fillUp: []
   });
 
   const [uploadProgress, setUploadProgress] = useState('');
-  const uploadCounter = useRef({ completed: 0, total: 0 });
+  // const uploadCounter = useRef({ completed: 0, total: 0 });
 
-  const getTotalQuestions = () => questions.multipleChoice.length + questions.fillUp.length;
+  // const getTotalQuestions = () => questions.multipleChoice.length + questions.fillUp.length;
+
+  const tncText = `
+    1. Stay Terms
+    - I acknowledge that this property is privately owned. Kiwistays acts only as a facilitator between me and the property owner/host.
+
+    2. Guest Responsibilities
+    - I will use the property in a safe, respectful, and lawful manner.
+    - Strictly prohibited: use/possession of illegal substances, unlawful gatherings, nuisance, or violence.
+    - I am responsible for my actions and those of my accompanying guests.
+    - Kiwistays may deny check-in or evict me without refund if I or my guests are found engaging in illegal, unsafe, or disruptive activities.
+
+    3. Liability & Damages
+    - Kiwistays and the property owner/host are not liable for any accident, injury, illness, loss, theft, damage, or incident during my stay.
+    - I accept full responsibility for my own safety, health, and belongings.
+    - Any damage to the property or its contents during my stay will be my financial responsibility and must be settled immediately.
+
+    4. Indemnification & Governing Law
+    I indemnify and hold harmless Kiwistays, its employees, agents, and the property owner/host from any claims or costs arising from my stay, except in cases of proven gross negligence. This agreement is governed by the laws of India and disputes fall under the courts of Goa.
+  `;
+  const [tncChecked, setTncChecked] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalChecked, setModalChecked] = useState(false);
+
+  // Update modal checkbox, reflect in main checkbox
+  const handleModalSubmit = () => {
+    setTncChecked(modalChecked);
+    setShowModal(false);
+  };
+
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const fetchGuestData = async () => {
       const response = await axios.get(`${backend_url}/api/rentalwise/guest/684bcd37614707ee7923907d`);
       console.log("guest data:", response.data.data);
       rentalwiseGuestSetup(response.data.data);
-
-
-
     };
 
     const fetchPropertyName = async () => {
@@ -217,6 +246,13 @@ const GuestForm = () => {
   // Enhanced handleSubmit with retry logic and better error handling
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!tncChecked) {
+      setShowAlert(true);
+      return;
+    }
+    setShowAlert(false);
+
     // Validate that all guests have files uploaded
     const missingFiles = formData.documents.filter((doc, index) => !doc.file);
     if (missingFiles.length > 0) {
@@ -256,6 +292,32 @@ const GuestForm = () => {
       }))
     });
 
+    let location = null;
+    try {
+      location = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude
+          }),
+          err => resolve(null), // fallback to null if user denies
+          { timeout: 5000 }
+        );
+      });
+    } catch (err) {
+      location = null;
+    }
+
+    console.log("Location info: ", location);
+
+    let locationData = {};
+    if (location) {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${location.lat}&lon=${location.lon}&format=json`
+      );
+      locationData = await res.json();
+    }
+
     try {
       // PHASE 1: Save basic guest info
       const basicData = {
@@ -266,7 +328,8 @@ const GuestForm = () => {
         checkin: formData.checkin,
         checkout: formData.checkout,
         cleaningTime: formData.cleaningTime,
-        answers: formData.answers
+        answers: formData.answers,
+        location: locationData,
       };
 
       const initialResponse = await axios.post(`${backend_url}/api/guest/create/${id}`, basicData);
@@ -453,9 +516,9 @@ const GuestForm = () => {
           transition={{ duration: 0.8 }}
           className="text-center lg:text-left p-8 bg-gradient-to-r md:from-primarybanner md:to-primarybanner">
           <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 mb-4">
-            <img 
-              src={KiwiFinalLogo} 
-              alt="Kiwi Stays Logo" 
+            <img
+              src={KiwiFinalLogo}
+              alt="Kiwi Stays Logo"
               className="w-28 h-28 md:w-32 md:h-32 lg:w-28 lg:h-28 object-contain rounded-full shadow-lg shadow-black/30 bg-white/20 p-3 backdrop-blur-sm border border-white/20"
             />
             <h1 className="text-4xl md:text-5xl lg:text-4xl font-semibold text-primarybanner lg:text-white drop-shadow-lg">
@@ -466,8 +529,6 @@ const GuestForm = () => {
           <p className="text-xl md:text-xl lg:text-xl text-green-600 lg:text-white mt-4 drop-shadow-md">
             Your perfect getaway begins here
           </p>
-
-         
 
           <div className="mt-8 bg-white/10 md:p-4 rounded-lg backdrop-blur-sm">
             <img
@@ -679,6 +740,21 @@ const GuestForm = () => {
               </motion.div>
             </div>
 
+            <div className='flex flex-row gap-1'>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={tncChecked}
+                  onChange={e => setTncChecked(e.target.checked)}
+                />
+                I accept Terms and Conditions.
+              </label>
+
+              <button type="button" onClick={() => setShowModal(true)}>
+                <div className='text-blue-600'>Read Terms</div>
+              </button>
+            </div>
+
             {calculateDateDifference(formData.checkin, formData.checkout) > 2 && (
               <div>
                 <motion.div className="space-y-4">
@@ -820,9 +896,9 @@ const GuestForm = () => {
                         }));
                       }}
                       className="w-full px-5 py-4 bg-white/90 rounded-lg border-2 border-primarybanner/30 
-               focus:outline-none focus:border-secondarytext focus:ring-2 focus:ring-secondarytext/50 
-               placeholder-gray-500 text-gray-800 font-medium transition-all duration-300
-               hover:bg-white"
+                        focus:outline-none focus:border-secondarytext focus:ring-2 focus:ring-secondarytext/50 
+                        placeholder-gray-500 text-gray-800 font-medium transition-all duration-300
+                        hover:bg-white"
                       placeholder="Type your answer here..."
                       required
                     />
@@ -859,6 +935,45 @@ const GuestForm = () => {
           </form>
         </motion.div>
       </div>
+
+      {showModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "#00000088", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 10,
+          overflowY: 'auto', height: '100vh'
+        }}>
+          <div style={{ background: "#fff", padding: 30, borderRadius: 10, width: 400 }}>
+            <h3>Terms & Conditions</h3>
+            <div style={{ maxHeight: 220, overflowY: 'auto', marginBottom: 20 }}>
+              <div className='flex flex-col gap-3 justify-center'>
+                {tncText.split('\n').map((line, idx) => (
+                  <p key={idx} className='text-sm'>{line.trim()}</p>
+                ))}
+              </div>
+            </div>
+            <label>
+              <input
+                type="checkbox"
+                checked={modalChecked}
+                onChange={e => setModalChecked(e.target.checked)}
+              />
+              I have read and accept
+            </label>
+            <br />
+            <button onClick={handleModalSubmit} disabled={!modalChecked}>Confirm</button>
+            <button onClick={() => setShowModal(false)} style={{ marginLeft: 10 }}>Close</button>
+          </div>
+        </div>
+      )}
+      {showAlert && (
+        <div className="fixed top-0 left-0 w-full flex justify-center z-50">
+          <div className="bg-red-100 border border-red-400 p-4 rounded flex items-center gap-2 text-red-700">
+            <MessageSquareWarning className="w-6 h-6" />
+            <span>It is mandatory to read and accept the terms in order to proceed.</span>
+            <button className="ml-2 text-xs underline" onClick={() => setShowAlert(false)}><X /></button>
+          </div>
+        </div>
+      )}
     </div>
   );
 

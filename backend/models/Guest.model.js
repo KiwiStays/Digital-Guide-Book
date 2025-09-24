@@ -48,6 +48,13 @@ const Guestschema = new Schema({
         trim: true,
     },
     answers:[String],
+    digitalSignature: {
+        ipAddress: { type: String },
+        timestamp: { type: Date },
+        location: {},
+        city: { type: String },
+    },
+    deleteAt: { type: Date, default: null }, // Field to store deletion time
     otp: { type: String }, // Store the generated OTP
     otpExpiresAt: { type: Date }, // Expiry time for the OTP
 },
