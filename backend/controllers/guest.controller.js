@@ -154,23 +154,33 @@ const generateToken = (userId, checkOutDate) => {
 //     }
 // }
 
-// 1. Controller for creating guest with basic info
+// 1. Atomic Controller for creating guest with all info and documents in one step
 export const CreateGuest = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("id", id);
-    console.log("req body", req.body);
-    const { name, phone, property_name, number_of_guests, checkin, checkout, cleaningTime, answers, location } = req.body;
+    const {
+      name, phone, property_name, number_of_guests,
+      checkin, checkout, cleaningTime, answers, location,
+      documents // Array of {name, file, age, gender, idCardType}
+    } = req.body;
+
+    // Validate documents
+    if (!Array.isArray(documents) || documents.length !== Number(number_of_guests)) {
+      return res.status(400).json({ message: 'All guest documents must be uploaded.' });
+    }
+    for (const doc of documents) {
+      if (!doc.name || !doc.file || !doc.age || !doc.gender || !doc.idCardType) {
+        return res.status(400).json({ message: 'Each document must have name, file, age, gender, and idCardType.' });
+      }
+    }
 
     const ipAddress = req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.connection.remoteAddress;
     let city = location?.address?.city || '';
+    let loc = location || {};
     if (!location) {
-      // console.log("User IP:", ipAddress);
       const ipLocation = geoip.lookup(ipAddress);
-      // console.log("IP Location:", ipLocation);
-      // console.log("Google IP: ", geoip.lookup('8.8.8.8'));
-      location = ipLocation ? ipLocation : {};
-      city = ipLocation.city || '';
+      loc = ipLocation ? ipLocation : {};
+      city = ipLocation?.city || '';
     }
 
     const existingGuest = await Guestmodel.findOne({ phone: phone });
@@ -178,22 +188,31 @@ export const CreateGuest = async (req, res) => {
       return res.status(402).json({ message: 'Phone number already exists, please use a different number or login.' });
     }
 
-    // Create a new guest entry with empty documents array
+    // Format documents for schema
+    const formattedDocuments = documents.map(doc => ({
+      name: doc.name,
+      file: doc.file,
+      gender: doc.gender,
+      age: doc.age,
+      idcard: doc.idCardType
+    }));
+
+    // Create a new guest entry with all info and docs
     const guest = new Guestmodel({
       place_id: id,
       name,
       phone,
       property_name,
       number_of_guests,
-      Document: [], // Empty initially
+      Document: formattedDocuments,
       checkin,
       checkout,
       cleaningTime,
-      answers, // Initialize answers as an empty array
+      answers,
       digitalSignature: {
         ipAddress: ipAddress,
         timestamp: new Date(),
-        location: location || {},
+        location: loc,
         city: city || '',
       },
     });

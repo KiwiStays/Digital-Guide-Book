@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loader2, CheckCircle2, MessageSquareWarning, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -32,9 +32,14 @@ const GuestForm = () => {
   });
 
   const [uploadProgress, setUploadProgress] = useState('');
+  // Geolocation state
+  const [geoStatus, setGeoStatus] = useState('idle'); // 'idle', 'requesting', 'success', 'error'
+  const [geoCoords, setGeoCoords] = useState(null); // { lat, lon }
+  const [geoAddress, setGeoAddress] = useState(null); // address object
   // const uploadCounter = useRef({ completed: 0, total: 0 });
 
   // const getTotalQuestions = () => questions.multipleChoice.length + questions.fillUp.length;
+
 
   const tncText = `
     1. Stay Terms
@@ -54,16 +59,31 @@ const GuestForm = () => {
     4. Indemnification & Governing Law
     I indemnify and hold harmless Kiwistays, its employees, agents, and the property owner/host from any claims or costs arising from my stay, except in cases of proven gross negligence. This agreement is governed by the laws of India and disputes fall under the courts of Goa.
   `;
+
   const [tncChecked, setTncChecked] = useState(false);
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalChecked, setModalChecked] = useState(false);
 
-  // Update modal checkbox, reflect in main checkbox
-  const handleModalSubmit = () => {
-    setTncChecked(modalChecked);
+  const [showModal, setShowModal] = useState(false);
+  const [modalAtBottom, setModalAtBottom] = useState(false);
+
+  // Handler for scroll event in modal
+  const handleModalScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 5) {
+      setModalAtBottom(true);
+    }
+  };
+
+  // Handler for confirming T&C after scroll
+  const handleModalAcknowledge = () => {
+    setTncChecked(true);
     setShowModal(false);
   };
+
+  // Reset modalAtBottom when modal opens
+  useEffect(() => {
+    if (showModal) setModalAtBottom(false);
+  }, [showModal]);
 
   const [showAlert, setShowAlert] = useState(false);
 
@@ -107,9 +127,57 @@ const GuestForm = () => {
       }
     };
 
+    // Prompt for geolocation on page load
+    const getGeolocation = async () => {
+      setGeoStatus('requesting');
+      setGeoCoords(null);
+      setGeoAddress(null);
+      try {
+        await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            async pos => {
+              setGeoStatus('success');
+              const coords = {
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude
+              };
+              setGeoCoords(coords);
+              // Fetch address from Nominatim
+              try {
+                const res = await fetch(
+                  `https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lon}&format=json`
+                );
+                const addressData = await res.json();
+                setGeoAddress(addressData);
+              } catch (err) {
+                setGeoAddress(null);
+              }
+              resolve();
+            },
+            err => {
+              setGeoStatus('error');
+              setGeoCoords(null);
+              setGeoAddress(null);
+              reject(err);
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+          );
+        });
+      } catch (err) {
+        setGeoStatus('error');
+      }
+    };
+
     fetchGuestData();
     fetchPropertyName();
+    getGeolocation();
   }, [id]);
+
+  // Date defaults: today and tomorrow
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+  const formatDate = (date) => date.toISOString().split('T')[0];
 
   const [formData, setFormData] = useState({
     name: '',
@@ -117,8 +185,8 @@ const GuestForm = () => {
     property_name: title,
     number_of_guests: 1,
     documents: [{ name: '', file: '', age: '', idCardType: '', gender: '' }],
-    checkin: 'dd/mm/yyyy',
-    checkout: 'dd/mm/yyyy',
+    checkin: formatDate(today),
+    checkout: formatDate(tomorrow),
     cleaningTime: '',
     answers: []
   });
@@ -134,12 +202,32 @@ const GuestForm = () => {
   // Enhanced file handling with strict 10MB limit and compression for files over 5MB
   const handleDocumentChange = async (index, field, value) => {
     if (field === 'file' && value) {
+      // Disallow Excel and Word files
+      const forbiddenTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'application/msword', // .doc
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
+      ];
+      const forbiddenExtensions = ['.xls', '.xlsx', '.doc', '.docx'];
+      const fileName = value.name.toLowerCase();
+      if (
+        forbiddenTypes.includes(value.type) ||
+        forbiddenExtensions.some(ext => fileName.endsWith(ext))
+      ) {
+        alert('Excel and Word files are not allowed. Please upload a valid document or image.');
+        // Clear only the current file input
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        if (fileInputs && fileInputs[index]) fileInputs[index].value = '';
+        return;
+      }
+
       // STRICT 10MB limit - reject files over 10MB
       if (value.size > 10 * 1024 * 1024) {
         alert(`File "${value.name}" exceeds the 10MB limit (${(value.size / 1024 / 1024).toFixed(2)}MB). Please choose a smaller file.`);
-        // Clear the file input
-        const fileInput = document.querySelector(`input[type="file"]`);
-        if (fileInput) fileInput.value = '';
+        // Clear only the current file input
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        if (fileInputs && fileInputs[index]) fileInputs[index].value = '';
         return;
       }
 
@@ -150,53 +238,42 @@ const GuestForm = () => {
 
           // Only compress if it's an image file
           if (value.type.startsWith('image/')) {
-            // Show compression status
             setUploadProgress(`Compressing ${value.name}...`);
-
-            // Compression options for files over 5MB
             const options = {
-              maxSizeMB: 3, // Target size for compressed images
-              maxWidthOrHeight: 1920, // Higher resolution for better quality
+              maxSizeMB: 3,
+              maxWidthOrHeight: 1920,
               useWebWorker: true,
-              fileType: 'image/jpeg', // Force JPEG for better compression
-              initialQuality: 0.8 // Good quality balance
+              fileType: 'image/jpeg',
+              initialQuality: 0.8
             };
-
             const compressedFile = await imageCompression(value, options);
             console.log(`Compressed from ${(value.size / 1024 / 1024).toFixed(2)}MB to ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
-
-            // Create a new File object with original name
             const finalFile = new File([compressedFile], value.name, {
               type: compressedFile.type,
               lastModified: Date.now()
             });
-
             const updatedDocuments = [...formData.documents];
             updatedDocuments[index] = { ...updatedDocuments[index], [field]: finalFile };
             setFormData({ ...formData, documents: updatedDocuments });
-
-            setUploadProgress(''); // Clear compression status
+            setUploadProgress('');
           } else {
             // For non-image files over 5MB, warn user but allow upload (under 10MB)
             const proceed = window.confirm(
               `${value.name} is ${(value.size / 1024 / 1024).toFixed(2)}MB. Large files may take longer to upload. Continue?`
             );
-
             if (proceed) {
               const updatedDocuments = [...formData.documents];
               updatedDocuments[index] = { ...updatedDocuments[index], [field]: value };
               setFormData({ ...formData, documents: updatedDocuments });
             } else {
-              // Clear the file input if user cancels
-              const fileInput = document.querySelector(`input[type="file"]`);
-              if (fileInput) fileInput.value = '';
+              // Clear only the current file input if user cancels
+              const fileInputs = document.querySelectorAll('input[type="file"]');
+              if (fileInputs && fileInputs[index]) fileInputs[index].value = '';
             }
           }
-
         } catch (error) {
           console.error('File processing failed:', error);
           alert('Failed to process file. Using original file.');
-          // Fallback to original file
           const updatedDocuments = [...formData.documents];
           updatedDocuments[index] = { ...updatedDocuments[index], [field]: value };
           setFormData({ ...formData, documents: updatedDocuments });
@@ -219,7 +296,17 @@ const GuestForm = () => {
 
   const handleGuestCountChange = (e) => {
     const count = parseInt(e.target.value, 10);
-    const updatedDocuments = Array.from({ length: count }, (_, i) => formData.documents[i] || { name: '', file: '' });
+    // Always create a new array of the correct length, copying existing data if present
+    const updatedDocuments = Array.from({ length: count }, (_, i) => {
+      const existing = formData.documents[i] || {};
+      return {
+        name: existing.name || '',
+        file: existing.file || '',
+        age: existing.age || '',
+        idCardType: existing.idCardType || '',
+        gender: existing.gender || ''
+      };
+    });
     setFormData({
       ...formData,
       number_of_guests: count,
@@ -227,21 +314,18 @@ const GuestForm = () => {
     });
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      phone: '',
-      property_name: '',
-      number_of_guests: 1,
-      documents: [],
-      checkin: '',
-      checkout: '',
-      answers: [],
-    });
-    setTimeout(() => {
-      setIsSubmitted(false);
-    }, 3000);
-  };
+  // const resetForm = () => {
+  //   setFormData({
+  //     name: '',
+  //     phone: '',
+  //     property_name: '',
+  //     number_of_guests: 1,
+  //     documents: [],
+  //     checkin: '',
+  //     checkout: '',
+  //     answers: [],
+  //   });
+
 
   // Enhanced handleSubmit with retry logic and better error handling
   const handleSubmit = async (e) => {
@@ -254,7 +338,7 @@ const GuestForm = () => {
     setShowAlert(false);
 
     // Validate that all guests have files uploaded
-    const missingFiles = formData.documents.filter((doc, index) => !doc.file);
+    const missingFiles = formData.documents.filter(doc => !doc.file);
     if (missingFiles.length > 0) {
       alert(`Please upload documents for all guests. Missing files for ${missingFiles.length} guest(s).`);
       return;
@@ -289,64 +373,37 @@ const GuestForm = () => {
         gender: doc.gender,
         idCardType: doc.idCardType,
         file: doc.file ? `File: ${doc.file.name} (${(doc.file.size / 1024 / 1024).toFixed(2)}MB)` : 'No file'
-      }))
+      })),
+      geoCoords,
+      geoAddress
     });
 
-    let location = null;
-    try {
-      location = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-          pos => resolve({
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude
-          }),
-          err => resolve(null), // fallback to null if user denies
-          { timeout: 5000 }
-        );
-      });
-    } catch (err) {
-      location = null;
-    }
+    // Use geolocation/address from state
+    let locationData = geoAddress || {};
 
-    console.log("Location info: ", location);
-
-    let locationData = {};
-    if (location) {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${location.lat}&lon=${location.lon}&format=json`
-      );
-      locationData = await res.json();
+    // Helper for batching uploads
+    async function batchUpload(uploadFns, batchSize = 3) {
+      const results = [];
+      for (let i = 0; i < uploadFns.length; i += batchSize) {
+        const batch = uploadFns.slice(i, i + batchSize);
+        setUploadProgress(`Uploading batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(uploadFns.length / batchSize)}...`);
+        const batchResults = await Promise.allSettled(batch.map(fn => fn()));
+        results.push(...batchResults);
+      }
+      return results;
     }
 
     try {
-      // PHASE 1: Save basic guest info
-      const basicData = {
-        name: formData.name,
-        phone: formData.phone,
-        property_name: title,
-        number_of_guests: formData.number_of_guests,
-        checkin: formData.checkin,
-        checkout: formData.checkout,
-        cleaningTime: formData.cleaningTime,
-        answers: formData.answers,
-        location: locationData,
-      };
-
-      const initialResponse = await axios.post(`${backend_url}/api/guest/create/${id}`, basicData);
-      const guestId = initialResponse.data.guestId;
-
-      setUploadProgress("Guest information saved. Preparing document uploads...");
-
-      // PHASE 2: Get signature
+      // PHASE 1: Get Cloudinary signature
       const signatureResponse = await axios.get(`${backend_url}/api/guest/cloudinary/signature`);
       const { signature, timestamp, cloudName, apiKey } = signatureResponse.data;
 
-      // PHASE 3: Parallel uploads with better error handling
+      // PHASE 2: Batch uploads to Cloudinary
       const totalFiles = formData.documents.length;
-      setUploadProgress(`Starting parallel upload of ${totalFiles} documents...`);
+      setUploadProgress(`Starting batch upload of ${totalFiles} documents...`);
 
-      // Create upload promises for all files
-      const uploadPromises = formData.documents.map(async (doc, index) => {
+      // Create upload functions for each document
+      const uploadFns = formData.documents.map((doc, index) => async () => {
         const uploadData = new FormData();
         uploadData.append('file', doc.file);
         uploadData.append('api_key', apiKey);
@@ -355,14 +412,12 @@ const GuestForm = () => {
         uploadData.append('folder', 'guest_documents');
 
         try {
-          // Determine the correct endpoint based on file type
           let uploadEndpoint;
           if (doc.file.type.startsWith('image/')) {
             uploadEndpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
           } else {
-            // For PDFs and other non-image files, use auto upload
             uploadEndpoint = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
-            uploadData.append('resource_type', 'auto'); // This tells Cloudinary to auto-detect file type
+            uploadData.append('resource_type', 'auto');
           }
 
           const uploadResponse = await axios.post(
@@ -399,11 +454,9 @@ const GuestForm = () => {
         }
       });
 
-      // Execute all uploads in parallel
-      setUploadProgress("Uploading all documents simultaneously...");
-      const uploadResults = await Promise.allSettled(uploadPromises);
+      // Run uploads in batches of 3
+      const uploadResults = await batchUpload(uploadFns, 3);
 
-      // Process results
       const uploadedDocs = [];
       const failedUploads = [];
 
@@ -426,35 +479,42 @@ const GuestForm = () => {
         }
       });
 
-      // Update progress
       setUploadProgress(`Uploaded ${uploadedDocs.length}/${totalFiles} documents successfully`);
 
-      // Handle failed uploads
       if (failedUploads.length > 0) {
         const failedNames = failedUploads.map(f => f.docName).join(', ');
         const continueAnyway = window.confirm(
           `${failedUploads.length} document(s) failed to upload: ${failedNames}\n\nDo you want to continue with the ${uploadedDocs.length} successfully uploaded documents?\n\nClick OK to continue, or Cancel to try again.`
         );
-
         if (!continueAnyway) {
           throw new Error('Upload cancelled by user due to failed documents');
         }
       }
 
-      // PHASE 4: Update guest with uploaded documents
-      if (uploadedDocs.length > 0) {
-        setUploadProgress("Finalizing registration...");
-        await axios.patch(`${backend_url}/api/guest/update-documents/${guestId}`, {
-          documents: uploadedDocs
-        });
-      }
+      // PHASE 3: Send all guest info and documents in a single POST
+      setUploadProgress("Finalizing registration...");
+      const allGuestData = {
+        name: formData.name,
+        phone: formData.phone,
+        property_name: title,
+        number_of_guests: formData.number_of_guests,
+        checkin: formData.checkin,
+        checkout: formData.checkout,
+        cleaningTime: formData.cleaningTime,
+        answers: formData.answers,
+        location: locationData,
+        geoCoords: geoCoords,
+        documents: uploadedDocs
+      };
+
+      const response = await axios.post(`${backend_url}/api/guest/create/${id}`, allGuestData);
 
       setUploadProgress("Registration completed successfully!");
       setIsSubmitted(true);
       setIsLoading(false);
 
       // Handle login and navigation
-      auth_login(initialResponse.data.token, initialResponse.data.guestName, guestId, id, active);
+      auth_login(response.data.token, response.data.guestName, response.data.guestId, id, active);
 
       if (active) {
         navigate('/dashboard');
@@ -467,13 +527,15 @@ const GuestForm = () => {
       setIsLoading(false);
       setUploadProgress('');
 
-      if (error.response?.status === 402) {
-        alert(error.response.data.message);
-      } else if (error.message.includes('Upload cancelled by user')) {
+      // Enhanced error logging for debugging
+      if (error.response) {
+        console.error('Backend error response:', error.response);
+        alert(`Backend error: ${error.response.status}\n${JSON.stringify(error.response.data)}`);
+      } else if (error.message && error.message.includes('Upload cancelled by user')) {
         setUploadProgress('Upload cancelled');
-      } else if (error.message.includes('timeout')) {
+      } else if (error.message && error.message.includes('timeout')) {
         alert('Upload timed out. Please check your internet connection and try again with smaller files.');
-      } else if (error.message.includes('Network Error')) {
+      } else if (error.message && error.message.includes('Network Error')) {
         alert('Network error occurred. Please check your internet connection and try again.');
       } else {
         alert('An error occurred during submission. Please try again. If the problem persists, try using smaller image files.');
@@ -492,6 +554,16 @@ const GuestForm = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-primarybg">
+      {/* Geolocation status feedback */}
+      {geoStatus === 'requesting' && (
+        <div className="text-blue-600 mb-2">Requesting your location...</div>
+      )}
+      {geoStatus === 'error' && (
+        <div className="text-red-600 mb-2">Could not get your location. Please allow location access or check your browser settings.</div>
+      )}
+      {geoStatus === 'success' && geoAddress && (
+        <div className="text-green-700 mb-2 text-xs">Location detected: {geoAddress.display_name}</div>
+      )}
       {!active && isSubmitted && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -599,8 +671,8 @@ const GuestForm = () => {
                   type="text"
                   name="property_name"
                   value={title}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70"
+                  readOnly
+                  className="w-full px-3 py-2 border border-primarybanner/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primarybanner focus:border-transparent bg-white/70 bg-gray-100 cursor-not-allowed"
                   placeholder="Property Name"
                   required
                 />
@@ -937,31 +1009,42 @@ const GuestForm = () => {
       </div>
 
       {showModal && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          background: "#00000088", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 10,
-          overflowY: 'auto', height: '100vh'
-        }}>
-          <div style={{ background: "#fff", padding: 30, borderRadius: 10, width: 400 }}>
-            <h3>Terms & Conditions</h3>
-            <div style={{ maxHeight: 220, overflowY: 'auto', marginBottom: 20 }}>
-              <div className='flex flex-col gap-3 justify-center'>
+        <div
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 50
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl p-0 w-[95vw] max-w-md flex flex-col border-2 border-primarybanner animate-fadeIn"
+            style={{ minHeight: 420 }}
+          >
+            <div className="bg-primarybanner rounded-t-2xl px-6 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">Terms &amp; Conditions</h3>
+            </div>
+            <div
+              className="flex-1 overflow-y-auto px-6 py-4 text-gray-700 text-sm leading-relaxed border-b border-primarybanner/20"
+              style={{ maxHeight: 260, minHeight: 180, background: '#f9fafb' }}
+              onScroll={handleModalScroll}
+            >
+              <div className="flex flex-col gap-3">
                 {tncText.split('\n').map((line, idx) => (
-                  <p key={idx} className='text-sm'>{line.trim()}</p>
+                  <p key={idx} className="text-sm">{line.trim()}</p>
                 ))}
               </div>
             </div>
-            <label>
-              <input
-                type="checkbox"
-                checked={modalChecked}
-                onChange={e => setModalChecked(e.target.checked)}
-              />
-              I have read and accept
-            </label>
-            <br />
-            <button onClick={handleModalSubmit} disabled={!modalChecked}>Confirm</button>
-            <button onClick={() => setShowModal(false)} style={{ marginLeft: 10 }}>Close</button>
+            <div className="px-6 py-4 flex flex-col items-center gap-2 bg-white rounded-b-2xl">
+              <span className="text-xs text-primarybanner font-semibold mb-1">
+                Please scroll to the bottom to enable the confirmation button.
+              </span>
+              <button
+                className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors duration-200 shadow-md ${modalAtBottom ? 'bg-primarybanner text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                disabled={!modalAtBottom}
+                onClick={handleModalAcknowledge}
+              >
+                I have read the T&amp;C
+              </button>
+            </div>
           </div>
         </div>
       )}
