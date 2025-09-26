@@ -23,7 +23,7 @@ const generateToken = (userId, checkOutDate) => {
 //   const changeStream = Guestmodel.watch();
 //   changeStream.on('change', (change) => {
 //       if (change.operationType === 'delete') {
-//           console.log(`Guest document deleted:`, change.documentKey);
+//           console.log(Guest document deleted:, change.documentKey);
 //       }
 //   });
 // });
@@ -175,13 +175,19 @@ export const CreateGuest = async (req, res) => {
     }
 
     const ipAddress = req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.connection.remoteAddress;
-    let city = location?.address?.city || '';
-    let loc = location || {};
-    if (!location) {
-      const ipLocation = geoip.lookup(ipAddress);
-      loc = ipLocation ? ipLocation : {};
-      city = ipLocation?.city || '';
-    }
+    const ipLocation = geoip.lookup(ipAddress);
+    // const ipLocation = geoip.lookup('103.6.159.200');
+    // console.log("ipLocation",ipLocation);
+    let city = location?.address?.city || ipLocation?.city || '';
+    // let loc = location || {};
+    // if (!location) {
+    let loc = (location && Object.keys(location).length > 0) ? location : ipLocation;
+    //  console.log("loc",loc);
+    // city = ipLocation?.city || '';
+    // }
+    // console.log("loc",loc);
+    // console.log("ipAddress",ipAddress);
+    // console.log(geoip.lookup('103.6.159.200'));
 
     const existingGuest = await Guestmodel.findOne({ phone: phone });
     if (existingGuest) {
@@ -424,7 +430,7 @@ export const getCloudinarySignature = async (req, res) => {
 
 //     // Fetch filtered guests
 //     const guests = await Guestmodel.find(filter);
-//     console.log(`Found ${guests.length} guests`);
+//     console.log(Found ${guests.length} guests);
 
 //     // Add property details
 //     const guestsWithPlaceDetails = await Promise.all(
@@ -640,7 +646,7 @@ export const guestinfo = async (req, res) => {
     const sortDirection = sortOrder === 'asc' ? 1 : -1;
     sortObj[sortField] = sortDirection;
 
-    console.log(`🔍 Fetching guests - Page: ${pageNum}, Limit: ${limitNum}, Sort: ${sortField} ${sortOrder}`);
+    console.log(`🔍 Fetching guests - Page: ${ pageNum }, Limit: ${ limitNum }, Sort: ${ sortField } ${ sortOrder }`);
     console.log('🔍 Filter:', JSON.stringify(filter, null, 2));
 
     // Get total count for pagination
@@ -658,7 +664,7 @@ export const guestinfo = async (req, res) => {
     const hasNextPage = pageNum < totalPages;
     const hasPrevPage = pageNum > 1;
 
-    console.log(`✅ Found ${guests.length} guests out of ${totalGuests} total (Page ${pageNum}/${totalPages})`);
+    console.log(`✅ Found ${ guests.length } guests out of ${ totalGuests } total(Page ${ pageNum } / ${ totalPages })`);
 
     // Return paginated response
     res.status(200).json({

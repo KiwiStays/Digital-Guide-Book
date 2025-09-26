@@ -555,7 +555,7 @@ const GuestForm = () => {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-primarybg">
       {/* Geolocation status feedback */}
-      {geoStatus === 'requesting' && (
+      {/* {geoStatus === 'requesting' && (
         <div className="text-blue-600 mb-2">Requesting your location...</div>
       )}
       {geoStatus === 'error' && (
@@ -563,7 +563,7 @@ const GuestForm = () => {
       )}
       {geoStatus === 'success' && geoAddress && (
         <div className="text-green-700 mb-2 text-xs">Location detected: {geoAddress.display_name}</div>
-      )}
+      )} */}
       {!active && isSubmitted && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
