@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -7,7 +7,8 @@ const GuestTable = () => {
     const [guests, setGuests] = useState([]); // State to store guest data
     const [filters, setFilters] = useState({ startDate: '', endDate: '', propertyName: '' });
     const [loading, setLoading] = useState(false); // State for loading spinner
-    const [searchTerm, setSearchTerm] = useState(''); // For property name search
+    const [searchTerm, setSearchTerm] = useState(''); // For general search (property name, guest name, phone)
+    const [guestNameSearch, setGuestNameSearch] = useState(''); // For guest name search
     const [propertyOptions, setPropertyOptions] = useState([]); // Store dropdown property names
     const [expandedRows, setExpandedRows] = useState([]); // Track which rows are expanded
     const [isExporting, setIsExporting] = useState(false); // For export loading
@@ -18,6 +19,8 @@ const GuestTable = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalGuests, setTotalGuests] = useState(0);
     const [itemsPerPage] = useState(10); // Fixed items per page
+
+
 
     const toggleRow = (id) => {
         setExpandedRows((prev) =>
@@ -52,7 +55,9 @@ const GuestTable = () => {
             if (filters.startDate) queryParams.push(`startDate=${filters.startDate}`);
             if (filters.endDate) queryParams.push(`endDate=${filters.endDate}`);
             if (filters.propertyName) queryParams.push(`propertyName=${encodeURIComponent(filters.propertyName)}`);
-            if (searchTerm) queryParams.push(`searchTerm=${encodeURIComponent(searchTerm)}`);
+            // Use guestNameSearch if available, otherwise fall back to searchTerm (backward compatibility)
+            const finalSearchTerm = guestNameSearch || searchTerm;
+            if (finalSearchTerm) queryParams.push(`searchTerm=${encodeURIComponent(finalSearchTerm)}`);
 
             const url = `/api/guest/guestinfo?${queryParams.join('&')}`;
             // console.log('🔄 Fetching URL:', url);
@@ -119,6 +124,12 @@ const GuestTable = () => {
         fetchGuests(1); // Fetch guest data starting from page 1
         // eslint-disable-next-line
     }, []);
+
+    // Fetch guests only when currentPage changes
+    useEffect(() => {
+        fetchGuests(currentPage);
+        // eslint-disable-next-line
+    }, [currentPage]);
 
     // Format guest data for export (fetch all data for export)
     const formatGuestData = (allGuests) => {
@@ -220,14 +231,39 @@ const GuestTable = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         setCurrentPage(1); // Reset to first page
-        fetchGuests(1); // Re-fetch data with updated filters
+        fetchGuests(1); // Fetch immediately with new filters/search
     };
 
     const clearAll = () => {
-        setFilters({ startDate: '', endDate: '', propertyName: '' });
+        // Reset all filters and search terms
+        const clearedFilters = { startDate: '', endDate: '', propertyName: '' };
+        setFilters(clearedFilters);
         setSearchTerm('');
+        setGuestNameSearch('');
         setCurrentPage(1);
-        fetchGuests(1);
+        
+        // Build query params with cleared filters
+        const queryParams = [];
+        queryParams.push(`page=1`);
+        queryParams.push(`limit=${itemsPerPage}`);
+        queryParams.push(`sortBy=_id`);
+        queryParams.push(`sortOrder=desc`);
+        
+        // Fetch with cleared filters directly
+        const url = `/api/guest/guestinfo?${queryParams.join('&')}`;
+        axios.get(url)
+            .then(response => {
+                if (response.data.success && response.data.guests) {
+                    setGuests(response.data.guests);
+                    setCurrentPage(response.data.pagination.currentPage);
+                    setTotalPages(response.data.pagination.totalPages);
+                    setTotalGuests(response.data.pagination.totalGuests);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching guests:', error);
+                alert('Failed to fetch guest data. Please try again later.');
+            });
     };
 
     const handleFilterChange = (field, value) => {
@@ -304,6 +340,13 @@ const GuestTable = () => {
                     placeholder="Search by Property Name"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border px-2 py-1 rounded w-full md:w-auto text-sm"
+                />
+                <input
+                    type="text"
+                    placeholder="Search by Guest Name"
+                    value={guestNameSearch}
+                    onChange={(e) => setGuestNameSearch(e.target.value)}
                     className="border px-2 py-1 rounded w-full md:w-auto text-sm"
                 />
                 <button

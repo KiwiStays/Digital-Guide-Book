@@ -598,7 +598,7 @@ export const guestinfo = async (req, res) => {
 
     // Validate pagination parameters
     const pageNum = Math.max(1, parseInt(page));
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit))); // Max 100 items per page
+    const limitNum = Math.min(10000, Math.max(1, parseInt(limit))); // Max 1000 items per page
     const skip = (pageNum - 1) * limitNum;
 
     // Build filter object
@@ -624,14 +624,20 @@ export const guestinfo = async (req, res) => {
     }
 
 
-    // Search term filtering (searches across multiple fields)
+    // Search term filtering (searches across multiple fields including nested Document.name)
     if (searchTerm && searchTerm.trim() !== '') {
       const searchRegex = { $regex: searchTerm.trim(), $options: 'i' };
       filter.$or = [
         { name: searchRegex },
-        { phone: searchRegex },
-        { property_name: searchRegex }
+        { property_name: searchRegex },
+        { 'Document.name': searchRegex } // Search inside Document array's name field
       ];
+
+      // For phone field, only apply numeric search (convert to number)
+      const phoneSearchTerm = searchTerm.trim();
+      if (!isNaN(phoneSearchTerm) && phoneSearchTerm !== '') {
+        filter.$or.push({ phone: parseInt(phoneSearchTerm, 10) });
+      }
 
       // If searchTerm looks like an ObjectId, also search by _id
       if (searchTerm.trim().match(/^[0-9a-fA-F]{24}$/)) {
@@ -646,7 +652,7 @@ export const guestinfo = async (req, res) => {
     const sortDirection = sortOrder === 'asc' ? 1 : -1;
     sortObj[sortField] = sortDirection;
 
-    console.log(`🔍 Fetching guests - Page: ${ pageNum }, Limit: ${ limitNum }, Sort: ${ sortField } ${ sortOrder }`);
+    console.log(`🔍 Fetching guests - Page: ${pageNum}, Limit: ${limitNum}, Sort: ${sortField} ${sortOrder}`);
     console.log('🔍 Filter:', JSON.stringify(filter, null, 2));
 
     // Get total count for pagination
@@ -664,7 +670,7 @@ export const guestinfo = async (req, res) => {
     const hasNextPage = pageNum < totalPages;
     const hasPrevPage = pageNum > 1;
 
-    console.log(`✅ Found ${ guests.length } guests out of ${ totalGuests } total(Page ${ pageNum } / ${ totalPages })`);
+    console.log(`✅ Found ${guests.length} guests out of ${totalGuests} total(Page ${pageNum} / ${totalPages})`);
 
     // Return paginated response
     res.status(200).json({
